@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- Reading Progress Bar -->
+    <div class="reading-progress" id="readingProgress"></div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -35,6 +38,26 @@
                         <button class="theme-option" data-theme="dracula">
                             <span class="theme-icon">🧛</span>
                             <span class="theme-name">Dracula</span>
+                            <span class="check">✓</span>
+                        </button>
+                        <button class="theme-option" data-theme="solarized">
+                            <span class="theme-icon">🌅</span>
+                            <span class="theme-name">Solarized</span>
+                            <span class="check">✓</span>
+                        </button>
+                        <button class="theme-option" data-theme="nord">
+                            <span class="theme-icon">❄️</span>
+                            <span class="theme-name">Nord</span>
+                            <span class="check">✓</span>
+                        </button>
+                        <button class="theme-option" data-theme="catppuccin">
+                            <span class="theme-icon">🐱</span>
+                            <span class="theme-name">Catppuccin</span>
+                            <span class="check">✓</span>
+                        </button>
+                        <button class="theme-option" data-theme="cyberpunk">
+                            <span class="theme-icon">🌆</span>
+                            <span class="theme-name">Cyberpunk</span>
                             <span class="check">✓</span>
                         </button>
                     </div>
@@ -131,10 +154,13 @@
                             <h3>💡 How to Use</h3>
                             <ul>
                                 <li><strong>Navigate:</strong> Browse modules in the sidebar</li>
-                                <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search</li>
-                                <li><strong>Highlight:</strong> Select text to highlight it</li>
-                                <li><strong>Theme:</strong> Click theme button to switch</li>
-                                <li><strong>Diagrams:</strong> Click ⛶ for fullscreen</li>
+                                <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
+                                <li><strong>Highlight:</strong> Select text to highlight with colors</li>
+                                <li><strong>Theme:</strong> 8 themes — Dark, Light, Ghostty, Dracula, Solarized, Nord, Catppuccin, Cyberpunk</li>
+                                <li><strong>Diagrams:</strong> Click ⛶ for fullscreen Mermaid diagrams</li>
+                                <li><strong>Images:</strong> Click any image to zoom in</li>
+                                <li><strong>Table of Contents:</strong> Auto-generated for each note</li>
+                                <li><strong>Backlinks:</strong> Click ↗ links to navigate between notes</li>
                             </ul>
                         </div>
                     </div>
@@ -143,7 +169,7 @@
         </main>
     </div>
 
-    <!-- Highlight Popup - Simple color picker -->
+    <!-- Highlight Popup -->
     <div class="highlight-popup" id="highlightPopup">
         <div class="hl-colors">
             <div class="hl-color yellow active" data-color="yellow" title="Yellow"></div>
@@ -160,6 +186,14 @@
         <div class="mermaid-modal-content" id="mermaidModalContent"></div>
         <button class="mermaid-modal-close" id="mermaidModalClose">×</button>
     </div>
+
+    <!-- Image Lightbox -->
+    <div class="image-lightbox" id="imageLightbox">
+        <img src="" alt="">
+    </div>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" title="Back to top">↑</button>
 
     <!-- Overlay -->
     <div class="overlay" id="overlay"></div>

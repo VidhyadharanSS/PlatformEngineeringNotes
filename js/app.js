@@ -1,6 +1,7 @@
 /**
  * Platform Engineering Notes
- * Documentation viewer with PDF-like highlighting and theming
+ * Documentation viewer with PDF-like highlighting, theming,
+ * ToC, callouts, reading progress, and more.
  */
 
 const CONFIG = {
@@ -11,7 +12,11 @@ const CONFIG = {
         { id: 'dark', name: 'Dark', icon: '🌙' },
         { id: 'light', name: 'Light', icon: '☀️' },
         { id: 'ghostty', name: 'Ghostty', icon: '👻' },
-        { id: 'dracula', name: 'Dracula', icon: '🧛' }
+        { id: 'dracula', name: 'Dracula', icon: '🧛' },
+        { id: 'solarized', name: 'Solarized', icon: '🌅' },
+        { id: 'nord', name: 'Nord', icon: '❄️' },
+        { id: 'catppuccin', name: 'Catppuccin', icon: '🐱' },
+        { id: 'cyberpunk', name: 'Cyberpunk', icon: '🌆' }
     ]
 };
 
@@ -24,10 +29,10 @@ const MODULE_ICONS = {
 // State
 let notesData = null;
 let currentNotePath = null;
-let highlights = {}; // { path: [{ id, text, color, startOffset, endOffset }] }
+let highlights = {};
 let selectedColor = 'yellow';
 let currentTheme = 'dark';
-let allNotesContent = {}; // Cache for search: { path: { title, content } }
+let allNotesContent = {};
 
 // Elements
 const $ = id => document.getElementById(id);
@@ -47,7 +52,10 @@ const el = {
     mermaidModalClose: $('mermaidModalClose'),
     searchResults: $('searchResults'),
     collapseAllBtn: $('collapseAllBtn'),
-    expandAllBtn: $('expandAllBtn')
+    expandAllBtn: $('expandAllBtn'),
+    readingProgress: $('readingProgress'),
+    backToTop: $('backToTop'),
+    imageLightbox: $('imageLightbox')
 };
 
 // Initialize
@@ -71,22 +79,13 @@ function initMarked() {
             emptyLangClass: 'hljs',
             highlight(code, lang) {
                 const langMap = {
-                    sh: 'bash',
-                    shell: 'bash',
-                    zsh: 'bash',
-                    yml: 'yaml',
-                    docker: 'dockerfile',
-                    conf: 'ini',
-                    config: 'ini',
-                    py: 'python',
-                    js: 'javascript',
-                    ts: 'typescript',
-                    rb: 'ruby'
+                    sh: 'bash', shell: 'bash', zsh: 'bash',
+                    yml: 'yaml', docker: 'dockerfile', conf: 'ini',
+                    config: 'ini', py: 'python', js: 'javascript',
+                    ts: 'typescript', rb: 'ruby'
                 };
-
                 const normalizedLang = (lang || '').toLowerCase().trim();
                 const resolvedLang = langMap[normalizedLang] || normalizedLang;
-
                 if (resolvedLang && hljs.getLanguage(resolvedLang)) {
                     try {
                         return hljs.highlight(code, { language: resolvedLang, ignoreIllegals: true }).value;
@@ -94,7 +93,6 @@ function initMarked() {
                         console.warn('Highlight failed for language:', resolvedLang, error);
                     }
                 }
-
                 return escapeHtml(code);
             }
         }));
@@ -197,14 +195,34 @@ function createModuleEl(module) {
     return div;
 }
 
+function getSubchapterDisplayName(sub) {
+    const num = sub.name.replace(/^Subchapter_/, '').replace(/_/g, '.');
+    const topics = sub.files
+        .filter(f => !/review|exam|cheatsheet/i.test(f.name))
+        .map(f => {
+            return f.name
+                .replace(/\.md$/, '')
+                .replace(/^[\d.]+_?/, '')
+                .replace(/_/g, ' ')
+                .replace(/\band\b/gi, '&')
+                .replace(/Plus/g, '+');
+        });
+    if (topics.length === 0) return num;
+    const shortTopics = topics.slice(0, 2).map(t => {
+        const words = t.split(' ');
+        return words.length > 3 ? words.slice(0, 3).join(' ') : t;
+    });
+    return `${num} — ${shortTopics.join(', ')}`;
+}
+
 function createSubchapterEl(sub) {
     const div = document.createElement('div');
     div.className = 'nav-subchapter';
-    const name = sub.name.replace(/^Subchapter_/, '').replace(/_/g, '.');
+    const displayName = getSubchapterDisplayName(sub);
     
     div.innerHTML = `
         <div class="nav-subchapter-header">
-            <span class="name">${name}</span>
+            <span class="name">${escapeHtml(displayName)}</span>
             <span class="arrow">▶</span>
         </div>
         <div class="nav-subchapter-content"></div>
@@ -248,7 +266,15 @@ async function loadNote(path) {
         renderMarkdown(md);
         applyHighlights();
         closeMobileSidebar();
+        
+        // Smooth scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Fade-in animation
+        el.content.classList.remove('fade-in');
+        void el.content.offsetWidth; // trigger reflow
+        el.content.classList.add('fade-in');
+        
     } catch (e) {
         console.error(e);
         el.content.innerHTML = `<div class="welcome-screen"><h1>⚠️ Error</h1><p class="subtitle">Could not load: ${path}</p></div>`;
@@ -256,10 +282,6 @@ async function loadNote(path) {
 }
 
 function sanitizeMermaidCode(code) {
-    // Fix node labels starting with / (paths like /etc/crontab) that Mermaid
-    // misinterprets as parallelogram shape syntax [/ /]. Convert unquoted
-    // [/path...] to ["/path..."] so Mermaid treats them as plain text labels.
-    // Matches: identifier[/...] but NOT identifier["/..."] (already quoted)
     return code.replace(/(\w)\[(?!")(\/.+?)\]/g, '$1["$2"]');
 }
 
@@ -280,9 +302,10 @@ function renderMarkdown(md) {
 
     el.content.innerHTML = marked.parse(processed);
 
+    // Code block wrappers
     el.content.querySelectorAll('pre > code').forEach(code => {
         const classNames = Array.from(code.classList);
-        const languageClass = classNames.find(className => className.startsWith('language-'));
+        const languageClass = classNames.find(cn => cn.startsWith('language-'));
         const lang = languageClass ? languageClass.replace('language-', '') : 'code';
         const pre = code.parentElement;
 
@@ -307,6 +330,27 @@ function renderMarkdown(md) {
         btn.onclick = () => copyCode(code.textContent, btn);
     });
     
+    // Wrap tables in scrollable container
+    wrapTables();
+    
+    // Add heading anchors + collect for ToC
+    addHeadingAnchors();
+    
+    // Build Table of Contents
+    buildTableOfContents();
+    
+    // Style callout blockquotes
+    styleCallouts();
+    
+    // Style task lists
+    styleTaskLists();
+    
+    // Setup image zoom
+    setupImageZoom();
+    
+    // Intercept markdown backlinks
+    interceptBacklinks();
+    
     // Render mermaid
     mermaidBlocks.forEach(async ({ id, code }) => {
         const mEl = document.getElementById(id);
@@ -327,6 +371,264 @@ function renderMarkdown(md) {
     });
 }
 
+/* ========================================
+   Table of Contents
+   ======================================== */
+function addHeadingAnchors() {
+    el.content.querySelectorAll('h1, h2, h3, h4').forEach(heading => {
+        const text = heading.textContent.trim();
+        const id = text.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .substring(0, 80);
+        heading.id = id;
+        
+        const anchor = document.createElement('a');
+        anchor.className = 'heading-anchor';
+        anchor.href = `#${id}`;
+        anchor.textContent = '#';
+        anchor.title = 'Link to this heading';
+        anchor.onclick = e => {
+            e.preventDefault();
+            heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Update URL without triggering hashchange
+            history.replaceState(null, '', window.location.pathname + window.location.hash.split('#')[0] + '#' + window.location.hash.slice(1));
+        };
+        heading.prepend(anchor);
+    });
+}
+
+function buildTableOfContents() {
+    const headings = el.content.querySelectorAll('h2, h3, h4');
+    if (headings.length < 3) return; // Only show ToC if there are enough headings
+    
+    const toc = document.createElement('div');
+    toc.className = 'toc-container';
+    
+    let listHTML = '';
+    headings.forEach(h => {
+        const level = h.tagName.toLowerCase();
+        const text = h.textContent.replace(/^#\s*/, '').trim();
+        const id = h.id;
+        listHTML += `<li><a href="#${id}" class="toc-${level}">${escapeHtml(text)}</a></li>`;
+    });
+    
+    toc.innerHTML = `
+        <div class="toc-header">
+            <span class="toc-title">Table of Contents</span>
+            <span class="toc-toggle">▼</span>
+        </div>
+        <div class="toc-body">
+            <ul class="toc-list">${listHTML}</ul>
+        </div>
+    `;
+    
+    // Toggle collapse
+    toc.querySelector('.toc-header').onclick = () => {
+        toc.classList.toggle('collapsed');
+    };
+    
+    // Smooth scroll for ToC links
+    toc.querySelectorAll('.toc-list a').forEach(link => {
+        link.onclick = e => {
+            e.preventDefault();
+            const target = document.getElementById(link.getAttribute('href').slice(1));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+    });
+    
+    // Insert before the first element
+    const firstChild = el.content.firstElementChild;
+    if (firstChild) {
+        // Insert after the first h1 if exists, otherwise at top
+        const h1 = el.content.querySelector('h1');
+        if (h1 && h1.nextSibling) {
+            h1.parentNode.insertBefore(toc, h1.nextSibling);
+        } else {
+            el.content.insertBefore(toc, firstChild);
+        }
+    }
+}
+
+/* ========================================
+   Callout / Admonition Blockquotes
+   ======================================== */
+function styleCallouts() {
+    el.content.querySelectorAll('blockquote').forEach(bq => {
+        const firstP = bq.querySelector('p');
+        if (!firstP) return;
+        
+        const text = firstP.innerHTML;
+        // Match patterns like: <strong>Note:</strong>, **Warning:**, > **Tip:**
+        const calloutMatch = text.match(/^<strong>(Note|Warning|Tip|Caution|Danger|Important|Info)s?:?<\/strong>\s*/i);
+        
+        if (calloutMatch) {
+            const type = calloutMatch[1].toLowerCase();
+            bq.classList.add('callout', `callout-${type === 'info' ? 'note' : type}`);
+            
+            // Replace the bold label with a styled title
+            const titleSpan = `<span class="callout-title">${calloutMatch[1]}</span>`;
+            firstP.innerHTML = titleSpan + text.slice(calloutMatch[0].length);
+        }
+    });
+}
+
+/* ========================================
+   Task List Styling
+   ======================================== */
+function styleTaskLists() {
+    el.content.querySelectorAll('ul').forEach(ul => {
+        const items = ul.querySelectorAll(':scope > li');
+        let isTaskList = false;
+        
+        items.forEach(li => {
+            const checkbox = li.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                isTaskList = true;
+                checkbox.disabled = true;
+                if (checkbox.checked) {
+                    li.classList.add('task-done');
+                }
+            }
+        });
+        
+        if (isTaskList) {
+            ul.classList.add('task-list');
+        }
+    });
+}
+
+/* ========================================
+   Table Wrapping
+   ======================================== */
+function wrapTables() {
+    el.content.querySelectorAll('table').forEach(table => {
+        if (table.parentElement.classList.contains('table-wrapper')) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-wrapper';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+}
+
+/* ========================================
+   Image Zoom / Lightbox
+   ======================================== */
+function setupImageZoom() {
+    el.content.querySelectorAll('img').forEach(img => {
+        img.addEventListener('click', () => {
+            const lightbox = el.imageLightbox;
+            if (!lightbox) return;
+            const lbImg = lightbox.querySelector('img');
+            lbImg.src = img.src;
+            lbImg.alt = img.alt;
+            lightbox.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+}
+
+function closeLightbox() {
+    if (el.imageLightbox) {
+        el.imageLightbox.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+}
+
+/* ========================================
+   Backlink Resolution
+   ======================================== */
+function resolveRelativePath(href) {
+    if (!currentNotePath) return null;
+    const parts = currentNotePath.split('/');
+    parts.pop();
+    const baseDir = parts;
+    const hrefParts = href.split('/');
+    const resolved = [...baseDir];
+    for (const segment of hrefParts) {
+        if (segment === '..') resolved.pop();
+        else if (segment !== '.' && segment !== '') resolved.push(segment);
+    }
+    return resolved.join('/');
+}
+
+function findNotePath(resolvedPath) {
+    if (!notesData) return null;
+    const clean = resolvedPath.replace(/\/$/, '');
+    for (const mod of notesData.modules) {
+        if (mod.approachGuide === clean) return clean;
+        for (const sub of mod.subchapters) {
+            for (const file of sub.files) {
+                if (file.path === clean) return clean;
+            }
+        }
+    }
+    for (const mod of notesData.modules) {
+        if (clean === mod.name || clean.startsWith(mod.name + '/')) {
+            if (clean === mod.name) {
+                return mod.approachGuide || mod.subchapters[0]?.files[0]?.path || null;
+            }
+            for (const sub of mod.subchapters) {
+                const subPath = `${mod.name}/${sub.name}`;
+                if (clean === subPath) return sub.files[0]?.path || null;
+            }
+        }
+    }
+    return null;
+}
+
+function interceptBacklinks() {
+    el.content.querySelectorAll('a[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('http://') || href.startsWith('https://') || 
+            href.startsWith('#') || href.startsWith('mailto:')) return;
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const resolved = resolveRelativePath(href);
+            if (!resolved) return;
+            const notePath = findNotePath(resolved);
+            if (notePath) loadNote(notePath);
+            else console.warn('Backlink target not found:', href, '→ resolved:', resolved);
+        });
+        link.classList.add('internal-link');
+        link.title = link.title || 'Navigate to note';
+    });
+}
+
+/* ========================================
+   Reading Progress Bar
+   ======================================== */
+function updateReadingProgress() {
+    if (!el.readingProgress) return;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (docHeight <= 0) {
+        el.readingProgress.style.width = '0%';
+        return;
+    }
+    const scrolled = (window.scrollY / docHeight) * 100;
+    el.readingProgress.style.width = `${Math.min(scrolled, 100)}%`;
+}
+
+/* ========================================
+   Back to Top Button
+   ======================================== */
+function updateBackToTop() {
+    if (!el.backToTop) return;
+    if (window.scrollY > 400) {
+        el.backToTop.classList.add('visible');
+    } else {
+        el.backToTop.classList.remove('visible');
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Utility
 function copyCode(text, btn) {
     navigator.clipboard.writeText(text).then(() => {
         btn.classList.add('copied');
@@ -421,21 +723,22 @@ function getWelcomeHTML() {
                 <h3>💡 How to Use</h3>
                 <ul>
                     <li><strong>Navigate:</strong> Browse modules in the sidebar</li>
-                    <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search</li>
-                    <li><strong>Highlight:</strong> Select text to highlight it</li>
-                    <li><strong>Theme:</strong> Click theme button to switch</li>
-                    <li><strong>Diagrams:</strong> Click ⛶ for fullscreen</li>
+                    <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
+                    <li><strong>Highlight:</strong> Select text to highlight with colors</li>
+                    <li><strong>Theme:</strong> 8 themes — Dark, Light, Ghostty, Dracula, Solarized, Nord, Catppuccin, Cyberpunk</li>
+                    <li><strong>Diagrams:</strong> Click ⛶ for fullscreen Mermaid diagrams</li>
+                    <li><strong>Images:</strong> Click any image to zoom in</li>
+                    <li><strong>Table of Contents:</strong> Auto-generated for each note</li>
+                    <li><strong>Backlinks:</strong> Click ↗ links to navigate between notes</li>
                 </ul>
             </div>
         </div>
     `;
 }
 
-// Search - Global content search
+// Search
 async function buildSearchIndex() {
     if (!notesData) return;
-    
-    // Build search index from all notes
     for (const mod of notesData.modules) {
         if (mod.approachGuide) {
             try {
@@ -475,18 +778,11 @@ function setupSearch() {
         clearTimeout(timer);
         timer = setTimeout(() => performSearch(e.target.value.trim()), 200);
     };
-    
     el.searchInput.onfocus = () => {
-        if (el.searchInput.value.trim()) {
-            el.searchResults.classList.add('visible');
-        }
+        if (el.searchInput.value.trim()) el.searchResults.classList.add('visible');
     };
-    
-    // Close search results when clicking outside
     document.addEventListener('click', e => {
-        if (!e.target.closest('.search-container')) {
-            el.searchResults.classList.remove('visible');
-        }
+        if (!e.target.closest('.search-container')) el.searchResults.classList.remove('visible');
     });
 }
 
@@ -496,41 +792,28 @@ function performSearch(query) {
         resetNavFilter();
         return;
     }
-    
     const q = query.toLowerCase();
     const words = q.split(/\s+/).filter(w => w.length > 1);
     const results = [];
     
-    // Search in all notes content
     for (const [path, data] of Object.entries(allNotesContent)) {
         let score = 0;
         let matchedWords = 0;
-        
-        // Check if all words are present (AND search)
         const allWordsMatch = words.every(word => 
             data.content.includes(word) || 
             data.title.toLowerCase().includes(word) ||
             data.module.toLowerCase().includes(word)
         );
-        
         if (!allWordsMatch && words.length > 1) continue;
-        
-        // Calculate relevance score
         for (const word of words) {
-            if (data.title.toLowerCase().includes(word)) {
-                score += 10;
-                matchedWords++;
-            }
+            if (data.title.toLowerCase().includes(word)) { score += 10; matchedWords++; }
             if (data.content.includes(word)) {
-                // Count occurrences
                 const count = (data.content.match(new RegExp(word, 'g')) || []).length;
                 score += Math.min(count, 5);
                 matchedWords++;
             }
         }
-        
         if (matchedWords > 0) {
-            // Find context snippet
             let snippet = '';
             const contentLower = data.content;
             const firstWord = words[0];
@@ -538,31 +821,15 @@ function performSearch(query) {
             if (idx !== -1) {
                 const start = Math.max(0, idx - 40);
                 const end = Math.min(contentLower.length, idx + 80);
-                snippet = data.content.substring(start, end)
-                    .replace(/\n/g, ' ')
-                    .replace(/[#*`]/g, '')
-                    .trim();
+                snippet = data.content.substring(start, end).replace(/\n/g, ' ').replace(/[#*`]/g, '').trim();
                 if (start > 0) snippet = '...' + snippet;
                 if (end < contentLower.length) snippet += '...';
             }
-            
-            results.push({
-                path,
-                title: data.title,
-                module: data.module.replace(/^\d+-/, '').replace(/-/g, ' '),
-                snippet,
-                score
-            });
+            results.push({ path, title: data.title, module: data.module.replace(/^\d+-/, '').replace(/-/g, ' '), snippet, score });
         }
     }
-    
-    // Sort by score
     results.sort((a, b) => b.score - a.score);
-    
-    // Show results
     showSearchResults(results.slice(0, 15), words);
-    
-    // Also filter nav
     filterNav(q);
 }
 
@@ -572,15 +839,12 @@ function showSearchResults(results, words) {
         el.searchResults.classList.add('visible');
         return;
     }
-    
     el.searchResults.innerHTML = results.map(r => {
-        // Highlight matched words in snippet
         let snippet = escapeHtml(r.snippet);
         for (const word of words) {
             const regex = new RegExp(`(${escapeRegex(word)})`, 'gi');
             snippet = snippet.replace(regex, '<mark>$1</mark>');
         }
-        
         return `
             <div class="search-result-item" data-path="${r.path}">
                 <div class="search-result-title">${escapeHtml(r.title)}</div>
@@ -589,10 +853,7 @@ function showSearchResults(results, words) {
             </div>
         `;
     }).join('');
-    
     el.searchResults.classList.add('visible');
-    
-    // Click handlers
     el.searchResults.querySelectorAll('.search-result-item').forEach(item => {
         item.onclick = () => {
             loadNote(item.dataset.path);
@@ -603,22 +864,15 @@ function showSearchResults(results, words) {
     });
 }
 
-function escapeRegex(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+function escapeRegex(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 function resetNavFilter() {
     document.querySelectorAll('.nav-module, .nav-subchapter, .nav-item').forEach(e => e.style.display = '');
 }
 
 function filterNav(q) {
-    if (!q) {
-        resetNavFilter();
-        return;
-    }
-    
+    if (!q) { resetNavFilter(); return; }
     const words = q.toLowerCase().split(/\s+/).filter(w => w.length > 1);
-    
     document.querySelectorAll('.nav-module').forEach(mod => {
         let hasMatch = false;
         mod.querySelectorAll('.nav-item').forEach(item => {
@@ -637,36 +891,25 @@ function filterNav(q) {
     });
 }
 
-// Highlighting - PDF-like inline highlighting
+// Highlighting
 function loadHighlights() {
-    try { 
-        highlights = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || {}; 
-    } catch { 
-        highlights = {}; 
-    }
+    try { highlights = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || {}; }
+    catch { highlights = {}; }
 }
 
-function saveHighlights() {
-    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(highlights));
-}
+function saveHighlights() { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(highlights)); }
 
-function getPageHighlights() {
-    return highlights[currentNotePath] || [];
-}
+function getPageHighlights() { return highlights[currentNotePath] || []; }
 
 function setPageHighlights(arr) {
-    if (arr.length === 0) {
-        delete highlights[currentNotePath];
-    } else {
-        highlights[currentNotePath] = arr;
-    }
+    if (arr.length === 0) delete highlights[currentNotePath];
+    else highlights[currentNotePath] = arr;
     saveHighlights();
 }
 
 function applyHighlights() {
     if (!currentNotePath) return;
-    const pageHighlights = getPageHighlights();
-    pageHighlights.forEach(h => applyHighlightToDOM(h));
+    getPageHighlights().forEach(h => applyHighlightToDOM(h));
 }
 
 function applyHighlightToDOM(highlight) {
@@ -683,9 +926,7 @@ function applyHighlightToDOM(highlight) {
             span.className = 'user-highlight';
             span.dataset.highlightId = highlight.id;
             span.dataset.color = highlight.color || 'yellow';
-            try { 
-                range.surroundContents(span); 
-            } catch {}
+            try { range.surroundContents(span); } catch {}
             break;
         }
     }
@@ -693,22 +934,13 @@ function applyHighlightToDOM(highlight) {
 
 function addHighlight(text, color = 'yellow') {
     if (!currentNotePath || !text.trim()) return;
-    
     const pageHighlights = getPageHighlights();
-    
-    // Check if this exact text is already highlighted
-    const existing = pageHighlights.find(h => h.text === text.trim());
-    if (existing) {
-        // Already highlighted - don't add duplicate
-        return;
-    }
-    
+    if (pageHighlights.find(h => h.text === text.trim())) return;
     const highlight = {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         text: text.trim(),
         color
     };
-    
     pageHighlights.push(highlight);
     setPageHighlights(pageHighlights);
     applyHighlightToDOM(highlight);
@@ -718,26 +950,10 @@ function removeHighlight(id) {
     const pageHighlights = getPageHighlights();
     const idx = pageHighlights.findIndex(h => h.id === id);
     if (idx === -1) return;
-    
     pageHighlights.splice(idx, 1);
     setPageHighlights(pageHighlights);
-    
-    // Remove from DOM
     const span = document.querySelector(`[data-highlight-id="${id}"]`);
-    if (span) {
-        const text = span.textContent;
-        span.replaceWith(document.createTextNode(text));
-    }
-}
-
-function removeHighlightByText(text) {
-    const pageHighlights = getPageHighlights();
-    const highlight = pageHighlights.find(h => h.text === text);
-    if (highlight) {
-        removeHighlight(highlight.id);
-        return true;
-    }
-    return false;
+    if (span) span.replaceWith(document.createTextNode(span.textContent));
 }
 
 function escapeHtml(text) {
@@ -746,47 +962,30 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Text Selection - PDF-like highlighting
+// Text Selection
 function setupTextSelection() {
     let selectionTimeout;
-    
     document.addEventListener('mouseup', e => {
-        // Ignore clicks on UI elements
-        if (e.target.closest('.highlight-popup, .theme-dropdown, .code-copy-btn, .mermaid-fullscreen-btn, .sidebar, .search-results')) {
-            return;
-        }
-        
-        // Check if clicked on existing highlight - toggle it off
+        if (e.target.closest('.highlight-popup, .theme-dropdown, .code-copy-btn, .mermaid-fullscreen-btn, .sidebar, .search-results, .toc-container')) return;
         const clickedHighlight = e.target.closest('.user-highlight');
         if (clickedHighlight && !window.getSelection().toString().trim()) {
-            const id = clickedHighlight.dataset.highlightId;
-            removeHighlight(id);
+            removeHighlight(clickedHighlight.dataset.highlightId);
             return;
         }
-        
         clearTimeout(selectionTimeout);
         selectionTimeout = setTimeout(() => {
             const sel = window.getSelection();
             const text = sel.toString().trim();
-            
             if (text && text.length > 2 && text.length < 500 && 
                 el.content.contains(sel.anchorNode) &&
                 !sel.anchorNode.parentElement?.closest('pre, code, .mermaid')) {
-                
                 const range = sel.getRangeAt(0);
                 const rect = range.getBoundingClientRect();
-                
-                // Position popup above selection
                 const popupW = 180;
                 let left = rect.left + (rect.width / 2) - (popupW / 2);
                 left = Math.max(10, Math.min(left, window.innerWidth - popupW - 10));
-                
                 let top = rect.top + window.scrollY - 45;
-                // If too close to top, show below
-                if (top < window.scrollY + 10) {
-                    top = rect.bottom + window.scrollY + 8;
-                }
-                
+                if (top < window.scrollY + 10) top = rect.bottom + window.scrollY + 8;
                 el.highlightPopup.style.left = `${left}px`;
                 el.highlightPopup.style.top = `${top}px`;
                 el.highlightPopup.classList.add('visible');
@@ -795,8 +994,6 @@ function setupTextSelection() {
             }
         }, 10);
     });
-    
-    // Highlight button click
     document.querySelector('.highlight-action-btn').onclick = () => {
         const sel = window.getSelection();
         const text = sel.toString().trim();
@@ -806,8 +1003,6 @@ function setupTextSelection() {
             el.highlightPopup.classList.remove('visible');
         }
     };
-    
-    // Color selection
     document.querySelectorAll('.hl-color').forEach(btn => {
         btn.onclick = e => {
             e.stopPropagation();
@@ -816,14 +1011,10 @@ function setupTextSelection() {
             btn.classList.add('active');
         };
     });
-    
-    // Hide popup on click elsewhere
     document.addEventListener('mousedown', e => {
         if (!e.target.closest('.highlight-popup')) {
             setTimeout(() => {
-                if (!window.getSelection().toString().trim()) {
-                    el.highlightPopup.classList.remove('visible');
-                }
+                if (!window.getSelection().toString().trim()) el.highlightPopup.classList.remove('visible');
             }, 50);
         }
     });
@@ -875,7 +1066,6 @@ function setupEventListeners() {
         el.sidebar.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
     };
     
-    // Collapse / Expand all
     el.collapseAllBtn.onclick = collapseAll;
     el.expandAllBtn.onclick = expandAll;
     
@@ -886,7 +1076,6 @@ function setupEventListeners() {
     
     // Theme switcher
     el.themeBtn.onclick = toggleThemeDropdown;
-    
     document.querySelectorAll('.theme-option').forEach(opt => {
         opt.onclick = e => {
             e.stopPropagation();
@@ -894,7 +1083,6 @@ function setupEventListeners() {
             closeThemeDropdown();
         };
     });
-    
     document.addEventListener('click', e => {
         if (!e.target.closest('.theme-switcher')) closeThemeDropdown();
     });
@@ -902,6 +1090,29 @@ function setupEventListeners() {
     // Mermaid
     el.mermaidModalClose.onclick = closeMermaidFullscreen;
     el.mermaidModal.onclick = e => { if (e.target === el.mermaidModal) closeMermaidFullscreen(); };
+    
+    // Image lightbox
+    if (el.imageLightbox) {
+        el.imageLightbox.onclick = closeLightbox;
+    }
+    
+    // Back to top
+    if (el.backToTop) {
+        el.backToTop.onclick = scrollToTop;
+    }
+    
+    // Scroll events — throttled
+    let scrollTicking = false;
+    window.addEventListener('scroll', () => {
+        if (!scrollTicking) {
+            requestAnimationFrame(() => {
+                updateReadingProgress();
+                updateBackToTop();
+                scrollTicking = false;
+            });
+            scrollTicking = true;
+        }
+    });
     
     window.addEventListener('hashchange', handleHashChange);
     
@@ -911,6 +1122,7 @@ function setupEventListeners() {
             closeMobileSidebar();
             closeThemeDropdown();
             closeMermaidFullscreen();
+            closeLightbox();
             el.highlightPopup.classList.remove('visible');
             el.searchResults.classList.remove('visible');
         }
