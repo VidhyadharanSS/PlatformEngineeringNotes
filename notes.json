@@ -1,0 +1,937 @@
+{
+  "generated": "2026-04-23T13:01:22.596127",
+  "modules": [
+    {
+      "name": "1-Linux",
+      "approachGuide": "1-Linux/Module_1_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_1.1",
+          "files": [
+            {
+              "name": "1.1.1_Kernel_OS_and_Distros.md",
+              "path": "1-Linux/Subchapter_1.1/1.1.1_Kernel_OS_and_Distros.md"
+            },
+            {
+              "name": "1.1.2_CLI_Basics_and_Philosophy.md",
+              "path": "1-Linux/Subchapter_1.1/1.1.2_CLI_Basics_and_Philosophy.md"
+            },
+            {
+              "name": "1.1.3_Getting_Help_and_Command_Structure.md",
+              "path": "1-Linux/Subchapter_1.1/1.1.3_Getting_Help_and_Command_Structure.md"
+            },
+            {
+              "name": "1.1.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.1/1.1.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.2",
+          "files": [
+            {
+              "name": "1.2.1_FHS_Deep_Dive.md",
+              "path": "1-Linux/Subchapter_1.2/1.2.1_FHS_Deep_Dive.md"
+            },
+            {
+              "name": "1.2.2_File_Types_Permissions_Basics.md",
+              "path": "1-Linux/Subchapter_1.2/1.2.2_File_Types_Permissions_Basics.md"
+            },
+            {
+              "name": "1.2.3_Archiving_and_Syncing.md",
+              "path": "1-Linux/Subchapter_1.2/1.2.3_Archiving_and_Syncing.md"
+            },
+            {
+              "name": "1.2.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.2/1.2.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.3",
+          "files": [
+            {
+              "name": "1.3.1_User_and_Group_Management.md",
+              "path": "1-Linux/Subchapter_1.3/1.3.1_User_and_Group_Management.md"
+            },
+            {
+              "name": "1.3.2_Shell_Profiles_and_Environment.md",
+              "path": "1-Linux/Subchapter_1.3/1.3.2_Shell_Profiles_and_Environment.md"
+            },
+            {
+              "name": "1.3.3_SUID_SGID_Sticky_Bit_and_ACLs.md",
+              "path": "1-Linux/Subchapter_1.3/1.3.3_SUID_SGID_Sticky_Bit_and_ACLs.md"
+            },
+            {
+              "name": "1.3.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.3/1.3.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.4",
+          "files": [
+            {
+              "name": "1.4.1_SSH_Protocol_and_Basics.md",
+              "path": "1-Linux/Subchapter_1.4/1.4.1_SSH_Protocol_and_Basics.md"
+            },
+            {
+              "name": "1.4.2_Key_Pair_Authentication.md",
+              "path": "1-Linux/Subchapter_1.4/1.4.2_Key_Pair_Authentication.md"
+            },
+            {
+              "name": "1.4.3_Advanced_SSH_Tunneling_and_Config.md",
+              "path": "1-Linux/Subchapter_1.4/1.4.3_Advanced_SSH_Tunneling_and_Config.md"
+            },
+            {
+              "name": "1.4.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.4/1.4.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.5",
+          "files": [
+            {
+              "name": "1.5.1_Partitioning_and_Filesystems.md",
+              "path": "1-Linux/Subchapter_1.5/1.5.1_Partitioning_and_Filesystems.md"
+            },
+            {
+              "name": "1.5.2_Mounting_and_FSTAB.md",
+              "path": "1-Linux/Subchapter_1.5/1.5.2_Mounting_and_FSTAB.md"
+            },
+            {
+              "name": "1.5.3_Logical_Volume_Manager_LVM.md",
+              "path": "1-Linux/Subchapter_1.5/1.5.3_Logical_Volume_Manager_LVM.md"
+            },
+            {
+              "name": "1.5.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.5/1.5.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.6",
+          "files": [
+            {
+              "name": "1.6.1_Process_Lifecycle_and_Tools.md",
+              "path": "1-Linux/Subchapter_1.6/1.6.1_Process_Lifecycle_and_Tools.md"
+            },
+            {
+              "name": "1.6.2_Systemd_Deep_Dive.md",
+              "path": "1-Linux/Subchapter_1.6/1.6.2_Systemd_Deep_Dive.md"
+            },
+            {
+              "name": "1.6.3_Cron_and_Job_Scheduling.md",
+              "path": "1-Linux/Subchapter_1.6/1.6.3_Cron_and_Job_Scheduling.md"
+            },
+            {
+              "name": "1.6.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.6/1.6.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.7",
+          "files": [
+            {
+              "name": "1.7.1_RPM_and_YUM_DNF.md",
+              "path": "1-Linux/Subchapter_1.7/1.7.1_RPM_and_YUM_DNF.md"
+            },
+            {
+              "name": "1.7.2_DPKG_and_APT.md",
+              "path": "1-Linux/Subchapter_1.7/1.7.2_DPKG_and_APT.md"
+            },
+            {
+              "name": "1.7.3_Compiling_from_Source_and_Alternatives.md",
+              "path": "1-Linux/Subchapter_1.7/1.7.3_Compiling_from_Source_and_Alternatives.md"
+            },
+            {
+              "name": "1.7.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.7/1.7.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.8",
+          "files": [
+            {
+              "name": "1.8.1_Find_and_Grep.md",
+              "path": "1-Linux/Subchapter_1.8/1.8.1_Find_and_Grep.md"
+            },
+            {
+              "name": "1.8.2_Sed_and_Awk_Fundamentals.md",
+              "path": "1-Linux/Subchapter_1.8/1.8.2_Sed_and_Awk_Fundamentals.md"
+            },
+            {
+              "name": "1.8.3_Vim_and_Nano_Essentials.md",
+              "path": "1-Linux/Subchapter_1.8/1.8.3_Vim_and_Nano_Essentials.md"
+            },
+            {
+              "name": "1.8.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.8/1.8.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.9",
+          "files": [
+            {
+              "name": "1.9.1_Screen_and_Tmux.md",
+              "path": "1-Linux/Subchapter_1.9/1.9.1_Screen_and_Tmux.md"
+            },
+            {
+              "name": "1.9.2_Lsof_and_Sysdig_Basics.md",
+              "path": "1-Linux/Subchapter_1.9/1.9.2_Lsof_and_Sysdig_Basics.md"
+            },
+            {
+              "name": "1.9.3_Nvidia_GPU_Management.md",
+              "path": "1-Linux/Subchapter_1.9/1.9.3_Nvidia_GPU_Management.md"
+            },
+            {
+              "name": "1.9.4_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.9/1.9.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_1.10",
+          "files": [
+            {
+              "name": "1.10.1_Boot_Process_and_Recovery.md",
+              "path": "1-Linux/Subchapter_1.10/1.10.1_Boot_Process_and_Recovery.md"
+            },
+            {
+              "name": "1.10.2_Disk_Full_and_Inode_Exhaustion.md",
+              "path": "1-Linux/Subchapter_1.10/1.10.2_Disk_Full_and_Inode_Exhaustion.md"
+            },
+            {
+              "name": "1.10.3_SSH_and_Permission_Denied_Scenarios.md",
+              "path": "1-Linux/Subchapter_1.10/1.10.3_SSH_and_Permission_Denied_Scenarios.md"
+            },
+            {
+              "name": "1.10.4_Subchapter_Review_Plus_Final_Exam.md",
+              "path": "1-Linux/Subchapter_1.10/1.10.4_Subchapter_Review_Plus_Final_Exam.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-Networking",
+      "approachGuide": "2-Networking/Module_2_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_2.1",
+          "files": [
+            {
+              "name": "2.1.1_OSI_and_TCP_IP_Models.md",
+              "path": "2-Networking/Subchapter_2.1/2.1.1_OSI_and_TCP_IP_Models.md"
+            },
+            {
+              "name": "2.1.2_IP_Addressing_Subnetting_CIDR.md",
+              "path": "2-Networking/Subchapter_2.1/2.1.2_IP_Addressing_Subnetting_CIDR.md"
+            },
+            {
+              "name": "2.1.3_Subchapter_Review.md",
+              "path": "2-Networking/Subchapter_2.1/2.1.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_2.2",
+          "files": [
+            {
+              "name": "2.2.1_Essential_Networking_Tools.md",
+              "path": "2-Networking/Subchapter_2.2/2.2.1_Essential_Networking_Tools.md"
+            },
+            {
+              "name": "2.2.2_DNS_Deep_Dive.md",
+              "path": "2-Networking/Subchapter_2.2/2.2.2_DNS_Deep_Dive.md"
+            },
+            {
+              "name": "2.2.3_Subchapter_Review.md",
+              "path": "2-Networking/Subchapter_2.2/2.2.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_2.3",
+          "files": [
+            {
+              "name": "2.3.1_Packet_Capture_with_tcpdump.md",
+              "path": "2-Networking/Subchapter_2.3/2.3.1_Packet_Capture_with_tcpdump.md"
+            },
+            {
+              "name": "2.3.2_Firewalling_with_iptables_nftables.md",
+              "path": "2-Networking/Subchapter_2.3/2.3.2_Firewalling_with_iptables_nftables.md"
+            },
+            {
+              "name": "2.3.3_Subchapter_Review.md",
+              "path": "2-Networking/Subchapter_2.3/2.3.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_2.4",
+          "files": [
+            {
+              "name": "2.4.1_HTTP_HTTPS_and_curl_wget.md",
+              "path": "2-Networking/Subchapter_2.4/2.4.1_HTTP_HTTPS_and_curl_wget.md"
+            },
+            {
+              "name": "2.4.2_Load_Balancing_Layer4_vs_Layer7.md",
+              "path": "2-Networking/Subchapter_2.4/2.4.2_Load_Balancing_Layer4_vs_Layer7.md"
+            },
+            {
+              "name": "2.4.3_Subchapter_Review.md",
+              "path": "2-Networking/Subchapter_2.4/2.4.3_Subchapter_Review.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3-Shell-Scripting",
+      "approachGuide": "3-Shell-Scripting/Module_3_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_3.1",
+          "files": [
+            {
+              "name": "3.1.1_Shebangs_Variables_and_Subshells.md",
+              "path": "3-Shell-Scripting/Subchapter_3.1/3.1.1_Shebangs_Variables_and_Subshells.md"
+            },
+            {
+              "name": "3.1.2_Loops_Conditionals_and_Functions.md",
+              "path": "3-Shell-Scripting/Subchapter_3.1/3.1.2_Loops_Conditionals_and_Functions.md"
+            },
+            {
+              "name": "3.1.3_Subchapter_Review.md",
+              "path": "3-Shell-Scripting/Subchapter_3.1/3.1.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_3.2",
+          "files": [
+            {
+              "name": "3.2.1_Error_Handling_and_Debugging.md",
+              "path": "3-Shell-Scripting/Subchapter_3.2/3.2.1_Error_Handling_and_Debugging.md"
+            },
+            {
+              "name": "3.2.2_String_Manipulation_and_Regular_Expressions.md",
+              "path": "3-Shell-Scripting/Subchapter_3.2/3.2.2_String_Manipulation_and_Regular_Expressions.md"
+            },
+            {
+              "name": "3.2.3_Subchapter_Review.md",
+              "path": "3-Shell-Scripting/Subchapter_3.2/3.2.3_Subchapter_Review.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4-Docker",
+      "approachGuide": "4-Docker/Module_4_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_4.1",
+          "files": [
+            {
+              "name": "4.1.1_Namespaces_and_Cgroups.md",
+              "path": "4-Docker/Subchapter_4.1/4.1.1_Namespaces_and_Cgroups.md"
+            },
+            {
+              "name": "4.1.2_Docker_Installation_and_First_Container.md",
+              "path": "4-Docker/Subchapter_4.1/4.1.2_Docker_Installation_and_First_Container.md"
+            },
+            {
+              "name": "4.1.3_Subchapter_Review.md",
+              "path": "4-Docker/Subchapter_4.1/4.1.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_4.2",
+          "files": [
+            {
+              "name": "4.2.1_Image_Layers_and_Dockerfile_Basics.md",
+              "path": "4-Docker/Subchapter_4.2/4.2.1_Image_Layers_and_Dockerfile_Basics.md"
+            },
+            {
+              "name": "4.2.2_Image_Optimization_and_Multi_Stage_Builds.md",
+              "path": "4-Docker/Subchapter_4.2/4.2.2_Image_Optimization_and_Multi_Stage_Builds.md"
+            },
+            {
+              "name": "4.2.3_Subchapter_Review.md",
+              "path": "4-Docker/Subchapter_4.2/4.2.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_4.3",
+          "files": [
+            {
+              "name": "4.3.1_Container_Lifecycle_and_Resource_Management.md",
+              "path": "4-Docker/Subchapter_4.3/4.3.1_Container_Lifecycle_and_Resource_Management.md"
+            },
+            {
+              "name": "4.3.2_Docker_Networking_Deep_Dive.md",
+              "path": "4-Docker/Subchapter_4.3/4.3.2_Docker_Networking_Deep_Dive.md"
+            },
+            {
+              "name": "4.3.3_Subchapter_Review.md",
+              "path": "4-Docker/Subchapter_4.3/4.3.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_4.4",
+          "files": [
+            {
+              "name": "4.4.1_Volumes_Bind_Mounts_and_tmpfs.md",
+              "path": "4-Docker/Subchapter_4.4/4.4.1_Volumes_Bind_Mounts_and_tmpfs.md"
+            },
+            {
+              "name": "4.4.2_Docker_Compose_Basics.md",
+              "path": "4-Docker/Subchapter_4.4/4.4.2_Docker_Compose_Basics.md"
+            },
+            {
+              "name": "4.4.3_Subchapter_Review.md",
+              "path": "4-Docker/Subchapter_4.4/4.4.3_Subchapter_Review.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5-Kubernetes",
+      "approachGuide": "5-Kubernetes/Module_5_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_5.1",
+          "files": [
+            {
+              "name": "5.1.1_K8s_Architecture_Components.md",
+              "path": "5-Kubernetes/Subchapter_5.1/5.1.1_K8s_Architecture_Components.md"
+            },
+            {
+              "name": "5.1.2_Cluster_Setup_kubeadm_Kind_Multi_Node.md",
+              "path": "5-Kubernetes/Subchapter_5.1/5.1.2_Cluster_Setup_kubeadm_Kind_Multi_Node.md"
+            },
+            {
+              "name": "5.1.3_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.1/5.1.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.2",
+          "files": [
+            {
+              "name": "5.2.1_HA_Cluster_Architecture_Multi_Master.md",
+              "path": "5-Kubernetes/Subchapter_5.2/5.2.1_HA_Cluster_Architecture_Multi_Master.md"
+            },
+            {
+              "name": "5.2.2_etcd_Backup_Restore_and_Disaster_Recovery.md",
+              "path": "5-Kubernetes/Subchapter_5.2/5.2.2_etcd_Backup_Restore_and_Disaster_Recovery.md"
+            },
+            {
+              "name": "5.2.3_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.2/5.2.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.3",
+          "files": [
+            {
+              "name": "5.3.1_Pod_Fundamentals_and_Lifecycle.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.1_Pod_Fundamentals_and_Lifecycle.md"
+            },
+            {
+              "name": "5.3.2_Workload_Controllers_Deployments_StatefulSets_DaemonSets.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.2_Workload_Controllers_Deployments_StatefulSets_DaemonSets.md"
+            },
+            {
+              "name": "5.3.3_Scheduling_Taints_Tolerations_Affinity.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.3_Scheduling_Taints_Tolerations_Affinity.md"
+            },
+            {
+              "name": "5.3.4_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.4",
+          "files": [
+            {
+              "name": "5.4.1_Services_ClusterIP_NodePort_LoadBalancer.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.1_Services_ClusterIP_NodePort_LoadBalancer.md"
+            },
+            {
+              "name": "5.4.2_Ingress_Ingress_Controllers_and_Gateway_API.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.2_Ingress_Ingress_Controllers_and_Gateway_API.md"
+            },
+            {
+              "name": "5.4.3_Network_Policies.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.3_Network_Policies.md"
+            },
+            {
+              "name": "5.4.4_DNS_Basics_and_CoreDNS.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.4_DNS_Basics_and_CoreDNS.md"
+            },
+            {
+              "name": "5.4.5_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.5_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.5",
+          "files": [
+            {
+              "name": "5.5.1_Ephemeral_Volumes_emptydir_hostPath.md",
+              "path": "5-Kubernetes/Subchapter_5.5/5.5.1_Ephemeral_Volumes_emptydir_hostPath.md"
+            },
+            {
+              "name": "5.5.2_PersistentVolumes_PersistentVolumeClaims_StorageClasses.md",
+              "path": "5-Kubernetes/Subchapter_5.5/5.5.2_PersistentVolumes_PersistentVolumeClaims_StorageClasses.md"
+            },
+            {
+              "name": "5.5.3_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.5/5.5.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.6",
+          "files": [
+            {
+              "name": "5.6.1_ConfigMaps_and_Secrets.md",
+              "path": "5-Kubernetes/Subchapter_5.6/5.6.1_ConfigMaps_and_Secrets.md"
+            },
+            {
+              "name": "5.6.2_Autoscaling_HPA_VPA_Cluster_Autoscaler.md",
+              "path": "5-Kubernetes/Subchapter_5.6/5.6.2_Autoscaling_HPA_VPA_Cluster_Autoscaler.md"
+            },
+            {
+              "name": "5.6.3_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.6/5.6.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.7",
+          "files": [
+            {
+              "name": "5.7.1_Kustomize_Basics_Overlays_and_Patches.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.1_Kustomize_Basics_Overlays_and_Patches.md"
+            },
+            {
+              "name": "5.7.2_Helm_Charts_Values_Templates_Releases.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.2_Helm_Charts_Values_Templates_Releases.md"
+            },
+            {
+              "name": "5.7.3_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.8",
+          "files": [
+            {
+              "name": "5.8.1_Authentication_Methods.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.1_Authentication_Methods.md"
+            },
+            {
+              "name": "5.8.2_RBAC_Deep_Dive.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.2_RBAC_Deep_Dive.md"
+            },
+            {
+              "name": "5.8.3_Admission_Controllers.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.3_Admission_Controllers.md"
+            },
+            {
+              "name": "5.8.4_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_5.9",
+          "files": [
+            {
+              "name": "5.9.1_Troubleshooting_Control_Plane.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.1_Troubleshooting_Control_Plane.md"
+            },
+            {
+              "name": "5.9.2_Troubleshooting_Compute_Plane_and_Pods.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.2_Troubleshooting_Compute_Plane_and_Pods.md"
+            },
+            {
+              "name": "5.9.3_Monitoring_Prometheus_Grafana_and_Logging.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.3_Monitoring_Prometheus_Grafana_and_Logging.md"
+            },
+            {
+              "name": "5.9.4_Dashboard_Tools_and_k9s_Cheatsheet.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.4_Dashboard_Tools_and_k9s_Cheatsheet.md"
+            },
+            {
+              "name": "5.9.5_kubectl_Cheatsheet_and_JSONPath.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.5_kubectl_Cheatsheet_and_JSONPath.md"
+            },
+            {
+              "name": "5.9.6_Subchapter_Review_Plus_Final_Exam.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.6_Subchapter_Review_Plus_Final_Exam.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6-Git",
+      "approachGuide": "6-Git/Module_6_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_6.1",
+          "files": [
+            {
+              "name": "6.1.1_Git_Objects_References_and_Index.md",
+              "path": "6-Git/Subchapter_6.1/6.1.1_Git_Objects_References_and_Index.md"
+            },
+            {
+              "name": "6.1.2_Essential_Git_Commands_and_Configuration.md",
+              "path": "6-Git/Subchapter_6.1/6.1.2_Essential_Git_Commands_and_Configuration.md"
+            },
+            {
+              "name": "6.1.3_Subchapter_Review.md",
+              "path": "6-Git/Subchapter_6.1/6.1.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_6.2",
+          "files": [
+            {
+              "name": "6.2.1_Branching_and_Merging_Strategies.md",
+              "path": "6-Git/Subchapter_6.2/6.2.1_Branching_and_Merging_Strategies.md"
+            },
+            {
+              "name": "6.2.2_Remotes_and_Collaboration_Workflows.md",
+              "path": "6-Git/Subchapter_6.2/6.2.2_Remotes_and_Collaboration_Workflows.md"
+            },
+            {
+              "name": "6.2.3_Tags_Signing_and_Versioning.md",
+              "path": "6-Git/Subchapter_6.2/6.2.3_Tags_Signing_and_Versioning.md"
+            },
+            {
+              "name": "6.2.4_Subchapter_Review.md",
+              "path": "6-Git/Subchapter_6.2/6.2.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_6.3",
+          "files": [
+            {
+              "name": "6.3.1_Rebase_vs_Merge_and_Interactive_Rebase.md",
+              "path": "6-Git/Subchapter_6.3/6.3.1_Rebase_vs_Merge_and_Interactive_Rebase.md"
+            },
+            {
+              "name": "6.3.2_Cherry_pick_Stash_and_Bisect.md",
+              "path": "6-Git/Subchapter_6.3/6.3.2_Cherry_pick_Stash_and_Bisect.md"
+            },
+            {
+              "name": "6.3.3_Git_Hooks.md",
+              "path": "6-Git/Subchapter_6.3/6.3.3_Git_Hooks.md"
+            },
+            {
+              "name": "6.3.4_Subchapter_Review.md",
+              "path": "6-Git/Subchapter_6.3/6.3.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_6.4",
+          "files": [
+            {
+              "name": "6.4.1_Undoing_Mistakes_reset_revert_reflog.md",
+              "path": "6-Git/Subchapter_6.4/6.4.1_Undoing_Mistakes_reset_revert_reflog.md"
+            },
+            {
+              "name": "6.4.2_Git_LFS_Submodules_and_Subtrees.md",
+              "path": "6-Git/Subchapter_6.4/6.4.2_Git_LFS_Submodules_and_Subtrees.md"
+            },
+            {
+              "name": "6.4.3_Subchapter_Review.md",
+              "path": "6-Git/Subchapter_6.4/6.4.3_Subchapter_Review.md"
+            },
+            {
+              "name": "6.4.4_Git_Cheatsheet_and_Final_Exam.md",
+              "path": "6-Git/Subchapter_6.4/6.4.4_Git_Cheatsheet_and_Final_Exam.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7-Nginx",
+      "approachGuide": "7-Nginx/Module_7_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_7.1",
+          "files": [
+            {
+              "name": "7.1.1_Nginx_Architecture_and_Installation.md",
+              "path": "7-Nginx/Subchapter_7.1/7.1.1_Nginx_Architecture_and_Installation.md"
+            },
+            {
+              "name": "7.1.2_Static_File_Serving_and_Location_Matching.md",
+              "path": "7-Nginx/Subchapter_7.1/7.1.2_Static_File_Serving_and_Location_Matching.md"
+            },
+            {
+              "name": "7.1.3_Rewrites_Variables_Access_Control_and_Essential_Directives.md",
+              "path": "7-Nginx/Subchapter_7.1/7.1.3_Rewrites_Variables_Access_Control_and_Essential_Directives.md"
+            },
+            {
+              "name": "7.1.4_Subchapter_Review.md",
+              "path": "7-Nginx/Subchapter_7.1/7.1.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_7.2",
+          "files": [
+            {
+              "name": "7.2.1_Reverse_Proxy_and_Load_Balancing.md",
+              "path": "7-Nginx/Subchapter_7.2/7.2.1_Reverse_Proxy_and_Load_Balancing.md"
+            },
+            {
+              "name": "7.2.2_SSL_Termination_Caching_and_Rate_Limiting.md",
+              "path": "7-Nginx/Subchapter_7.2/7.2.2_SSL_Termination_Caching_and_Rate_Limiting.md"
+            },
+            {
+              "name": "7.2.3_Advanced_Nginx_Patterns.md",
+              "path": "7-Nginx/Subchapter_7.2/7.2.3_Advanced_Nginx_Patterns.md"
+            },
+            {
+              "name": "7.2.4_Nginx_Cheatsheet_and_Final_Exam.md",
+              "path": "7-Nginx/Subchapter_7.2/7.2.4_Nginx_Cheatsheet_and_Final_Exam.md"
+            },
+            {
+              "name": "7.2.5_Subchapter_Review.md",
+              "path": "7-Nginx/Subchapter_7.2/7.2.5_Subchapter_Review.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8-CICD",
+      "approachGuide": "8-CICD/Module_8_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_8.1",
+          "files": [
+            {
+              "name": "8.1.1_What_is_CI_CD_and_Why_It_Matters.md",
+              "path": "8-CICD/Subchapter_8.1/8.1.1_What_is_CI_CD_and_Why_It_Matters.md"
+            },
+            {
+              "name": "8.1.2_Pipeline_Stages_Deep_Dive.md",
+              "path": "8-CICD/Subchapter_8.1/8.1.2_Pipeline_Stages_Deep_Dive.md"
+            },
+            {
+              "name": "8.1.3_Trunk_Based_Dev_Branch_Protection_and_Release_Automation.md",
+              "path": "8-CICD/Subchapter_8.1/8.1.3_Trunk_Based_Dev_Branch_Protection_and_Release_Automation.md"
+            },
+            {
+              "name": "8.1.4_Subchapter_Review.md",
+              "path": "8-CICD/Subchapter_8.1/8.1.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_8.2",
+          "files": [
+            {
+              "name": "8.2.1_GitHub_Actions_Workflow_Syntax.md",
+              "path": "8-CICD/Subchapter_8.2/8.2.1_GitHub_Actions_Workflow_Syntax.md"
+            },
+            {
+              "name": "8.2.2_Building_Test_and_Publish_Workflows.md",
+              "path": "8-CICD/Subchapter_8.2/8.2.2_Building_Test_and_Publish_Workflows.md"
+            },
+            {
+              "name": "8.2.3_Reusable_Workflows_OIDC_and_Monorepo_CI.md",
+              "path": "8-CICD/Subchapter_8.2/8.2.3_Reusable_Workflows_OIDC_and_Monorepo_CI.md"
+            },
+            {
+              "name": "8.2.4_Subchapter_Review.md",
+              "path": "8-CICD/Subchapter_8.2/8.2.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_8.3",
+          "files": [
+            {
+              "name": "8.3.1_Deployment_Strategies_Explained.md",
+              "path": "8-CICD/Subchapter_8.3/8.3.1_Deployment_Strategies_Explained.md"
+            },
+            {
+              "name": "8.3.2_Security_Scanning_in_CI_CD.md",
+              "path": "8-CICD/Subchapter_8.3/8.3.2_Security_Scanning_in_CI_CD.md"
+            },
+            {
+              "name": "8.3.3_GitLab_CI_Jenkins_Self_Hosted_and_Helm.md",
+              "path": "8-CICD/Subchapter_8.3/8.3.3_GitLab_CI_Jenkins_Self_Hosted_and_Helm.md"
+            },
+            {
+              "name": "8.3.4_Complete_CICD_Cheatsheet_and_Final_Exam.md",
+              "path": "8-CICD/Subchapter_8.3/8.3.4_Complete_CICD_Cheatsheet_and_Final_Exam.md"
+            },
+            {
+              "name": "8.3.5_Subchapter_Review_Plus_Final_Exam.md",
+              "path": "8-CICD/Subchapter_8.3/8.3.5_Subchapter_Review_Plus_Final_Exam.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9-Python",
+      "approachGuide": "9-Python/Module_9_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_9.1",
+          "files": [
+            {
+              "name": "9.1.1_Python_Basics_Data_Types_and_Control_Flow.md",
+              "path": "9-Python/Subchapter_9.1/9.1.1_Python_Basics_Data_Types_and_Control_Flow.md"
+            },
+            {
+              "name": "9.1.2_File_IO_Modules_and_Libraries.md",
+              "path": "9-Python/Subchapter_9.1/9.1.2_File_IO_Modules_and_Libraries.md"
+            },
+            {
+              "name": "9.1.3_Collections_Type_Hints_and_Fstrings.md",
+              "path": "9-Python/Subchapter_9.1/9.1.3_Collections_Type_Hints_and_Fstrings.md"
+            },
+            {
+              "name": "9.1.4_Subchapter_Review.md",
+              "path": "9-Python/Subchapter_9.1/9.1.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_9.2",
+          "files": [
+            {
+              "name": "9.2.1_Subprocess_and_Running_Shell_Commands.md",
+              "path": "9-Python/Subchapter_9.2/9.2.1_Subprocess_and_Running_Shell_Commands.md"
+            },
+            {
+              "name": "9.2.2_Arguments_Environment_and_Path_Handling.md",
+              "path": "9-Python/Subchapter_9.2/9.2.2_Arguments_Environment_and_Path_Handling.md"
+            },
+            {
+              "name": "9.2.3_Advanced_Subprocess_shlex_and_dotenv.md",
+              "path": "9-Python/Subchapter_9.2/9.2.3_Advanced_Subprocess_shlex_and_dotenv.md"
+            },
+            {
+              "name": "9.2.4_Subchapter_Review.md",
+              "path": "9-Python/Subchapter_9.2/9.2.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_9.3",
+          "files": [
+            {
+              "name": "9.3.1_Logging_and_Exception_Handling.md",
+              "path": "9-Python/Subchapter_9.3/9.3.1_Logging_and_Exception_Handling.md"
+            },
+            {
+              "name": "9.3.2_HTTP_Requests_and_REST_APIs.md",
+              "path": "9-Python/Subchapter_9.3/9.3.2_HTTP_Requests_and_REST_APIs.md"
+            },
+            {
+              "name": "9.3.3_Advanced_HTTP_Sessions_and_OAuth2.md",
+              "path": "9-Python/Subchapter_9.3/9.3.3_Advanced_HTTP_Sessions_and_OAuth2.md"
+            },
+            {
+              "name": "9.3.4_Subchapter_Review.md",
+              "path": "9-Python/Subchapter_9.3/9.3.4_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_9.4",
+          "files": [
+            {
+              "name": "9.4.1_Testing_with_pytest.md",
+              "path": "9-Python/Subchapter_9.4/9.4.1_Testing_with_pytest.md"
+            },
+            {
+              "name": "9.4.2_Production_Ready_Patterns.md",
+              "path": "9-Python/Subchapter_9.4/9.4.2_Production_Ready_Patterns.md"
+            },
+            {
+              "name": "9.4.3_Complete_Python_Cheatsheet_and_Grand_Final.md",
+              "path": "9-Python/Subchapter_9.4/9.4.3_Complete_Python_Cheatsheet_and_Grand_Final.md"
+            },
+            {
+              "name": "9.4.4_Subchapter_Review_Plus_Final_Exam.md",
+              "path": "9-Python/Subchapter_9.4/9.4.4_Subchapter_Review_Plus_Final_Exam.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10-GitOps-ArgoCD",
+      "approachGuide": "10-GitOps-ArgoCD/Module_10_Approach_Guide.md",
+      "subchapters": [
+        {
+          "name": "Subchapter_10.1",
+          "files": [
+            {
+              "name": "10.1.1_GitOps_Principles_vs_Push_CI_CD.md",
+              "path": "10-GitOps-ArgoCD/Subchapter_10.1/10.1.1_GitOps_Principles_vs_Push_CI_CD.md"
+            },
+            {
+              "name": "10.1.2_ArgoCD_Architecture_and_Installation.md",
+              "path": "10-GitOps-ArgoCD/Subchapter_10.1/10.1.2_ArgoCD_Architecture_and_Installation.md"
+            },
+            {
+              "name": "10.1.3_Subchapter_Review.md",
+              "path": "10-GitOps-ArgoCD/Subchapter_10.1/10.1.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_10.2",
+          "files": [
+            {
+              "name": "10.2.1_Applications_Sync_Policies_and_Rollbacks.md",
+              "path": "10-GitOps-ArgoCD/Subchapter_10.2/10.2.1_Applications_Sync_Policies_and_Rollbacks.md"
+            },
+            {
+              "name": "10.2.2_App_of_Apps_Helm_Kustomize_and_Multi_Cluster.md",
+              "path": "10-GitOps-ArgoCD/Subchapter_10.2/10.2.2_App_of_Apps_Helm_Kustomize_and_Multi_Cluster.md"
+            },
+            {
+              "name": "10.2.3_Subchapter_Review_Plus_Final_Exam.md",
+              "path": "10-GitOps-ArgoCD/Subchapter_10.2/10.2.3_Subchapter_Review_Plus_Final_Exam.md"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
