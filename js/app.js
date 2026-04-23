@@ -1,21 +1,25 @@
 /**
- * Platform Engineering Notes - Main Application
+ * Platform Engineering Notes - Application
+ * Clean, modern, and feature-rich note viewer
+ * 
  * Features:
- * - Markdown rendering with Mermaid diagram support
- * - Navigation tree from notes structure
- * - Text highlighting with localStorage persistence
- * - Search functionality
+ * - Markdown rendering with Mermaid diagrams
+ * - Text highlighting with color options
+ * - localStorage persistence
+ * - Full-text search
+ * - Keyboard shortcuts
  */
 
 // ========================================
 // Configuration
 // ========================================
 const CONFIG = {
-    STORAGE_KEY: 'platform-notes-highlights',
-    NOTES_INDEX: 'notes.json'
+    STORAGE_KEY: 'platform-notes-highlights-v2',
+    NOTES_INDEX: 'notes.json',
+    HIGHLIGHT_COLORS: ['yellow', 'green', 'blue', 'purple', 'pink']
 };
 
-// Module icons mapping
+// Module icons
 const MODULE_ICONS = {
     '1-Linux': '🐧',
     '2-Networking': '🌐',
@@ -35,6 +39,7 @@ const MODULE_ICONS = {
 let notesData = null;
 let currentNotePath = null;
 let highlights = [];
+let selectedHighlightColor = 'yellow';
 
 // ========================================
 // DOM Elements
@@ -60,38 +65,37 @@ const elements = {
 };
 
 // ========================================
-// Initialize Application
+// Initialize
 // ========================================
 async function init() {
-    // Initialize Mermaid
+    // Initialize Mermaid with better theme
     mermaid.initialize({
         startOnLoad: false,
         theme: 'dark',
+        themeVariables: {
+            primaryColor: '#1c232d',
+            primaryTextColor: '#f0f4f8',
+            primaryBorderColor: '#30363d',
+            lineColor: '#6b7685',
+            secondaryColor: '#151a21',
+            tertiaryColor: '#0f1419',
+            fontFamily: 'Inter, -apple-system, sans-serif',
+            fontSize: '14px'
+        },
         securityLevel: 'loose',
-        fontFamily: 'inherit'
+        fontFamily: 'Inter, -apple-system, sans-serif'
     });
 
-    // Load highlights from localStorage
     loadHighlights();
-
-    // Load notes index
     await loadNotesIndex();
-
-    // Build navigation
     buildNavigation();
-
-    // Setup event listeners
     setupEventListeners();
-
-    // Handle initial URL hash
     handleHashChange();
-
-    // Update highlight count
     updateHighlightCount();
 }
 
 // ========================================
-// Notes Data Loading
+// Data Loading
 // ========================================
 async function loadNotesIndex() {
     try {
@@ -100,39 +104,35 @@ async function loadNotesIndex() {
         notesData = await response.json();
     } catch (error) {
         console.error('Error loading notes index:', error);
-        // Fallback: show error message
         elements.content.innerHTML = `
             <div class="welcome-screen">
-                <h1>⚠️ Error Loading Notes</h1>
-                <p>Could not load the notes index. Please refresh the page.</p>
+                <h1>⚠️ Error</h1>
+                <p class="subtitle">Could not load notes index. Please refresh the page.</p>
             </div>
         `;
     }
 }
 
 // ========================================
-// Navigation Building
+// Navigation
 // ========================================
 function buildNavigation() {
     if (!notesData) return;
-
     elements.navTree.innerHTML = '';
-
     notesData.modules.forEach(module => {
-        const moduleEl = createModuleElement(module);
-        elements.navTree.appendChild(moduleEl);
+        elements.navTree.appendChild(createModuleElement(module));
     });
 }
 
 function createModuleElement(module) {
-    const moduleDiv = document.createElement('div');
-    moduleDiv.className = 'nav-module';
-    moduleDiv.dataset.module = module.name;
+    const div = document.createElement('div');
+    div.className = 'nav-module';
+    div.dataset.module = module.name;
 
     const icon = MODULE_ICONS[module.name] || '📁';
     const displayName = module.name.replace(/^\d+-/, '').replace(/-/g, ' ');
 
-    moduleDiv.innerHTML = `
+    div.innerHTML = `
         <div class="nav-module-header">
             <span class="icon">${icon}</span>
             <span class="name">${displayName}</span>
@@ -141,39 +141,34 @@ function createModuleElement(module) {
         <div class="nav-module-content"></div>
     `;
 
-    const header = moduleDiv.querySelector('.nav-module-header');
-    const content = moduleDiv.querySelector('.nav-module-content');
+    const header = div.querySelector('.nav-module-header');
+    const content = div.querySelector('.nav-module-content');
 
-    header.addEventListener('click', () => {
-        moduleDiv.classList.toggle('expanded');
-    });
+    header.addEventListener('click', () => div.classList.toggle('expanded'));
 
-    // Add approach guide if exists
     if (module.approachGuide) {
-        const guideItem = document.createElement('div');
-        guideItem.className = 'nav-item approach-guide';
-        guideItem.textContent = '📋 Approach Guide';
-        guideItem.dataset.path = module.approachGuide;
-        guideItem.addEventListener('click', () => loadNote(module.approachGuide));
-        content.appendChild(guideItem);
+        const guide = document.createElement('div');
+        guide.className = 'nav-item approach-guide';
+        guide.textContent = '📋 Approach Guide';
+        guide.dataset.path = module.approachGuide;
+        guide.addEventListener('click', () => loadNote(module.approachGuide));
+        content.appendChild(guide);
     }
 
-    // Add subchapters
-    module.subchapters.forEach(subchapter => {
-        const subchapterEl = createSubchapterElement(subchapter);
-        content.appendChild(subchapterEl);
+    module.subchapters.forEach(sub => {
+        content.appendChild(createSubchapterElement(sub));
     });
 
-    return moduleDiv;
+    return div;
 }
 
 function createSubchapterElement(subchapter) {
-    const subDiv = document.createElement('div');
-    subDiv.className = 'nav-subchapter';
+    const div = document.createElement('div');
+    div.className = 'nav-subchapter';
 
     const displayName = subchapter.name.replace(/^Subchapter_/, '').replace(/_/g, '.');
 
-    subDiv.innerHTML = `
+    div.innerHTML = `
         <div class="nav-subchapter-header">
             <span class="name">${displayName}</span>
             <span class="arrow">▶</span>
@@ -181,33 +176,28 @@ function createSubchapterElement(subchapter) {
         <div class="nav-subchapter-content"></div>
     `;
 
-    const header = subDiv.querySelector('.nav-subchapter-header');
-    const content = subDiv.querySelector('.nav-subchapter-content');
+    const header = div.querySelector('.nav-subchapter-header');
+    const content = div.querySelector('.nav-subchapter-content');
 
-    header.addEventListener('click', (e) => {
+    header.addEventListener('click', e => {
         e.stopPropagation();
-        subDiv.classList.toggle('expanded');
+        div.classList.toggle('expanded');
     });
 
-    // Add files
     subchapter.files.forEach(file => {
-        const fileItem = document.createElement('div');
-        const isReview = file.name.toLowerCase().includes('review') || 
-                         file.name.toLowerCase().includes('exam') ||
-                         file.name.toLowerCase().includes('cheatsheet');
-        
-        fileItem.className = `nav-item${isReview ? ' review' : ''}`;
-        fileItem.textContent = formatFileName(file.name);
-        fileItem.dataset.path = file.path;
-        fileItem.addEventListener('click', () => loadNote(file.path));
-        content.appendChild(fileItem);
+        const item = document.createElement('div');
+        const isReview = /review|exam|cheatsheet/i.test(file.name);
+        item.className = `nav-item${isReview ? ' review' : ''}`;
+        item.textContent = formatFileName(file.name);
+        item.dataset.path = file.path;
+        item.addEventListener('click', () => loadNote(file.path));
+        content.appendChild(item);
     });
 
-    return subDiv;
+    return div;
 }
 
 function formatFileName(name) {
-    // Remove extension and leading numbers
     return name
         .replace(/\.md$/, '')
         .replace(/^[\d.]+_?/, '')
@@ -216,55 +206,40 @@ function formatFileName(name) {
 }
 
 // ========================================
-// Note Loading and Rendering
+// Note Loading & Rendering
 // ========================================
 async function loadNote(path) {
     currentNotePath = path;
-    
-    // Update URL hash
     window.location.hash = encodeURIComponent(path);
-
-    // Show loading state
     elements.content.innerHTML = '<div class="loading"></div>';
 
-    // Update active state in navigation
     updateActiveNavItem(path);
-
-    // Update breadcrumb
     updateBreadcrumb(path);
 
     try {
         const response = await fetch(path);
         if (!response.ok) throw new Error('Failed to load note');
-        
         const markdown = await response.text();
         renderMarkdown(markdown);
-        
-        // Apply existing highlights
         applyHighlights();
-        
-        // Close mobile sidebar
         closeMobileSidebar();
-        
-        // Scroll to top
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
         console.error('Error loading note:', error);
         elements.content.innerHTML = `
             <div class="welcome-screen">
-                <h1>⚠️ Error Loading Note</h1>
-                <p>Could not load: ${path}</p>
+                <h1>⚠️ Error</h1>
+                <p class="subtitle">Could not load: ${path}</p>
             </div>
         `;
     }
 }
 
 function renderMarkdown(markdown) {
-    // Configure marked
     marked.setOptions({
         gfm: true,
         breaks: true,
-        highlight: function(code, lang) {
+        highlight: (code, lang) => {
             if (lang && hljs.getLanguage(lang)) {
                 try {
                     return hljs.highlight(code, { language: lang }).value;
@@ -274,16 +249,15 @@ function renderMarkdown(markdown) {
         }
     });
 
-    // Pre-process mermaid blocks
+    // Extract mermaid blocks
     const mermaidBlocks = [];
-    const processedMarkdown = markdown.replace(/```mermaid\n([\s\S]*?)```/g, (match, code) => {
+    const processed = markdown.replace(/```mermaid\n([\s\S]*?)```/g, (_, code) => {
         const id = `mermaid-${mermaidBlocks.length}`;
         mermaidBlocks.push({ id, code: code.trim() });
         return `<div class="mermaid" id="${id}"></div>`;
     });
 
-    // Render markdown
-    elements.content.innerHTML = marked.parse(processedMarkdown);
+    elements.content.innerHTML = marked.parse(processed);
 
     // Render mermaid diagrams
     mermaidBlocks.forEach(async ({ id, code }) => {
@@ -293,123 +267,153 @@ function renderMarkdown(markdown) {
                 const { svg } = await mermaid.render(`${id}-svg`, code);
                 el.innerHTML = svg;
             } catch (e) {
-                console.error('Mermaid render error:', e);
-                el.innerHTML = `<pre>${code}</pre>`;
+                console.error('Mermaid error:', e);
+                el.innerHTML = `<pre style="text-align:left;font-size:0.8rem;">${escapeHtml(code)}</pre>`;
             }
+        }
+    });
+
+    // Add language labels to code blocks
+    elements.content.querySelectorAll('pre code').forEach(block => {
+        const lang = [...block.classList].find(c => c.startsWith('language-'));
+        if (lang) {
+            block.parentElement.dataset.lang = lang.replace('language-', '');
         }
     });
 }
 
 function updateActiveNavItem(path) {
-    // Remove all active states
-    document.querySelectorAll('.nav-item.active').forEach(el => {
-        el.classList.remove('active');
-    });
-
-    // Find and activate the current item
-    const activeItem = document.querySelector(`.nav-item[data-path="${path}"]`);
-    if (activeItem) {
-        activeItem.classList.add('active');
-
-        // Expand parent containers
-        const subchapter = activeItem.closest('.nav-subchapter');
-        if (subchapter) subchapter.classList.add('expanded');
-
-        const module = activeItem.closest('.nav-module');
-        if (module) module.classList.add('expanded');
+    document.querySelectorAll('.nav-item.active').forEach(el => el.classList.remove('active'));
+    
+    const active = document.querySelector(`.nav-item[data-path="${path}"]`);
+    if (active) {
+        active.classList.add('active');
+        const sub = active.closest('.nav-subchapter');
+        if (sub) sub.classList.add('expanded');
+        const mod = active.closest('.nav-module');
+        if (mod) mod.classList.add('expanded');
     }
 }
 
 function updateBreadcrumb(path) {
     const parts = path.split('/');
-    const module = parts[0];
-    const subchapter = parts[1];
-    const file = parts[2];
+    const module = parts[0].replace(/^\d+-/, '').replace(/-/g, ' ');
+    const sub = parts[1] ? parts[1].replace(/^Subchapter_/, '').replace(/_/g, '.') : '';
+    const file = parts[2] ? formatFileName(parts[2]) : '';
 
-    const moduleName = module.replace(/^\d+-/, '').replace(/-/g, ' ');
-    const subchapterName = subchapter ? subchapter.replace(/^Subchapter_/, '').replace(/_/g, '.') : '';
-    const fileName = file ? formatFileName(file) : '';
+    let html = `<a href="#" onclick="showWelcome(); return false;">Home</a>`;
+    html += ` <span>/</span> ${module}`;
+    if (sub) html += ` <span>/</span> ${sub}`;
+    if (file) html += ` <span>/</span> ${file}`;
 
-    let breadcrumbHtml = `<a href="#" onclick="showWelcome(); return false;">Home</a>`;
-    breadcrumbHtml += ` <span>/</span> ${moduleName}`;
-    if (subchapterName) breadcrumbHtml += ` <span>/</span> ${subchapterName}`;
-    if (fileName) breadcrumbHtml += ` <span>/</span> ${fileName}`;
-
-    elements.breadcrumb.innerHTML = breadcrumbHtml;
+    elements.breadcrumb.innerHTML = html;
 }
 
 function showWelcome() {
     currentNotePath = null;
     window.location.hash = '';
     elements.breadcrumb.innerHTML = '';
+    document.querySelectorAll('.nav-item.active').forEach(el => el.classList.remove('active'));
     
-    // Remove active states
-    document.querySelectorAll('.nav-item.active').forEach(el => {
-        el.classList.remove('active');
-    });
-
-    // Show welcome screen
-    elements.content.innerHTML = document.querySelector('.welcome-screen')?.outerHTML || 
-        '<h1>Welcome to Platform Engineering Notes</h1>';
-    
-    // Re-attach module card listeners
+    // Rebuild welcome screen
+    elements.content.innerHTML = getWelcomeHTML();
     setupModuleCards();
 }
 
 function handleHashChange() {
     const hash = window.location.hash.slice(1);
     if (hash) {
-        const path = decodeURIComponent(hash);
-        loadNote(path);
+        loadNote(decodeURIComponent(hash));
     }
 }
 
+function getWelcomeHTML() {
+    return `
+        <div class="welcome-screen">
+            <h1>Platform Engineering Notes</h1>
+            <p class="subtitle">Comprehensive study guide for DevOps and Platform Engineering</p>
+            
+            <div class="modules-grid">
+                ${Object.entries(MODULE_ICONS).map(([key, icon]) => {
+                    const name = key.replace(/^\d+-/, '').replace(/-/g, ' ');
+                    return `
+                        <div class="module-card" data-module="${key}">
+                            <div class="icon">${icon}</div>
+                            <div class="name">${name}</div>
+                            <div class="topics">${getModuleTopics(key)}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            
+            <div class="how-to-use">
+                <h3>💡 How to Use</h3>
+                <ul>
+                    <li><strong>Navigate:</strong> Browse modules and chapters in the sidebar</li>
+                    <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
+                    <li><strong>Highlight:</strong> Select text and choose a color to save it</li>
+                    <li><strong>Diagrams:</strong> Visual Mermaid diagrams in every note</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+function getModuleTopics(module) {
+    const topics = {
+        '1-Linux': 'FHS, Permissions, SSH, Storage, Systemd, Packages',
+        '2-Networking': 'OSI, TCP/IP, DNS, Firewalls, HTTP, Load Balancing',
+        '3-Shell-Scripting': 'Bash, Variables, Loops, Functions, Regex',
+        '4-Docker': 'Containers, Images, Networking, Volumes, Compose',
+        '5-Kubernetes': 'Architecture, Pods, Services, Ingress, RBAC, Helm',
+        '6-Git': 'Objects, Branching, Rebasing, Hooks, Recovery',
+        '7-Nginx': 'Reverse Proxy, Load Balancing, SSL, Rate Limiting',
+        '8-CICD': 'Pipelines, GitHub Actions, Security Scanning',
+        '9-Python': 'Subprocess, APIs, Logging, Testing, Patterns',
+        '10-GitOps-ArgoCD': 'GitOps Principles, ArgoCD, Sync Policies'
+    };
+    return topics[module] || '';
+}
+
 // ========================================
-// Search Functionality
+// Search
 // ========================================
 function setupSearch() {
-    let debounceTimer;
-    
-    elements.searchInput.addEventListener('input', (e) => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            filterNavigation(e.target.value.toLowerCase());
-        }, 200);
+    let timer;
+    elements.searchInput.addEventListener('input', e => {
+        clearTimeout(timer);
+        timer = setTimeout(() => filterNavigation(e.target.value.toLowerCase()), 150);
     });
 }
 
 function filterNavigation(query) {
     if (!query) {
-        // Show all items
         document.querySelectorAll('.nav-module, .nav-subchapter, .nav-item').forEach(el => {
             el.style.display = '';
         });
-        // Collapse all
         document.querySelectorAll('.nav-module, .nav-subchapter').forEach(el => {
             el.classList.remove('expanded');
         });
         return;
     }
 
-    document.querySelectorAll('.nav-module').forEach(moduleEl => {
-        let moduleHasMatch = false;
+    document.querySelectorAll('.nav-module').forEach(mod => {
+        let hasMatch = false;
 
-        moduleEl.querySelectorAll('.nav-item').forEach(item => {
-            const text = item.textContent.toLowerCase();
-            const matches = text.includes(query);
+        mod.querySelectorAll('.nav-item').forEach(item => {
+            const matches = item.textContent.toLowerCase().includes(query);
             item.style.display = matches ? '' : 'none';
-            if (matches) moduleHasMatch = true;
+            if (matches) hasMatch = true;
         });
 
-        moduleEl.querySelectorAll('.nav-subchapter').forEach(subEl => {
-            const hasVisibleItems = subEl.querySelectorAll('.nav-item[style=""]').length > 0 ||
-                                   subEl.querySelectorAll('.nav-item:not([style*="none"])').length > 0;
-            subEl.style.display = hasVisibleItems ? '' : 'none';
-            if (hasVisibleItems) subEl.classList.add('expanded');
+        mod.querySelectorAll('.nav-subchapter').forEach(sub => {
+            const visible = sub.querySelectorAll('.nav-item:not([style*="none"])').length > 0;
+            sub.style.display = visible ? '' : 'none';
+            if (visible) sub.classList.add('expanded');
         });
 
-        moduleEl.style.display = moduleHasMatch ? '' : 'none';
-        if (moduleHasMatch) moduleEl.classList.add('expanded');
+        mod.style.display = hasMatch ? '' : 'none';
+        if (hasMatch) mod.classList.add('expanded');
     });
 }
 
@@ -418,8 +422,7 @@ function filterNavigation(query) {
 // ========================================
 function loadHighlights() {
     try {
-        const stored = localStorage.getItem(CONFIG.STORAGE_KEY);
-        highlights = stored ? JSON.parse(stored) : [];
+        highlights = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || [];
     } catch (e) {
         highlights = [];
     }
@@ -440,34 +443,27 @@ function updateHighlightCount() {
 
 function applyHighlights() {
     if (!currentNotePath) return;
-
-    const pageHighlights = highlights.filter(h => h.path === currentNotePath);
-    
-    pageHighlights.forEach(highlight => {
-        highlightTextInContent(highlight.text, highlight.id);
-    });
+    highlights
+        .filter(h => h.path === currentNotePath)
+        .forEach(h => highlightText(h.text, h.id, h.color || 'yellow'));
 }
 
-function highlightTextInContent(text, highlightId) {
-    const walker = document.createTreeWalker(
-        elements.content,
-        NodeFilter.SHOW_TEXT,
-        null,
-        false
-    );
-
+function highlightText(text, id, color) {
+    const walker = document.createTreeWalker(elements.content, NodeFilter.SHOW_TEXT);
     let node;
+    
     while (node = walker.nextNode()) {
-        const index = node.textContent.indexOf(text);
-        if (index !== -1) {
+        const idx = node.textContent.indexOf(text);
+        if (idx !== -1) {
             const range = document.createRange();
-            range.setStart(node, index);
-            range.setEnd(node, index + text.length);
+            range.setStart(node, idx);
+            range.setEnd(node, idx + text.length);
 
             const span = document.createElement('span');
             span.className = 'user-highlight';
-            span.dataset.highlightId = highlightId;
-            span.addEventListener('click', () => scrollToHighlightInPanel(highlightId));
+            span.dataset.highlightId = id;
+            span.dataset.color = color;
+            span.addEventListener('click', () => scrollToHighlight(id));
 
             range.surroundContents(span);
             break;
@@ -475,74 +471,60 @@ function highlightTextInContent(text, highlightId) {
     }
 }
 
-function addHighlight(text) {
+function addHighlight(text, color = 'yellow') {
     if (!currentNotePath || !text.trim()) return;
 
     const highlight = {
-        id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
         path: currentNotePath,
         text: text.trim(),
+        color: color,
         createdAt: new Date().toISOString()
     };
 
     highlights.push(highlight);
     saveHighlights();
-    highlightTextInContent(highlight.text, highlight.id);
+    highlightText(highlight.text, highlight.id, highlight.color);
     renderHighlightsList();
 }
 
 function removeHighlight(id) {
     highlights = highlights.filter(h => h.id !== id);
     saveHighlights();
-    
-    // Remove from DOM
+
     const el = document.querySelector(`[data-highlight-id="${id}"]`);
-    if (el) {
-        const text = el.textContent;
-        el.replaceWith(document.createTextNode(text));
-    }
-    
+    if (el) el.replaceWith(document.createTextNode(el.textContent));
+
     renderHighlightsList();
 }
 
 function clearPageHighlights() {
     if (!currentNotePath) return;
-    
     highlights = highlights.filter(h => h.path !== currentNotePath);
     saveHighlights();
-    
-    // Remove all highlights from DOM
     document.querySelectorAll('.user-highlight').forEach(el => {
         el.replaceWith(document.createTextNode(el.textContent));
     });
-    
     renderHighlightsList();
 }
 
 function clearAllHighlights() {
-    if (!confirm('Are you sure you want to delete ALL highlights? This cannot be undone.')) return;
-    
+    if (!confirm('Delete ALL highlights? This cannot be undone.')) return;
     highlights = [];
     saveHighlights();
-    
-    // Remove all highlights from DOM
     document.querySelectorAll('.user-highlight').forEach(el => {
         el.replaceWith(document.createTextNode(el.textContent));
     });
-    
     renderHighlightsList();
 }
 
 function exportHighlights() {
-    const data = JSON.stringify(highlights, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(highlights, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
     const a = document.createElement('a');
     a.href = url;
     a.download = 'platform-notes-highlights.json';
     a.click();
-    
     URL.revokeObjectURL(url);
 }
 
@@ -550,53 +532,52 @@ function renderHighlightsList() {
     if (highlights.length === 0) {
         elements.highlightsList.innerHTML = `
             <div class="no-highlights">
-                <p>No highlights yet.</p>
-                <p>Select text in the notes to highlight it!</p>
+                <p>📝</p>
+                <p>Select any text to highlight it</p>
             </div>
         `;
         return;
     }
 
-    // Sort by creation date (newest first)
     const sorted = [...highlights].sort((a, b) => 
         new Date(b.createdAt) - new Date(a.createdAt)
     );
 
     elements.highlightsList.innerHTML = sorted.map(h => `
         <div class="highlight-item" data-path="${h.path}" data-id="${h.id}">
-            <div class="highlight-item-source">${formatPathForDisplay(h.path)}</div>
-            <div class="highlight-item-text">${escapeHtml(h.text)}</div>
+            <div class="highlight-item-source">📄 ${formatPath(h.path)}</div>
+            <div class="highlight-item-text" data-color="${h.color || 'yellow'}" 
+                 style="background: var(--highlight-${h.color || 'yellow'})">${escapeHtml(h.text)}</div>
             <div class="highlight-item-actions">
                 <button class="highlight-item-delete" data-id="${h.id}">🗑️ Remove</button>
             </div>
         </div>
     `).join('');
 
-    // Add click handlers
     elements.highlightsList.querySelectorAll('.highlight-item').forEach(item => {
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', e => {
             if (e.target.classList.contains('highlight-item-delete')) {
                 e.stopPropagation();
                 removeHighlight(e.target.dataset.id);
             } else {
-                const path = item.dataset.path;
-                loadNote(path);
+                loadNote(item.dataset.path);
                 closeHighlightsPanel();
             }
         });
     });
 }
 
-function scrollToHighlightInPanel(id) {
+function scrollToHighlight(id) {
     openHighlightsPanel();
     const item = elements.highlightsList.querySelector(`[data-id="${id}"]`);
     if (item) {
         item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        item.style.animation = 'pulse 0.5s ease';
+        item.style.transform = 'scale(1.02)';
+        setTimeout(() => item.style.transform = '', 300);
     }
 }
 
-function formatPathForDisplay(path) {
+function formatPath(path) {
     const parts = path.split('/');
     const module = parts[0].replace(/^\d+-/, '');
     const file = formatFileName(parts[parts.length - 1]);
@@ -610,28 +591,24 @@ function escapeHtml(text) {
 }
 
 // ========================================
-// Text Selection Handling
+// Text Selection & Popup
 // ========================================
 function setupTextSelection() {
     let selectedText = '';
 
-    document.addEventListener('mouseup', (e) => {
-        // Ignore if clicking inside popup or panel
-        if (e.target.closest('.highlight-popup') || e.target.closest('.highlights-panel')) {
-            return;
-        }
+    document.addEventListener('mouseup', e => {
+        if (e.target.closest('.highlight-popup') || e.target.closest('.highlights-panel')) return;
 
         const selection = window.getSelection();
         selectedText = selection.toString().trim();
 
         if (selectedText && selectedText.length > 2 && elements.content.contains(selection.anchorNode)) {
-            // Position popup near selection
             const range = selection.getRangeAt(0);
             const rect = range.getBoundingClientRect();
             
             elements.highlightPopup.style.display = 'block';
-            elements.highlightPopup.style.left = `${rect.left + rect.width / 2 - 50}px`;
-            elements.highlightPopup.style.top = `${rect.top - 40 + window.scrollY}px`;
+            elements.highlightPopup.style.left = `${rect.left + rect.width / 2 - 70 + window.scrollX}px`;
+            elements.highlightPopup.style.top = `${rect.top - 50 + window.scrollY}px`;
         } else {
             elements.highlightPopup.style.display = 'none';
         }
@@ -639,14 +616,26 @@ function setupTextSelection() {
 
     elements.addHighlightBtn.addEventListener('click', () => {
         if (selectedText) {
-            addHighlight(selectedText);
+            addHighlight(selectedText, selectedHighlightColor);
             window.getSelection().removeAllRanges();
             elements.highlightPopup.style.display = 'none';
         }
     });
 
-    // Hide popup when clicking elsewhere
-    document.addEventListener('mousedown', (e) => {
+    // Color selection
+    document.querySelectorAll('.highlight-color-option').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            selectedHighlightColor = btn.dataset.color;
+            document.querySelectorAll('.highlight-color-option').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update button color
+            elements.addHighlightBtn.style.background = `var(--highlight-${selectedHighlightColor})`;
+        });
+    });
+
+    document.addEventListener('mousedown', e => {
         if (!e.target.closest('.highlight-popup')) {
             elements.highlightPopup.style.display = 'none';
         }
@@ -654,7 +643,7 @@ function setupTextSelection() {
 }
 
 // ========================================
-// Highlights Panel
+// Panels
 // ========================================
 function openHighlightsPanel() {
     renderHighlightsList();
@@ -667,94 +656,67 @@ function closeHighlightsPanel() {
     elements.overlay.classList.remove('active');
 }
 
-// ========================================
-// Mobile Navigation
-// ========================================
 function openMobileSidebar() {
     elements.sidebar.classList.add('open');
-    elements.mobileMenuToggle.classList.add('active');
     elements.overlay.classList.add('active');
 }
 
 function closeMobileSidebar() {
     elements.sidebar.classList.remove('open');
-    elements.mobileMenuToggle.classList.remove('active');
     if (!elements.highlightsPanel.classList.contains('open')) {
         elements.overlay.classList.remove('active');
     }
 }
 
 // ========================================
-// Module Cards (Welcome Screen)
+// Module Cards
 // ========================================
 function setupModuleCards() {
     document.querySelectorAll('.module-card').forEach(card => {
         card.addEventListener('click', () => {
-            const moduleName = card.dataset.module;
-            
-            // Find the module in navTree and expand it
-            const moduleEl = document.querySelector(`.nav-module[data-module="${moduleName}"]`);
-            if (moduleEl) {
-                moduleEl.classList.add('expanded');
-                
-                // Load the first file
-                const firstItem = moduleEl.querySelector('.nav-item');
-                if (firstItem) {
-                    loadNote(firstItem.dataset.path);
-                }
+            const mod = document.querySelector(`.nav-module[data-module="${card.dataset.module}"]`);
+            if (mod) {
+                mod.classList.add('expanded');
+                const first = mod.querySelector('.nav-item');
+                if (first) loadNote(first.dataset.path);
             }
         });
     });
 }
 
 // ========================================
-// Event Listeners Setup
+// Event Listeners
 // ========================================
 function setupEventListeners() {
-    // Search
     setupSearch();
-
-    // Text selection for highlighting
     setupTextSelection();
-
-    // Module cards
     setupModuleCards();
 
-    // Highlights panel
     elements.toggleHighlights.addEventListener('click', openHighlightsPanel);
     elements.closePanelBtn.addEventListener('click', closeHighlightsPanel);
     elements.clearHighlightsBtn.addEventListener('click', clearPageHighlights);
     elements.clearAllHighlightsBtn.addEventListener('click', clearAllHighlights);
     elements.exportHighlightsBtn.addEventListener('click', exportHighlights);
 
-    // Mobile menu
     elements.mobileMenuToggle.addEventListener('click', () => {
-        if (elements.sidebar.classList.contains('open')) {
-            closeMobileSidebar();
-        } else {
-            openMobileSidebar();
-        }
+        elements.sidebar.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
     });
 
-    // Overlay click
     elements.overlay.addEventListener('click', () => {
         closeMobileSidebar();
         closeHighlightsPanel();
     });
 
-    // Hash change
     window.addEventListener('hashchange', handleHashChange);
 
     // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        // Escape closes panels
+    document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             closeMobileSidebar();
             closeHighlightsPanel();
             elements.highlightPopup.style.display = 'none';
         }
-        
-        // Ctrl/Cmd + K focuses search
+
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             elements.searchInput.focus();
@@ -763,6 +725,6 @@ function setupEventListeners() {
 }
 
 // ========================================
-// Start Application
+// Start
 // ========================================
 document.addEventListener('DOMContentLoaded', init);

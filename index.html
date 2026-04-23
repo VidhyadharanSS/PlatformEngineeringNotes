@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Comprehensive Platform Engineering Notes - Linux, Networking, Docker, Kubernetes, Git, CI/CD, and more">
-    <meta name="theme-color" content="#0d1117">
+    <meta name="theme-color" content="#0f1419">
     <title>Platform Engineering Notes</title>
     
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     
-    <!-- Fonts -->
+    <!-- Fonts - Inter for UI, Fira Code for code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     
-    <!-- Highlight.js for code highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <!-- Highlight.js - GitHub Dark Dimmed theme for better readability -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
     
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1><span>📚</span> Platform Engineering</h1>
@@ -33,14 +33,12 @@
                 <input type="text" class="search-input" id="searchInput" placeholder="Search notes... (Ctrl+K)">
             </div>
             
-            <nav class="nav-tree" id="navTree">
-                <!-- Navigation will be populated by JavaScript -->
-            </nav>
+            <nav class="nav-tree" id="navTree"></nav>
             
             <div class="sidebar-footer">
                 <button class="highlight-toggle" id="toggleHighlights">
                     <span>📝 My Highlights</span>
-                    <span class="highlight-count" id="highlightCount">0 highlights</span>
+                    <span class="highlight-count" id="highlightCount">0 highlights saved</span>
                 </button>
             </div>
         </aside>
@@ -54,7 +52,6 @@
             
             <div class="content-area">
                 <article class="markdown-content" id="markdownContent">
-                    <!-- Welcome Screen -->
                     <div class="welcome-screen">
                         <h1>Platform Engineering Notes</h1>
                         <p class="subtitle">Comprehensive study guide for DevOps and Platform Engineering</p>
@@ -112,13 +109,13 @@
                             </div>
                         </div>
                         
-                        <div style="margin-top: 3rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
-                            <h3 style="margin-bottom: 1rem;">💡 How to Use</h3>
-                            <ul style="text-align: left; color: var(--text-secondary); line-height: 2;">
-                                <li><strong>Navigate:</strong> Use the sidebar to browse modules and chapters</li>
-                                <li><strong>Search:</strong> Press <kbd style="background: var(--bg-tertiary); padding: 0.2em 0.5em; border-radius: 4px;">Ctrl+K</kbd> to search all notes</li>
-                                <li><strong>Highlight:</strong> Select any text to save it for later review</li>
-                                <li><strong>Diagrams:</strong> Every note includes Mermaid diagrams for visual learning</li>
+                        <div class="how-to-use">
+                            <h3>💡 How to Use</h3>
+                            <ul>
+                                <li><strong>Navigate:</strong> Browse modules and chapters in the sidebar</li>
+                                <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
+                                <li><strong>Highlight:</strong> Select text and choose a color to save it</li>
+                                <li><strong>Diagrams:</strong> Visual Mermaid diagrams in every note</li>
                             </ul>
                         </div>
                     </div>
@@ -127,9 +124,16 @@
         </main>
     </div>
 
-    <!-- Highlight Popup -->
+    <!-- Highlight Popup with Color Options -->
     <div class="highlight-popup" id="highlightPopup">
-        <button id="addHighlightBtn">📌 Highlight</button>
+        <div class="highlight-popup-inner">
+            <button id="addHighlightBtn" style="background: var(--highlight-yellow);">📌 Highlight</button>
+            <div class="highlight-color-option yellow active" data-color="yellow" title="Yellow"></div>
+            <div class="highlight-color-option green" data-color="green" title="Green"></div>
+            <div class="highlight-color-option blue" data-color="blue" title="Blue"></div>
+            <div class="highlight-color-option purple" data-color="purple" title="Purple"></div>
+            <div class="highlight-color-option pink" data-color="pink" title="Pink"></div>
+        </div>
     </div>
 
     <!-- Highlights Panel -->
@@ -141,22 +145,79 @@
         <div class="highlights-panel-actions">
             <button id="clearHighlightsBtn">Clear Page</button>
             <button id="clearAllHighlightsBtn">Clear All</button>
-            <button id="exportHighlightsBtn">Export JSON</button>
+            <button id="exportHighlightsBtn">Export</button>
         </div>
-        <div class="highlights-list" id="highlightsList">
-            <!-- Highlights will be populated by JavaScript -->
-        </div>
+        <div class="highlights-list" id="highlightsList"></div>
     </aside>
 
     <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
 
-    <!-- External Libraries -->
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
     
-    <!-- Main Application -->
+    <!-- App -->
     <script src="js/app.js"></script>
+
+    <style>
+        /* Highlight color option styling */
+        .highlight-popup-inner {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 6px 8px;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .highlight-color-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        
+        .highlight-color-option:hover {
+            transform: scale(1.2);
+        }
+        
+        .highlight-color-option.active {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 0 2px var(--bg-tertiary);
+        }
+        
+        .highlight-color-option.yellow { background: rgba(255, 230, 109, 0.7); }
+        .highlight-color-option.green { background: rgba(126, 231, 135, 0.6); }
+        .highlight-color-option.blue { background: rgba(108, 182, 255, 0.6); }
+        .highlight-color-option.purple { background: rgba(210, 168, 255, 0.6); }
+        .highlight-color-option.pink { background: rgba(255, 155, 206, 0.6); }
+        
+        #addHighlightBtn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            color: #0f1419;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: var(--font-sans);
+        }
+        
+        #addHighlightBtn:hover {
+            transform: scale(1.02);
+            filter: brightness(1.05);
+        }
+    </style>
 </body>
 </html>
