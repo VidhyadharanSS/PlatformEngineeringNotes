@@ -3,22 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Comprehensive Platform Engineering Notes - Linux, Networking, Docker, Kubernetes, Git, CI/CD, and more">
-    <meta name="theme-color" content="#0d1117">
+    <meta name="description" content="Platform Engineering Notes - Linux, Docker, Kubernetes, CI/CD">
     <title>Platform Engineering Notes</title>
-    
-    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-    
-    <!-- Fonts - Inter for UI, Fira Code for code -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    
-    <!-- Highlight.js - GitHub Dark Dimmed theme -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
-    
-    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -26,11 +14,9 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1><span>📚</span> Platform Engineering</h1>
-                
-                <!-- Theme Switcher -->
+                <h1><span>📚</span> Platform Notes</h1>
                 <div class="theme-switcher">
-                    <button class="theme-btn" id="themeBtn" title="Change theme">🌙</button>
+                    <button class="theme-btn" id="themeBtn" title="Theme">🌙</button>
                     <div class="theme-dropdown" id="themeDropdown">
                         <button class="theme-option active" data-theme="dark">
                             <span class="theme-icon">🌙</span>
@@ -57,20 +43,20 @@
             </div>
             
             <div class="search-container">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search notes... (Ctrl+K)">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search... (Ctrl+K)">
             </div>
             
             <nav class="nav-tree" id="navTree"></nav>
             
             <div class="sidebar-footer">
                 <button class="highlight-toggle" id="toggleHighlights">
-                    <span>📝 My Highlights</span>
-                    <span class="highlight-count" id="highlightCount">0 highlights saved</span>
+                    <span>📝 Highlights</span>
+                    <span class="highlight-count" id="highlightCount">0 saved</span>
                 </button>
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main -->
         <main class="main-content">
             <header class="content-header">
                 <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
@@ -87,63 +73,63 @@
                             <div class="module-card" data-module="1-Linux">
                                 <div class="icon">🐧</div>
                                 <div class="name">Linux</div>
-                                <div class="topics">FHS, Permissions, SSH, Storage, Systemd, Packages</div>
+                                <div class="topics">FHS, Permissions, SSH, Storage, Systemd</div>
                             </div>
                             <div class="module-card" data-module="2-Networking">
                                 <div class="icon">🌐</div>
                                 <div class="name">Networking</div>
-                                <div class="topics">OSI, TCP/IP, DNS, Firewalls, HTTP, Load Balancing</div>
+                                <div class="topics">OSI, TCP/IP, DNS, Firewalls, HTTP</div>
                             </div>
                             <div class="module-card" data-module="3-Shell-Scripting">
                                 <div class="icon">📜</div>
                                 <div class="name">Shell Scripting</div>
-                                <div class="topics">Bash, Variables, Loops, Functions, Regex</div>
+                                <div class="topics">Bash, Variables, Loops, Functions</div>
                             </div>
                             <div class="module-card" data-module="4-Docker">
                                 <div class="icon">🐳</div>
                                 <div class="name">Docker</div>
-                                <div class="topics">Containers, Images, Networking, Volumes, Compose</div>
+                                <div class="topics">Containers, Images, Networking, Volumes</div>
                             </div>
                             <div class="module-card" data-module="5-Kubernetes">
                                 <div class="icon">☸️</div>
                                 <div class="name">Kubernetes</div>
-                                <div class="topics">Architecture, Pods, Services, Ingress, RBAC, Helm</div>
+                                <div class="topics">Architecture, Pods, Services, RBAC</div>
                             </div>
                             <div class="module-card" data-module="6-Git">
                                 <div class="icon">📦</div>
                                 <div class="name">Git</div>
-                                <div class="topics">Objects, Branching, Rebasing, Hooks, Recovery</div>
+                                <div class="topics">Objects, Branching, Rebasing, Hooks</div>
                             </div>
                             <div class="module-card" data-module="7-Nginx">
                                 <div class="icon">⚡</div>
                                 <div class="name">Nginx</div>
-                                <div class="topics">Reverse Proxy, Load Balancing, SSL, Rate Limiting</div>
+                                <div class="topics">Reverse Proxy, Load Balancing, SSL</div>
                             </div>
                             <div class="module-card" data-module="8-CICD">
                                 <div class="icon">🔄</div>
                                 <div class="name">CI/CD</div>
-                                <div class="topics">Pipelines, GitHub Actions, Security Scanning</div>
+                                <div class="topics">Pipelines, GitHub Actions, Security</div>
                             </div>
                             <div class="module-card" data-module="9-Python">
                                 <div class="icon">🐍</div>
                                 <div class="name">Python</div>
-                                <div class="topics">Subprocess, APIs, Logging, Testing, Patterns</div>
+                                <div class="topics">Subprocess, APIs, Logging, Testing</div>
                             </div>
                             <div class="module-card" data-module="10-GitOps-ArgoCD">
                                 <div class="icon">🎯</div>
                                 <div class="name">GitOps & ArgoCD</div>
-                                <div class="topics">GitOps Principles, ArgoCD, Sync Policies</div>
+                                <div class="topics">GitOps, ArgoCD, Sync Policies</div>
                             </div>
                         </div>
                         
                         <div class="how-to-use">
                             <h3>💡 How to Use</h3>
                             <ul>
-                                <li><strong>Navigate:</strong> Browse modules and chapters in the sidebar</li>
-                                <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
-                                <li><strong>Highlight:</strong> Select text and choose a color to save it</li>
-                                <li><strong>Theme:</strong> Click the theme button in sidebar to switch themes</li>
-                                <li><strong>Diagrams:</strong> Click ⛶ on diagrams for fullscreen view</li>
+                                <li><strong>Navigate:</strong> Browse modules in the sidebar</li>
+                                <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search</li>
+                                <li><strong>Highlight:</strong> Select text to highlight it</li>
+                                <li><strong>Theme:</strong> Click theme button to switch</li>
+                                <li><strong>Diagrams:</strong> Click ⛶ for fullscreen</li>
                             </ul>
                         </div>
                     </div>
@@ -152,22 +138,24 @@
         </main>
     </div>
 
-    <!-- Highlight Popup with Color Options -->
+    <!-- Highlight Popup -->
     <div class="highlight-popup" id="highlightPopup">
         <div class="highlight-popup-inner">
-            <button id="addHighlightBtn" class="highlight-btn" style="background: var(--highlight-yellow);">📌 Highlight</button>
-            <div class="highlight-color-option yellow active" data-color="yellow" title="Yellow"></div>
-            <div class="highlight-color-option green" data-color="green" title="Green"></div>
-            <div class="highlight-color-option blue" data-color="blue" title="Blue"></div>
-            <div class="highlight-color-option purple" data-color="purple" title="Purple"></div>
-            <div class="highlight-color-option pink" data-color="pink" title="Pink"></div>
+            <button id="addHighlightBtn" class="highlight-btn">📌 Highlight</button>
+            <div class="hl-color-picker">
+                <div class="hl-color yellow active" data-color="yellow"></div>
+                <div class="hl-color green" data-color="green"></div>
+                <div class="hl-color blue" data-color="blue"></div>
+                <div class="hl-color purple" data-color="purple"></div>
+                <div class="hl-color pink" data-color="pink"></div>
+            </div>
         </div>
     </div>
 
     <!-- Highlights Panel -->
     <aside class="highlights-panel" id="highlightsPanel">
         <div class="highlights-panel-header">
-            <h2>📝 My Highlights</h2>
+            <h2>📝 Highlights</h2>
             <button class="close-panel-btn" id="closePanelBtn">×</button>
         </div>
         <div class="highlights-panel-actions">
@@ -178,21 +166,19 @@
         <div class="highlights-list" id="highlightsList"></div>
     </aside>
 
-    <!-- Mermaid Fullscreen Modal -->
+    <!-- Mermaid Modal -->
     <div class="mermaid-modal" id="mermaidModal">
         <div class="mermaid-modal-content" id="mermaidModalContent"></div>
-        <button class="mermaid-modal-close" id="mermaidModalClose" title="Close">×</button>
+        <button class="mermaid-modal-close" id="mermaidModalClose">×</button>
     </div>
 
     <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
 
-    <!-- Libraries -->
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
-    
-    <!-- App -->
     <script src="js/app.js"></script>
 </body>
 </html>
