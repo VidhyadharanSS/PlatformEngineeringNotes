@@ -1,10 +1,10 @@
 /**
  * Platform Engineering Notes
- * Documentation viewer with highlighting and theming
+ * Documentation viewer with PDF-like highlighting and theming
  */
 
 const CONFIG = {
-    STORAGE_KEY: 'pe-notes-highlights',
+    STORAGE_KEY: 'pe-notes-highlights-v2',
     THEME_KEY: 'pe-notes-theme',
     NOTES_INDEX: 'notes.json',
     THEMES: [
@@ -24,9 +24,10 @@ const MODULE_ICONS = {
 // State
 let notesData = null;
 let currentNotePath = null;
-let highlights = [];
+let highlights = {}; // { path: [{ id, text, color, startOffset, endOffset }] }
 let selectedColor = 'yellow';
 let currentTheme = 'dark';
+let allNotesContent = {}; // Cache for search: { path: { title, content } }
 
 // Elements
 const $ = id => document.getElementById(id);
@@ -37,22 +38,14 @@ const el = {
     breadcrumb: $('breadcrumb'),
     searchInput: $('searchInput'),
     highlightPopup: $('highlightPopup'),
-    addHighlightBtn: $('addHighlightBtn'),
-    highlightsPanel: $('highlightsPanel'),
-    highlightsList: $('highlightsList'),
-    highlightCount: $('highlightCount'),
-    toggleHighlights: $('toggleHighlights'),
-    closePanelBtn: $('closePanelBtn'),
-    clearHighlightsBtn: $('clearHighlightsBtn'),
-    clearAllHighlightsBtn: $('clearAllHighlightsBtn'),
-    exportHighlightsBtn: $('exportHighlightsBtn'),
     mobileMenuToggle: $('mobileMenuToggle'),
     overlay: $('overlay'),
     themeBtn: $('themeBtn'),
     themeDropdown: $('themeDropdown'),
     mermaidModal: $('mermaidModal'),
     mermaidModalContent: $('mermaidModalContent'),
-    mermaidModalClose: $('mermaidModalClose')
+    mermaidModalClose: $('mermaidModalClose'),
+    searchResults: $('searchResults')
 };
 
 // Initialize
@@ -64,7 +57,7 @@ async function init() {
     buildNavigation();
     setupEventListeners();
     handleHashChange();
-    updateHighlightCount();
+    buildSearchIndex();
 }
 
 function initMermaid() {
@@ -221,16 +214,33 @@ async function loadNote(path) {
 }
 
 function renderMarkdown(md) {
-    marked.setOptions({
-        gfm: true,
-        breaks: true,
-        highlight: (code, lang) => {
-            if (lang && hljs.getLanguage(lang)) {
-                try { return hljs.highlight(code, { language: lang }).value; } catch {}
+    // Configure marked with marked-highlight for proper syntax highlighting
+    const markedHighlight = globalThis.markedHighlight;
+    
+    if (markedHighlight && markedHighlight.markedHighlight) {
+        marked.use(markedHighlight.markedHighlight({
+            langPrefix: 'hljs language-',
+            highlight(code, lang) {
+                // Normalize language aliases
+                const langMap = {
+                    'sh': 'bash', 'shell': 'bash', 'zsh': 'bash',
+                    'yml': 'yaml', 'docker': 'dockerfile',
+                    'conf': 'nginx', 'config': 'ini',
+                    'py': 'python', 'js': 'javascript',
+                    'ts': 'typescript', 'rb': 'ruby'
+                };
+                const resolvedLang = langMap[lang] || lang;
+                
+                if (resolvedLang && hljs.getLanguage(resolvedLang)) {
+                    try { return hljs.highlight(code, { language: resolvedLang }).value; } catch {}
+                }
+                try { return hljs.highlightAuto(code).value; } catch {}
+                return code;
             }
-            return hljs.highlightAuto(code).value;
-        }
-    });
+        }));
+    }
+    
+    marked.use({ gfm: true, breaks: true });
     
     const mermaidBlocks = [];
     const processed = md.replace(/```mermaid\n([\s\S]*?)```/g, (_, code) => {
@@ -248,21 +258,43 @@ function renderMarkdown(md) {
     
     el.content.innerHTML = marked.parse(processed);
     
-    // Wrap code blocks
+    // Wrap code blocks with header + copy button
     el.content.querySelectorAll('pre').forEach(pre => {
         if (pre.closest('.code-block-wrapper') || pre.closest('.mermaid-wrapper')) return;
         
         const code = pre.querySelector('code');
         if (!code) return;
         
-        const langClass = [...code.classList].find(c => c.startsWith('language-'));
-        const lang = langClass ? langClass.replace('language-', '') : 'code';
+        const langClass = [...code.classList].find(c => c.startsWith('hljs') && c.includes('language-'))
+            || [...code.classList].find(c => c.startsWith('language-'));
+        const lang = langClass ? langClass.replace(/^(hljs\s+)?language-/, '') : 'code';
+        
+        // If hljs didn't highlight, try manually
+        if (!code.querySelector('.hljs-comment') && !code.querySelector('.hljs-keyword')) {
+            const langMap = { 'sh': 'bash', 'shell': 'bash', 'zsh': 'bash', 'yml': 'yaml', 'py': 'python' };
+            const resolvedLang = langMap[lang] || lang;
+            if (resolvedLang && resolvedLang !== 'code' && hljs.getLanguage(resolvedLang)) {
+                try {
+                    const result = hljs.highlight(code.textContent, { language: resolvedLang });
+                    code.innerHTML = result.value;
+                } catch {}
+            } else {
+                try {
+                    const result = hljs.highlightAuto(code.textContent);
+                    code.innerHTML = result.value;
+                } catch {}
+            }
+        }
+        
+        // Post-process: ensure shell/bash comments are highlighted
+        // hljs sometimes misses standalone comment lines in bash
+        postProcessCodeComments(code, lang);
         
         const wrapper = document.createElement('div');
         wrapper.className = 'code-block-wrapper';
         wrapper.innerHTML = `
             <div class="code-block-header">
-                <span class="code-lang">${lang}</span>
+                <span class="code-lang">${lang.toUpperCase()}</span>
                 <button class="code-copy-btn" title="Copy">
                     <span class="icon">📋</span>
                     <span class="text">Copy</span>
@@ -295,6 +327,66 @@ function renderMarkdown(md) {
     document.querySelectorAll('.mermaid-fullscreen-btn').forEach(btn => {
         btn.onclick = () => openMermaidFullscreen(btn.dataset.id);
     });
+}
+
+/**
+ * Post-process code blocks to ensure comment lines are properly styled.
+ * Handles cases where hljs misses comment patterns in shell/bash/python/yaml etc.
+ */
+function postProcessCodeComments(codeEl, lang) {
+    // Define comment patterns per language family
+    const commentPatterns = {
+        'bash': /^(\s*)(#.*)$/,
+        'sh': /^(\s*)(#.*)$/,
+        'shell': /^(\s*)(#.*)$/,
+        'zsh': /^(\s*)(#.*)$/,
+        'python': /^(\s*)(#.*)$/,
+        'py': /^(\s*)(#.*)$/,
+        'yaml': /^(\s*)(#.*)$/,
+        'yml': /^(\s*)(#.*)$/,
+        'dockerfile': /^(\s*)(#.*)$/,
+        'makefile': /^(\s*)(#.*)$/,
+        'ini': /^(\s*)(;.*)$/,
+        'conf': /^(\s*)(#.*)$/,
+        'nginx': /^(\s*)(#.*)$/,
+        'ruby': /^(\s*)(#.*)$/,
+        'perl': /^(\s*)(#.*)$/,
+    };
+    
+    const normalizedLang = lang.toLowerCase().replace(/^language-/, '');
+    const pattern = commentPatterns[normalizedLang];
+    if (!pattern) return;
+    
+    // Work with the HTML content line by line
+    const html = codeEl.innerHTML;
+    const lines = html.split('\n');
+    let modified = false;
+    
+    const processedLines = lines.map(line => {
+        // Skip lines that already have hljs-comment class
+        if (line.includes('hljs-comment')) return line;
+        
+        // Strip HTML to get plain text of this line for testing
+        const plainText = line.replace(/<[^>]*>/g, '');
+        
+        if (pattern.test(plainText)) {
+            const match = plainText.match(pattern);
+            if (match) {
+                // Check if this line is entirely a comment (not a partial match inside a string)
+                // Only wrap if the line doesn't already contain hljs spans that cover it
+                const hasExistingSpans = /<span class="hljs-/.test(line);
+                if (!hasExistingSpans) {
+                    modified = true;
+                    return `<span class="hljs-comment">${line}</span>`;
+                }
+            }
+        }
+        return line;
+    });
+    
+    if (modified) {
+        codeEl.innerHTML = processedLines.join('\n');
+    }
 }
 
 function copyCode(text, btn) {
@@ -401,26 +493,199 @@ function getWelcomeHTML() {
     `;
 }
 
-// Search
+// Search - Global content search
+async function buildSearchIndex() {
+    if (!notesData) return;
+    
+    // Build search index from all notes
+    for (const mod of notesData.modules) {
+        if (mod.approachGuide) {
+            try {
+                const res = await fetch(mod.approachGuide);
+                if (res.ok) {
+                    const content = await res.text();
+                    allNotesContent[mod.approachGuide] = {
+                        title: 'Approach Guide',
+                        module: mod.name,
+                        content: content.toLowerCase()
+                    };
+                }
+            } catch {}
+        }
+        for (const sub of mod.subchapters) {
+            for (const file of sub.files) {
+                try {
+                    const res = await fetch(file.path);
+                    if (res.ok) {
+                        const content = await res.text();
+                        allNotesContent[file.path] = {
+                            title: formatFileName(file.name),
+                            module: mod.name,
+                            subchapter: sub.name,
+                            content: content.toLowerCase()
+                        };
+                    }
+                } catch {}
+            }
+        }
+    }
+}
+
 function setupSearch() {
     let timer;
     el.searchInput.oninput = e => {
         clearTimeout(timer);
-        timer = setTimeout(() => filterNav(e.target.value.toLowerCase()), 150);
+        timer = setTimeout(() => performSearch(e.target.value.trim()), 200);
     };
+    
+    el.searchInput.onfocus = () => {
+        if (el.searchInput.value.trim()) {
+            el.searchResults.classList.add('visible');
+        }
+    };
+    
+    // Close search results when clicking outside
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.search-container')) {
+            el.searchResults.classList.remove('visible');
+        }
+    });
+}
+
+function performSearch(query) {
+    if (!query || query.length < 2) {
+        el.searchResults.classList.remove('visible');
+        resetNavFilter();
+        return;
+    }
+    
+    const q = query.toLowerCase();
+    const words = q.split(/\s+/).filter(w => w.length > 1);
+    const results = [];
+    
+    // Search in all notes content
+    for (const [path, data] of Object.entries(allNotesContent)) {
+        let score = 0;
+        let matchedWords = 0;
+        
+        // Check if all words are present (AND search)
+        const allWordsMatch = words.every(word => 
+            data.content.includes(word) || 
+            data.title.toLowerCase().includes(word) ||
+            data.module.toLowerCase().includes(word)
+        );
+        
+        if (!allWordsMatch && words.length > 1) continue;
+        
+        // Calculate relevance score
+        for (const word of words) {
+            if (data.title.toLowerCase().includes(word)) {
+                score += 10;
+                matchedWords++;
+            }
+            if (data.content.includes(word)) {
+                // Count occurrences
+                const count = (data.content.match(new RegExp(word, 'g')) || []).length;
+                score += Math.min(count, 5);
+                matchedWords++;
+            }
+        }
+        
+        if (matchedWords > 0) {
+            // Find context snippet
+            let snippet = '';
+            const contentLower = data.content;
+            const firstWord = words[0];
+            const idx = contentLower.indexOf(firstWord);
+            if (idx !== -1) {
+                const start = Math.max(0, idx - 40);
+                const end = Math.min(contentLower.length, idx + 80);
+                snippet = data.content.substring(start, end)
+                    .replace(/\n/g, ' ')
+                    .replace(/[#*`]/g, '')
+                    .trim();
+                if (start > 0) snippet = '...' + snippet;
+                if (end < contentLower.length) snippet += '...';
+            }
+            
+            results.push({
+                path,
+                title: data.title,
+                module: data.module.replace(/^\d+-/, '').replace(/-/g, ' '),
+                snippet,
+                score
+            });
+        }
+    }
+    
+    // Sort by score
+    results.sort((a, b) => b.score - a.score);
+    
+    // Show results
+    showSearchResults(results.slice(0, 15), words);
+    
+    // Also filter nav
+    filterNav(q);
+}
+
+function showSearchResults(results, words) {
+    if (results.length === 0) {
+        el.searchResults.innerHTML = '<div class="no-results">No results found</div>';
+        el.searchResults.classList.add('visible');
+        return;
+    }
+    
+    el.searchResults.innerHTML = results.map(r => {
+        // Highlight matched words in snippet
+        let snippet = escapeHtml(r.snippet);
+        for (const word of words) {
+            const regex = new RegExp(`(${escapeRegex(word)})`, 'gi');
+            snippet = snippet.replace(regex, '<mark>$1</mark>');
+        }
+        
+        return `
+            <div class="search-result-item" data-path="${r.path}">
+                <div class="search-result-title">${escapeHtml(r.title)}</div>
+                <div class="search-result-module">${escapeHtml(r.module)}</div>
+                ${snippet ? `<div class="search-result-snippet">${snippet}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    el.searchResults.classList.add('visible');
+    
+    // Click handlers
+    el.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+        item.onclick = () => {
+            loadNote(item.dataset.path);
+            el.searchResults.classList.remove('visible');
+            el.searchInput.value = '';
+            resetNavFilter();
+        };
+    });
+}
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function resetNavFilter() {
+    document.querySelectorAll('.nav-module, .nav-subchapter, .nav-item').forEach(e => e.style.display = '');
 }
 
 function filterNav(q) {
     if (!q) {
-        document.querySelectorAll('.nav-module, .nav-subchapter, .nav-item').forEach(e => e.style.display = '');
-        document.querySelectorAll('.nav-module, .nav-subchapter').forEach(e => e.classList.remove('expanded'));
+        resetNavFilter();
         return;
     }
+    
+    const words = q.toLowerCase().split(/\s+/).filter(w => w.length > 1);
     
     document.querySelectorAll('.nav-module').forEach(mod => {
         let hasMatch = false;
         mod.querySelectorAll('.nav-item').forEach(item => {
-            const matches = item.textContent.toLowerCase().includes(q);
+            const text = item.textContent.toLowerCase();
+            const matches = words.some(w => text.includes(w));
             item.style.display = matches ? '' : 'none';
             if (matches) hasMatch = true;
         });
@@ -434,42 +699,55 @@ function filterNav(q) {
     });
 }
 
-// Highlighting
+// Highlighting - PDF-like inline highlighting
 function loadHighlights() {
-    try { highlights = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || []; }
-    catch { highlights = []; }
+    try { 
+        highlights = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || {}; 
+    } catch { 
+        highlights = {}; 
+    }
 }
 
 function saveHighlights() {
     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(highlights));
-    updateHighlightCount();
 }
 
-function updateHighlightCount() {
-    el.highlightCount.textContent = `${highlights.length} saved`;
+function getPageHighlights() {
+    return highlights[currentNotePath] || [];
+}
+
+function setPageHighlights(arr) {
+    if (arr.length === 0) {
+        delete highlights[currentNotePath];
+    } else {
+        highlights[currentNotePath] = arr;
+    }
+    saveHighlights();
 }
 
 function applyHighlights() {
     if (!currentNotePath) return;
-    highlights.filter(h => h.path === currentNotePath).forEach(h => highlightText(h.text, h.id, h.color));
+    const pageHighlights = getPageHighlights();
+    pageHighlights.forEach(h => applyHighlightToDOM(h));
 }
 
-function highlightText(text, id, color) {
+function applyHighlightToDOM(highlight) {
     const walker = document.createTreeWalker(el.content, NodeFilter.SHOW_TEXT);
     let node;
     while (node = walker.nextNode()) {
-        if (node.parentElement.closest('pre, code, .mermaid')) continue;
-        const idx = node.textContent.indexOf(text);
+        if (node.parentElement.closest('pre, code, .mermaid, .user-highlight')) continue;
+        const idx = node.textContent.indexOf(highlight.text);
         if (idx !== -1) {
             const range = document.createRange();
             range.setStart(node, idx);
-            range.setEnd(node, idx + text.length);
+            range.setEnd(node, idx + highlight.text.length);
             const span = document.createElement('span');
             span.className = 'user-highlight';
-            span.dataset.highlightId = id;
-            span.dataset.color = color || 'yellow';
-            span.onclick = () => scrollToHighlight(id);
-            try { range.surroundContents(span); } catch {}
+            span.dataset.highlightId = highlight.id;
+            span.dataset.color = highlight.color || 'yellow';
+            try { 
+                range.surroundContents(span); 
+            } catch {}
             break;
         }
     }
@@ -477,91 +755,51 @@ function highlightText(text, id, color) {
 
 function addHighlight(text, color = 'yellow') {
     if (!currentNotePath || !text.trim()) return;
-    const highlight = {
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        path: currentNotePath,
-        text: text.trim(),
-        color,
-        createdAt: new Date().toISOString()
-    };
-    highlights.push(highlight);
-    saveHighlights();
-    highlightText(highlight.text, highlight.id, highlight.color);
-    renderHighlightsList();
-}
-
-function removeHighlight(id) {
-    highlights = highlights.filter(h => h.id !== id);
-    saveHighlights();
-    const span = document.querySelector(`[data-highlight-id="${id}"]`);
-    if (span) span.replaceWith(document.createTextNode(span.textContent));
-    renderHighlightsList();
-}
-
-function clearPageHighlights() {
-    if (!currentNotePath) return;
-    highlights = highlights.filter(h => h.path !== currentNotePath);
-    saveHighlights();
-    document.querySelectorAll('.user-highlight').forEach(s => s.replaceWith(document.createTextNode(s.textContent)));
-    renderHighlightsList();
-}
-
-function clearAllHighlights() {
-    if (!confirm('Delete ALL highlights?')) return;
-    highlights = [];
-    saveHighlights();
-    document.querySelectorAll('.user-highlight').forEach(s => s.replaceWith(document.createTextNode(s.textContent)));
-    renderHighlightsList();
-}
-
-function exportHighlights() {
-    const blob = new Blob([JSON.stringify(highlights, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'highlights.json';
-    a.click();
-}
-
-function renderHighlightsList() {
-    if (!highlights.length) {
-        el.highlightsList.innerHTML = '<div class="no-highlights"><p>📝</p><p>Select text to highlight</p></div>';
+    
+    const pageHighlights = getPageHighlights();
+    
+    // Check if this exact text is already highlighted
+    const existing = pageHighlights.find(h => h.text === text.trim());
+    if (existing) {
+        // Already highlighted - don't add duplicate
         return;
     }
     
-    el.highlightsList.innerHTML = highlights
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .map(h => `
-            <div class="highlight-item" data-path="${h.path}" data-id="${h.id}">
-                <div class="highlight-item-source">📄 ${formatPath(h.path)}</div>
-                <div class="highlight-item-text" style="background:var(--hl-${h.color || 'yellow'})">${escapeHtml(h.text)}</div>
-                <div class="highlight-item-actions">
-                    <button class="highlight-item-delete" data-id="${h.id}">Remove</button>
-                </div>
-            </div>
-        `).join('');
+    const highlight = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        text: text.trim(),
+        color
+    };
     
-    el.highlightsList.querySelectorAll('.highlight-item').forEach(item => {
-        item.onclick = e => {
-            if (e.target.classList.contains('highlight-item-delete')) {
-                e.stopPropagation();
-                removeHighlight(e.target.dataset.id);
-            } else {
-                loadNote(item.dataset.path);
-                closeHighlightsPanel();
-            }
-        };
-    });
+    pageHighlights.push(highlight);
+    setPageHighlights(pageHighlights);
+    applyHighlightToDOM(highlight);
 }
 
-function scrollToHighlight(id) {
-    openHighlightsPanel();
-    const item = el.highlightsList.querySelector(`[data-id="${id}"]`);
-    item?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function removeHighlight(id) {
+    const pageHighlights = getPageHighlights();
+    const idx = pageHighlights.findIndex(h => h.id === id);
+    if (idx === -1) return;
+    
+    pageHighlights.splice(idx, 1);
+    setPageHighlights(pageHighlights);
+    
+    // Remove from DOM
+    const span = document.querySelector(`[data-highlight-id="${id}"]`);
+    if (span) {
+        const text = span.textContent;
+        span.replaceWith(document.createTextNode(text));
+    }
 }
 
-function formatPath(path) {
-    const parts = path.split('/');
-    return `${parts[0].replace(/^\d+-/, '')} › ${formatFileName(parts[parts.length - 1])}`;
+function removeHighlightByText(text) {
+    const pageHighlights = getPageHighlights();
+    const highlight = pageHighlights.find(h => h.text === text);
+    if (highlight) {
+        removeHighlight(highlight.id);
+        return true;
+    }
+    return false;
 }
 
 function escapeHtml(text) {
@@ -570,15 +808,26 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Text Selection
+// Text Selection - PDF-like highlighting
 function setupTextSelection() {
+    let selectionTimeout;
+    
     document.addEventListener('mouseup', e => {
         // Ignore clicks on UI elements
-        if (e.target.closest('.highlight-popup, .highlights-panel, .theme-dropdown, .code-copy-btn, .mermaid-fullscreen-btn, .sidebar')) {
+        if (e.target.closest('.highlight-popup, .theme-dropdown, .code-copy-btn, .mermaid-fullscreen-btn, .sidebar, .search-results')) {
             return;
         }
         
-        setTimeout(() => {
+        // Check if clicked on existing highlight - toggle it off
+        const clickedHighlight = e.target.closest('.user-highlight');
+        if (clickedHighlight && !window.getSelection().toString().trim()) {
+            const id = clickedHighlight.dataset.highlightId;
+            removeHighlight(id);
+            return;
+        }
+        
+        clearTimeout(selectionTimeout);
+        selectionTimeout = setTimeout(() => {
             const sel = window.getSelection();
             const text = sel.toString().trim();
             
@@ -590,12 +839,18 @@ function setupTextSelection() {
                 const rect = range.getBoundingClientRect();
                 
                 // Position popup above selection
-                const popupW = 200;
+                const popupW = 180;
                 let left = rect.left + (rect.width / 2) - (popupW / 2);
                 left = Math.max(10, Math.min(left, window.innerWidth - popupW - 10));
                 
+                let top = rect.top + window.scrollY - 45;
+                // If too close to top, show below
+                if (top < window.scrollY + 10) {
+                    top = rect.bottom + window.scrollY + 8;
+                }
+                
                 el.highlightPopup.style.left = `${left}px`;
-                el.highlightPopup.style.top = `${rect.top + window.scrollY - 50}px`;
+                el.highlightPopup.style.top = `${top}px`;
                 el.highlightPopup.classList.add('visible');
             } else {
                 el.highlightPopup.classList.remove('visible');
@@ -603,7 +858,8 @@ function setupTextSelection() {
         }, 10);
     });
     
-    el.addHighlightBtn.onclick = () => {
+    // Highlight button click
+    document.querySelector('.highlight-action-btn').onclick = () => {
         const sel = window.getSelection();
         const text = sel.toString().trim();
         if (text) {
@@ -613,6 +869,7 @@ function setupTextSelection() {
         }
     };
     
+    // Color selection
     document.querySelectorAll('.hl-color').forEach(btn => {
         btn.onclick = e => {
             e.stopPropagation();
@@ -622,6 +879,7 @@ function setupTextSelection() {
         };
     });
     
+    // Hide popup on click elsewhere
     document.addEventListener('mousedown', e => {
         if (!e.target.closest('.highlight-popup')) {
             setTimeout(() => {
@@ -634,17 +892,6 @@ function setupTextSelection() {
 }
 
 // Panels
-function openHighlightsPanel() {
-    renderHighlightsList();
-    el.highlightsPanel.classList.add('open');
-    el.overlay.classList.add('active');
-}
-
-function closeHighlightsPanel() {
-    el.highlightsPanel.classList.remove('open');
-    if (!el.sidebar.classList.contains('open')) el.overlay.classList.remove('active');
-}
-
 function openMobileSidebar() {
     el.sidebar.classList.add('open');
     el.overlay.classList.add('active');
@@ -652,7 +899,7 @@ function openMobileSidebar() {
 
 function closeMobileSidebar() {
     el.sidebar.classList.remove('open');
-    if (!el.highlightsPanel.classList.contains('open')) el.overlay.classList.remove('active');
+    el.overlay.classList.remove('active');
 }
 
 // Module Cards
@@ -675,19 +922,12 @@ function setupEventListeners() {
     setupTextSelection();
     setupModuleCards();
     
-    el.toggleHighlights.onclick = openHighlightsPanel;
-    el.closePanelBtn.onclick = closeHighlightsPanel;
-    el.clearHighlightsBtn.onclick = clearPageHighlights;
-    el.clearAllHighlightsBtn.onclick = clearAllHighlights;
-    el.exportHighlightsBtn.onclick = exportHighlights;
-    
     el.mobileMenuToggle.onclick = () => {
         el.sidebar.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
     };
     
     el.overlay.onclick = () => {
         closeMobileSidebar();
-        closeHighlightsPanel();
         closeThemeDropdown();
     };
     
@@ -716,10 +956,10 @@ function setupEventListeners() {
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             closeMobileSidebar();
-            closeHighlightsPanel();
             closeThemeDropdown();
             closeMermaidFullscreen();
             el.highlightPopup.classList.remove('visible');
+            el.searchResults.classList.remove('visible');
         }
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();

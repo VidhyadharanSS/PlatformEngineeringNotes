@@ -6,7 +6,6 @@
     <meta name="description" content="Platform Engineering Notes - Linux, Docker, Kubernetes, CI/CD">
     <title>Platform Engineering Notes</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -43,17 +42,11 @@
             </div>
             
             <div class="search-container">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search... (Ctrl+K)">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search notes... (Ctrl+K)">
+                <div class="search-results" id="searchResults"></div>
             </div>
             
             <nav class="nav-tree" id="navTree"></nav>
-            
-            <div class="sidebar-footer">
-                <button class="highlight-toggle" id="toggleHighlights">
-                    <span>📝 Highlights</span>
-                    <span class="highlight-count" id="highlightCount">0 saved</span>
-                </button>
-            </div>
         </aside>
 
         <!-- Main -->
@@ -138,33 +131,17 @@
         </main>
     </div>
 
-    <!-- Highlight Popup -->
+    <!-- Highlight Popup - Simple color picker -->
     <div class="highlight-popup" id="highlightPopup">
-        <div class="highlight-popup-inner">
-            <button id="addHighlightBtn" class="highlight-btn">📌 Highlight</button>
-            <div class="hl-color-picker">
-                <div class="hl-color yellow active" data-color="yellow"></div>
-                <div class="hl-color green" data-color="green"></div>
-                <div class="hl-color blue" data-color="blue"></div>
-                <div class="hl-color purple" data-color="purple"></div>
-                <div class="hl-color pink" data-color="pink"></div>
-            </div>
+        <div class="hl-colors">
+            <div class="hl-color yellow active" data-color="yellow" title="Yellow"></div>
+            <div class="hl-color green" data-color="green" title="Green"></div>
+            <div class="hl-color blue" data-color="blue" title="Blue"></div>
+            <div class="hl-color purple" data-color="purple" title="Purple"></div>
+            <div class="hl-color pink" data-color="pink" title="Pink"></div>
         </div>
+        <button class="highlight-action-btn">Highlight</button>
     </div>
-
-    <!-- Highlights Panel -->
-    <aside class="highlights-panel" id="highlightsPanel">
-        <div class="highlights-panel-header">
-            <h2>📝 Highlights</h2>
-            <button class="close-panel-btn" id="closePanelBtn">×</button>
-        </div>
-        <div class="highlights-panel-actions">
-            <button id="clearHighlightsBtn">Clear Page</button>
-            <button id="clearAllHighlightsBtn">Clear All</button>
-            <button id="exportHighlightsBtn">Export</button>
-        </div>
-        <div class="highlights-list" id="highlightsList"></div>
-    </aside>
 
     <!-- Mermaid Modal -->
     <div class="mermaid-modal" id="mermaidModal">
@@ -177,7 +154,17 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-highlight@2.1.1/lib/index.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/nginx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/shell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
     <script src="js/app.js"></script>
 </body>
