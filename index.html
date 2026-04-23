@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Comprehensive Platform Engineering Notes - Linux, Networking, Docker, Kubernetes, Git, CI/CD, and more">
-    <meta name="theme-color" content="#0f1419">
+    <meta name="theme-color" content="#0d1117">
     <title>Platform Engineering Notes</title>
     
     <!-- Favicon -->
@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     
-    <!-- Highlight.js - GitHub Dark Dimmed theme for better readability -->
+    <!-- Highlight.js - GitHub Dark Dimmed theme -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
     
     <!-- Main Stylesheet -->
@@ -27,6 +27,33 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1><span>📚</span> Platform Engineering</h1>
+                
+                <!-- Theme Switcher -->
+                <div class="theme-switcher">
+                    <button class="theme-btn" id="themeBtn" title="Change theme">🌙</button>
+                    <div class="theme-dropdown" id="themeDropdown">
+                        <button class="theme-option active" data-theme="dark">
+                            <span class="theme-icon">🌙</span>
+                            <span class="theme-name">Dark</span>
+                            <span class="check">✓</span>
+                        </button>
+                        <button class="theme-option" data-theme="light">
+                            <span class="theme-icon">☀️</span>
+                            <span class="theme-name">Light</span>
+                            <span class="check">✓</span>
+                        </button>
+                        <button class="theme-option" data-theme="ghostty">
+                            <span class="theme-icon">👻</span>
+                            <span class="theme-name">Ghostty</span>
+                            <span class="check">✓</span>
+                        </button>
+                        <button class="theme-option" data-theme="dracula">
+                            <span class="theme-icon">🧛</span>
+                            <span class="theme-name">Dracula</span>
+                            <span class="check">✓</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <div class="search-container">
@@ -115,7 +142,8 @@
                                 <li><strong>Navigate:</strong> Browse modules and chapters in the sidebar</li>
                                 <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
                                 <li><strong>Highlight:</strong> Select text and choose a color to save it</li>
-                                <li><strong>Diagrams:</strong> Visual Mermaid diagrams in every note</li>
+                                <li><strong>Theme:</strong> Click the theme button in sidebar to switch themes</li>
+                                <li><strong>Diagrams:</strong> Click ⛶ on diagrams for fullscreen view</li>
                             </ul>
                         </div>
                     </div>
@@ -127,7 +155,7 @@
     <!-- Highlight Popup with Color Options -->
     <div class="highlight-popup" id="highlightPopup">
         <div class="highlight-popup-inner">
-            <button id="addHighlightBtn" style="background: var(--highlight-yellow);">📌 Highlight</button>
+            <button id="addHighlightBtn" class="highlight-btn" style="background: var(--highlight-yellow);">📌 Highlight</button>
             <div class="highlight-color-option yellow active" data-color="yellow" title="Yellow"></div>
             <div class="highlight-color-option green" data-color="green" title="Green"></div>
             <div class="highlight-color-option blue" data-color="blue" title="Blue"></div>
@@ -150,6 +178,12 @@
         <div class="highlights-list" id="highlightsList"></div>
     </aside>
 
+    <!-- Mermaid Fullscreen Modal -->
+    <div class="mermaid-modal" id="mermaidModal">
+        <div class="mermaid-modal-content" id="mermaidModalContent"></div>
+        <button class="mermaid-modal-close" id="mermaidModalClose" title="Close">×</button>
+    </div>
+
     <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
 
@@ -160,64 +194,5 @@
     
     <!-- App -->
     <script src="js/app.js"></script>
-
-    <style>
-        /* Highlight color option styling */
-        .highlight-popup-inner {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            padding: 6px 8px;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .highlight-color-option {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            flex-shrink: 0;
-        }
-        
-        .highlight-color-option:hover {
-            transform: scale(1.2);
-        }
-        
-        .highlight-color-option.active {
-            border-color: var(--text-primary);
-            box-shadow: 0 0 0 2px var(--bg-tertiary);
-        }
-        
-        .highlight-color-option.yellow { background: rgba(255, 230, 109, 0.7); }
-        .highlight-color-option.green { background: rgba(126, 231, 135, 0.6); }
-        .highlight-color-option.blue { background: rgba(108, 182, 255, 0.6); }
-        .highlight-color-option.purple { background: rgba(210, 168, 255, 0.6); }
-        .highlight-color-option.pink { background: rgba(255, 155, 206, 0.6); }
-        
-        #addHighlightBtn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            color: #0f1419;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            font-family: var(--font-sans);
-        }
-        
-        #addHighlightBtn:hover {
-            transform: scale(1.02);
-            filter: brightness(1.05);
-        }
-    </style>
 </body>
 </html>

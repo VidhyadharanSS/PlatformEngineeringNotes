@@ -3,8 +3,11 @@
  * Clean, modern, and feature-rich note viewer
  * 
  * Features:
+ * - Multi-theme support (Dark, Light, Ghostty, Dracula)
  * - Markdown rendering with Mermaid diagrams
  * - Text highlighting with color options
+ * - Code block copy functionality
+ * - Fullscreen Mermaid diagrams
  * - localStorage persistence
  * - Full-text search
  * - Keyboard shortcuts
@@ -15,8 +18,15 @@
 // ========================================
 const CONFIG = {
     STORAGE_KEY: 'platform-notes-highlights-v2',
+    THEME_KEY: 'platform-notes-theme',
     NOTES_INDEX: 'notes.json',
-    HIGHLIGHT_COLORS: ['yellow', 'green', 'blue', 'purple', 'pink']
+    HIGHLIGHT_COLORS: ['yellow', 'green', 'blue', 'purple', 'pink'],
+    THEMES: [
+        { id: 'dark', name: 'Dark', icon: '🌙' },
+        { id: 'light', name: 'Light', icon: '☀️' },
+        { id: 'ghostty', name: 'Ghostty', icon: '👻' },
+        { id: 'dracula', name: 'Dracula', icon: '🧛' }
+    ]
 };
 
 // Module icons
@@ -40,6 +50,7 @@ let notesData = null;
 let currentNotePath = null;
 let highlights = [];
 let selectedHighlightColor = 'yellow';
+let currentTheme = 'dark';
 
 // ========================================
 // DOM Elements
@@ -61,30 +72,23 @@ const elements = {
     clearAllHighlightsBtn: document.getElementById('clearAllHighlightsBtn'),
     exportHighlightsBtn: document.getElementById('exportHighlightsBtn'),
     mobileMenuToggle: document.getElementById('mobileMenuToggle'),
-    overlay: document.getElementById('overlay')
+    overlay: document.getElementById('overlay'),
+    themeBtn: document.getElementById('themeBtn'),
+    themeDropdown: document.getElementById('themeDropdown'),
+    mermaidModal: document.getElementById('mermaidModal'),
+    mermaidModalContent: document.getElementById('mermaidModalContent'),
+    mermaidModalClose: document.getElementById('mermaidModalClose')
 };
 
 // ========================================
 // Initialize
 // ========================================
 async function init() {
-    // Initialize Mermaid with better theme
-    mermaid.initialize({
-        startOnLoad: false,
-        theme: 'dark',
-        themeVariables: {
-            primaryColor: '#1c232d',
-            primaryTextColor: '#f0f4f8',
-            primaryBorderColor: '#30363d',
-            lineColor: '#6b7685',
-            secondaryColor: '#151a21',
-            tertiaryColor: '#0f1419',
-            fontFamily: 'Inter, -apple-system, sans-serif',
-            fontSize: '14px'
-        },
-        securityLevel: 'loose',
-        fontFamily: 'Inter, -apple-system, sans-serif'
-    });
+    // Load saved theme
+    loadTheme();
+    
+    // Initialize Mermaid
+    initMermaid();
 
     loadHighlights();
     await loadNotesIndex();
@@ -92,6 +96,72 @@ async function init() {
     setupEventListeners();
     handleHashChange();
     updateHighlightCount();
+}
+
+function initMermaid() {
+    const isDark = currentTheme !== 'light';
+    mermaid.initialize({
+        startOnLoad: false,
+        theme: isDark ? 'dark' : 'default',
+        themeVariables: isDark ? {
+            primaryColor: '#21262d',
+            primaryTextColor: '#e6edf3',
+            primaryBorderColor: '#30363d',
+            lineColor: '#6e7681',
+            secondaryColor: '#161b22',
+            tertiaryColor: '#0d1117',
+            fontFamily: 'Inter, -apple-system, sans-serif',
+            fontSize: '14px'
+        } : {
+            primaryColor: '#eaeef2',
+            primaryTextColor: '#1f2328',
+            primaryBorderColor: '#d0d7de',
+            lineColor: '#57606a',
+            secondaryColor: '#f6f8fa',
+            tertiaryColor: '#ffffff',
+            fontFamily: 'Inter, -apple-system, sans-serif',
+            fontSize: '14px'
+        },
+        securityLevel: 'loose',
+        fontFamily: 'Inter, -apple-system, sans-serif'
+    });
+}
+
+// ========================================
+// Theme Management
+// ========================================
+function loadTheme() {
+    const saved = localStorage.getItem(CONFIG.THEME_KEY);
+    currentTheme = saved && CONFIG.THEMES.find(t => t.id === saved) ? saved : 'dark';
+    applyTheme(currentTheme);
+}
+
+function applyTheme(themeId) {
+    document.documentElement.setAttribute('data-theme', themeId);
+    currentTheme = themeId;
+    localStorage.setItem(CONFIG.THEME_KEY, themeId);
+    
+    // Update theme button icon
+    const theme = CONFIG.THEMES.find(t => t.id === themeId);
+    if (elements.themeBtn) {
+        elements.themeBtn.innerHTML = theme ? theme.icon : '🎨';
+    }
+    
+    // Update dropdown active state
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.theme === themeId);
+    });
+    
+    // Reinitialize Mermaid with new theme
+    initMermaid();
+}
+
+function toggleThemeDropdown() {
+    elements.themeDropdown.classList.toggle('open');
+}
+
+function closeThemeDropdown() {
+    elements.themeDropdown.classList.remove('open');
 }
 
 // ========================================
@@ -254,10 +324,49 @@ function renderMarkdown(markdown) {
     const processed = markdown.replace(/```mermaid\n([\s\S]*?)```/g, (_, code) => {
         const id = `mermaid-${mermaidBlocks.length}`;
         mermaidBlocks.push({ id, code: code.trim() });
-        return `<div class="mermaid" id="${id}"></div>`;
+        return `<div class="mermaid-wrapper" data-mermaid-id="${id}">
+            <div class="mermaid-actions">
+                <button class="mermaid-fullscreen-btn" title="View fullscreen" data-mermaid-id="${id}">⛶</button>
+            </div>
+            <div class="mermaid-container">
+                <div class="mermaid" id="${id}"></div>
+            </div>
+        </div>`;
     });
 
     elements.content.innerHTML = marked.parse(processed);
+
+    // Wrap code blocks with header and copy button
+    elements.content.querySelectorAll('pre').forEach(pre => {
+        // Skip if already wrapped or is inside mermaid
+        if (pre.closest('.code-block-wrapper') || pre.closest('.mermaid-wrapper')) return;
+        
+        const code = pre.querySelector('code');
+        if (!code) return;
+        
+        const langClass = [...code.classList].find(c => c.startsWith('language-'));
+        const lang = langClass ? langClass.replace('language-', '') : 'code';
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper';
+        wrapper.innerHTML = `
+            <div class="code-block-header">
+                <span class="code-block-lang">${lang}</span>
+                <button class="code-copy-btn" title="Copy code">
+                    <span class="copy-icon">📋</span>
+                    <span class="check-icon">✓</span>
+                    <span class="copy-text">Copy</span>
+                </button>
+            </div>
+        `;
+        
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        
+        // Add copy functionality
+        const copyBtn = wrapper.querySelector('.code-copy-btn');
+        copyBtn.addEventListener('click', () => copyCodeToClipboard(code.textContent, copyBtn));
+    });
 
     // Render mermaid diagrams
     mermaidBlocks.forEach(async ({ id, code }) => {
@@ -266,20 +375,47 @@ function renderMarkdown(markdown) {
             try {
                 const { svg } = await mermaid.render(`${id}-svg`, code);
                 el.innerHTML = svg;
+                el.dataset.mermaidCode = code;
             } catch (e) {
                 console.error('Mermaid error:', e);
-                el.innerHTML = `<pre style="text-align:left;font-size:0.8rem;">${escapeHtml(code)}</pre>`;
+                el.innerHTML = `<pre style="text-align:left;font-size:0.8rem;color:var(--accent-red);">${escapeHtml(e.message || 'Diagram error')}</pre>`;
             }
         }
     });
 
-    // Add language labels to code blocks
-    elements.content.querySelectorAll('pre code').forEach(block => {
-        const lang = [...block.classList].find(c => c.startsWith('language-'));
-        if (lang) {
-            block.parentElement.dataset.lang = lang.replace('language-', '');
-        }
+    // Setup mermaid fullscreen buttons
+    document.querySelectorAll('.mermaid-fullscreen-btn').forEach(btn => {
+        btn.addEventListener('click', () => openMermaidFullscreen(btn.dataset.mermaidId));
     });
+}
+
+function copyCodeToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(() => {
+        button.classList.add('copied');
+        const textEl = button.querySelector('.copy-text');
+        if (textEl) textEl.textContent = 'Copied!';
+        
+        setTimeout(() => {
+            button.classList.remove('copied');
+            if (textEl) textEl.textContent = 'Copy';
+        }, 2000);
+    }).catch(err => {
+        console.error('Copy failed:', err);
+    });
+}
+
+function openMermaidFullscreen(mermaidId) {
+    const mermaidEl = document.getElementById(mermaidId);
+    if (!mermaidEl) return;
+    
+    elements.mermaidModalContent.innerHTML = mermaidEl.innerHTML;
+    elements.mermaidModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMermaidFullscreen() {
+    elements.mermaidModal.classList.remove('open');
+    document.body.style.overflow = '';
 }
 
 function updateActiveNavItem(path) {
@@ -315,7 +451,6 @@ function showWelcome() {
     elements.breadcrumb.innerHTML = '';
     document.querySelectorAll('.nav-item.active').forEach(el => el.classList.remove('active'));
     
-    // Rebuild welcome screen
     elements.content.innerHTML = getWelcomeHTML();
     setupModuleCards();
 }
@@ -352,7 +487,8 @@ function getWelcomeHTML() {
                     <li><strong>Navigate:</strong> Browse modules and chapters in the sidebar</li>
                     <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
                     <li><strong>Highlight:</strong> Select text and choose a color to save it</li>
-                    <li><strong>Diagrams:</strong> Visual Mermaid diagrams in every note</li>
+                    <li><strong>Theme:</strong> Click the theme button to switch between themes</li>
+                    <li><strong>Diagrams:</strong> Click ⛶ on diagrams for fullscreen view</li>
                 </ul>
             </div>
         </div>
@@ -453,6 +589,9 @@ function highlightText(text, id, color) {
     let node;
     
     while (node = walker.nextNode()) {
+        // Skip if inside code blocks or pre elements
+        if (node.parentElement.closest('pre, code, .mermaid')) continue;
+        
         const idx = node.textContent.indexOf(text);
         if (idx !== -1) {
             const range = document.createRange();
@@ -465,7 +604,11 @@ function highlightText(text, id, color) {
             span.dataset.color = color;
             span.addEventListener('click', () => scrollToHighlight(id));
 
-            range.surroundContents(span);
+            try {
+                range.surroundContents(span);
+            } catch (e) {
+                // Range crosses element boundaries, skip
+            }
             break;
         }
     }
@@ -597,28 +740,56 @@ function setupTextSelection() {
     let selectedText = '';
 
     document.addEventListener('mouseup', e => {
-        if (e.target.closest('.highlight-popup') || e.target.closest('.highlights-panel')) return;
-
-        const selection = window.getSelection();
-        selectedText = selection.toString().trim();
-
-        if (selectedText && selectedText.length > 2 && elements.content.contains(selection.anchorNode)) {
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            
-            elements.highlightPopup.style.display = 'block';
-            elements.highlightPopup.style.left = `${rect.left + rect.width / 2 - 70 + window.scrollX}px`;
-            elements.highlightPopup.style.top = `${rect.top - 50 + window.scrollY}px`;
-        } else {
-            elements.highlightPopup.style.display = 'none';
+        // Don't show popup when clicking on popup itself, highlights panel, theme dropdown
+        if (e.target.closest('.highlight-popup') || 
+            e.target.closest('.highlights-panel') ||
+            e.target.closest('.theme-dropdown') ||
+            e.target.closest('.code-copy-btn') ||
+            e.target.closest('.mermaid-fullscreen-btn')) {
+            return;
         }
+
+        // Short delay to ensure selection is complete
+        setTimeout(() => {
+            const selection = window.getSelection();
+            selectedText = selection.toString().trim();
+
+            if (selectedText && 
+                selectedText.length > 2 && 
+                selectedText.length < 500 &&
+                elements.content.contains(selection.anchorNode) &&
+                !selection.anchorNode.parentElement.closest('pre, code, .mermaid')) {
+                
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                // Position popup above the selection
+                const popupWidth = 220;
+                let left = rect.left + (rect.width / 2) - (popupWidth / 2) + window.scrollX;
+                
+                // Keep popup within viewport
+                if (left < 10) left = 10;
+                if (left + popupWidth > window.innerWidth - 10) {
+                    left = window.innerWidth - popupWidth - 10;
+                }
+                
+                elements.highlightPopup.style.left = `${left}px`;
+                elements.highlightPopup.style.top = `${rect.top - 55 + window.scrollY}px`;
+                elements.highlightPopup.classList.add('visible');
+            } else {
+                elements.highlightPopup.classList.remove('visible');
+            }
+        }, 10);
     });
 
     elements.addHighlightBtn.addEventListener('click', () => {
+        const selection = window.getSelection();
+        selectedText = selection.toString().trim();
+        
         if (selectedText) {
             addHighlight(selectedText, selectedHighlightColor);
-            window.getSelection().removeAllRanges();
-            elements.highlightPopup.style.display = 'none';
+            selection.removeAllRanges();
+            elements.highlightPopup.classList.remove('visible');
         }
     });
 
@@ -630,14 +801,20 @@ function setupTextSelection() {
             document.querySelectorAll('.highlight-color-option').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            // Update button color
+            // Update button style to match color
             elements.addHighlightBtn.style.background = `var(--highlight-${selectedHighlightColor})`;
         });
     });
 
+    // Hide popup on click elsewhere
     document.addEventListener('mousedown', e => {
         if (!e.target.closest('.highlight-popup')) {
-            elements.highlightPopup.style.display = 'none';
+            // Delay to allow highlight button click to register
+            setTimeout(() => {
+                if (!window.getSelection().toString().trim()) {
+                    elements.highlightPopup.classList.remove('visible');
+                }
+            }, 100);
         }
     });
 }
@@ -692,21 +869,54 @@ function setupEventListeners() {
     setupTextSelection();
     setupModuleCards();
 
+    // Highlight panel controls
     elements.toggleHighlights.addEventListener('click', openHighlightsPanel);
     elements.closePanelBtn.addEventListener('click', closeHighlightsPanel);
     elements.clearHighlightsBtn.addEventListener('click', clearPageHighlights);
     elements.clearAllHighlightsBtn.addEventListener('click', clearAllHighlights);
     elements.exportHighlightsBtn.addEventListener('click', exportHighlights);
 
+    // Mobile sidebar
     elements.mobileMenuToggle.addEventListener('click', () => {
         elements.sidebar.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
     });
 
+    // Overlay
     elements.overlay.addEventListener('click', () => {
         closeMobileSidebar();
         closeHighlightsPanel();
+        closeThemeDropdown();
     });
 
+    // Theme switcher
+    elements.themeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleThemeDropdown();
+    });
+
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            applyTheme(opt.dataset.theme);
+            closeThemeDropdown();
+        });
+    });
+
+    // Close theme dropdown when clicking elsewhere
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.theme-switcher')) {
+            closeThemeDropdown();
+        }
+    });
+
+    // Mermaid fullscreen
+    elements.mermaidModalClose.addEventListener('click', closeMermaidFullscreen);
+    elements.mermaidModal.addEventListener('click', e => {
+        if (e.target === elements.mermaidModal) {
+            closeMermaidFullscreen();
+        }
+    });
+
+    // Hash change
     window.addEventListener('hashchange', handleHashChange);
 
     // Keyboard shortcuts
@@ -714,7 +924,9 @@ function setupEventListeners() {
         if (e.key === 'Escape') {
             closeMobileSidebar();
             closeHighlightsPanel();
-            elements.highlightPopup.style.display = 'none';
+            closeThemeDropdown();
+            closeMermaidFullscreen();
+            elements.highlightPopup.classList.remove('visible');
         }
 
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
