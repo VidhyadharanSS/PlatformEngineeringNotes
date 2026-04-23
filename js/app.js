@@ -45,19 +45,61 @@ const el = {
     mermaidModal: $('mermaidModal'),
     mermaidModalContent: $('mermaidModalContent'),
     mermaidModalClose: $('mermaidModalClose'),
-    searchResults: $('searchResults')
+    searchResults: $('searchResults'),
+    collapseAllBtn: $('collapseAllBtn'),
+    expandAllBtn: $('expandAllBtn')
 };
 
 // Initialize
 async function init() {
     loadTheme();
     initMermaid();
+    initMarked();
     loadHighlights();
     await loadNotesIndex();
     buildNavigation();
     setupEventListeners();
     handleHashChange();
     buildSearchIndex();
+}
+
+function initMarked() {
+    const mh = globalThis.markedHighlight;
+    if (mh && mh.markedHighlight) {
+        marked.use(mh.markedHighlight({
+            langPrefix: 'hljs language-',
+            emptyLangClass: 'hljs',
+            highlight(code, lang) {
+                const langMap = {
+                    sh: 'bash',
+                    shell: 'bash',
+                    zsh: 'bash',
+                    yml: 'yaml',
+                    docker: 'dockerfile',
+                    conf: 'ini',
+                    config: 'ini',
+                    py: 'python',
+                    js: 'javascript',
+                    ts: 'typescript',
+                    rb: 'ruby'
+                };
+
+                const normalizedLang = (lang || '').toLowerCase().trim();
+                const resolvedLang = langMap[normalizedLang] || normalizedLang;
+
+                if (resolvedLang && hljs.getLanguage(resolvedLang)) {
+                    try {
+                        return hljs.highlight(code, { language: resolvedLang, ignoreIllegals: true }).value;
+                    } catch (error) {
+                        console.warn('Highlight failed for language:', resolvedLang, error);
+                    }
+                }
+
+                return escapeHtml(code);
+            }
+        }));
+    }
+    marked.use({ gfm: true, breaks: true });
 }
 
 function initMermaid() {
@@ -213,39 +255,19 @@ async function loadNote(path) {
     }
 }
 
+function sanitizeMermaidCode(code) {
+    // Fix node labels starting with / (paths like /etc/crontab) that Mermaid
+    // misinterprets as parallelogram shape syntax [/ /]. Convert unquoted
+    // [/path...] to ["/path..."] so Mermaid treats them as plain text labels.
+    // Matches: identifier[/...] but NOT identifier["/..."] (already quoted)
+    return code.replace(/(\w)\[(?!")(\/.+?)\]/g, '$1["$2"]');
+}
+
 function renderMarkdown(md) {
-    // Configure marked with marked-highlight for proper syntax highlighting
-    const markedHighlight = globalThis.markedHighlight;
-    
-    if (markedHighlight && markedHighlight.markedHighlight) {
-        marked.use(markedHighlight.markedHighlight({
-            langPrefix: 'hljs language-',
-            highlight(code, lang) {
-                // Normalize language aliases
-                const langMap = {
-                    'sh': 'bash', 'shell': 'bash', 'zsh': 'bash',
-                    'yml': 'yaml', 'docker': 'dockerfile',
-                    'conf': 'nginx', 'config': 'ini',
-                    'py': 'python', 'js': 'javascript',
-                    'ts': 'typescript', 'rb': 'ruby'
-                };
-                const resolvedLang = langMap[lang] || lang;
-                
-                if (resolvedLang && hljs.getLanguage(resolvedLang)) {
-                    try { return hljs.highlight(code, { language: resolvedLang }).value; } catch {}
-                }
-                try { return hljs.highlightAuto(code).value; } catch {}
-                return code;
-            }
-        }));
-    }
-    
-    marked.use({ gfm: true, breaks: true });
-    
     const mermaidBlocks = [];
     const processed = md.replace(/```mermaid\n([\s\S]*?)```/g, (_, code) => {
         const id = `mermaid-${mermaidBlocks.length}`;
-        mermaidBlocks.push({ id, code: code.trim() });
+        mermaidBlocks.push({ id, code: sanitizeMermaidCode(code.trim()) });
         return `<div class="mermaid-wrapper">
             <div class="mermaid-actions">
                 <button class="mermaid-fullscreen-btn" data-id="${id}" title="Fullscreen">⛶</button>
@@ -255,41 +277,17 @@ function renderMarkdown(md) {
             </div>
         </div>`;
     });
-    
+
     el.content.innerHTML = marked.parse(processed);
-    
-    // Wrap code blocks with header + copy button
-    el.content.querySelectorAll('pre').forEach(pre => {
-        if (pre.closest('.code-block-wrapper') || pre.closest('.mermaid-wrapper')) return;
-        
-        const code = pre.querySelector('code');
-        if (!code) return;
-        
-        const langClass = [...code.classList].find(c => c.startsWith('hljs') && c.includes('language-'))
-            || [...code.classList].find(c => c.startsWith('language-'));
-        const lang = langClass ? langClass.replace(/^(hljs\s+)?language-/, '') : 'code';
-        
-        // If hljs didn't highlight, try manually
-        if (!code.querySelector('.hljs-comment') && !code.querySelector('.hljs-keyword')) {
-            const langMap = { 'sh': 'bash', 'shell': 'bash', 'zsh': 'bash', 'yml': 'yaml', 'py': 'python' };
-            const resolvedLang = langMap[lang] || lang;
-            if (resolvedLang && resolvedLang !== 'code' && hljs.getLanguage(resolvedLang)) {
-                try {
-                    const result = hljs.highlight(code.textContent, { language: resolvedLang });
-                    code.innerHTML = result.value;
-                } catch {}
-            } else {
-                try {
-                    const result = hljs.highlightAuto(code.textContent);
-                    code.innerHTML = result.value;
-                } catch {}
-            }
-        }
-        
-        // Post-process: ensure shell/bash comments are highlighted
-        // hljs sometimes misses standalone comment lines in bash
-        postProcessCodeComments(code, lang);
-        
+
+    el.content.querySelectorAll('pre > code').forEach(code => {
+        const classNames = Array.from(code.classList);
+        const languageClass = classNames.find(className => className.startsWith('language-'));
+        const lang = languageClass ? languageClass.replace('language-', '') : 'code';
+        const pre = code.parentElement;
+
+        if (!pre || pre.closest('.code-block-wrapper') || pre.closest('.mermaid-wrapper')) return;
+
         const wrapper = document.createElement('div');
         wrapper.className = 'code-block-wrapper';
         wrapper.innerHTML = `
@@ -301,10 +299,10 @@ function renderMarkdown(md) {
                 </button>
             </div>
         `;
-        
+
         pre.parentNode.insertBefore(wrapper, pre);
         wrapper.appendChild(pre);
-        
+
         const btn = wrapper.querySelector('.code-copy-btn');
         btn.onclick = () => copyCode(code.textContent, btn);
     });
@@ -327,66 +325,6 @@ function renderMarkdown(md) {
     document.querySelectorAll('.mermaid-fullscreen-btn').forEach(btn => {
         btn.onclick = () => openMermaidFullscreen(btn.dataset.id);
     });
-}
-
-/**
- * Post-process code blocks to ensure comment lines are properly styled.
- * Handles cases where hljs misses comment patterns in shell/bash/python/yaml etc.
- */
-function postProcessCodeComments(codeEl, lang) {
-    // Define comment patterns per language family
-    const commentPatterns = {
-        'bash': /^(\s*)(#.*)$/,
-        'sh': /^(\s*)(#.*)$/,
-        'shell': /^(\s*)(#.*)$/,
-        'zsh': /^(\s*)(#.*)$/,
-        'python': /^(\s*)(#.*)$/,
-        'py': /^(\s*)(#.*)$/,
-        'yaml': /^(\s*)(#.*)$/,
-        'yml': /^(\s*)(#.*)$/,
-        'dockerfile': /^(\s*)(#.*)$/,
-        'makefile': /^(\s*)(#.*)$/,
-        'ini': /^(\s*)(;.*)$/,
-        'conf': /^(\s*)(#.*)$/,
-        'nginx': /^(\s*)(#.*)$/,
-        'ruby': /^(\s*)(#.*)$/,
-        'perl': /^(\s*)(#.*)$/,
-    };
-    
-    const normalizedLang = lang.toLowerCase().replace(/^language-/, '');
-    const pattern = commentPatterns[normalizedLang];
-    if (!pattern) return;
-    
-    // Work with the HTML content line by line
-    const html = codeEl.innerHTML;
-    const lines = html.split('\n');
-    let modified = false;
-    
-    const processedLines = lines.map(line => {
-        // Skip lines that already have hljs-comment class
-        if (line.includes('hljs-comment')) return line;
-        
-        // Strip HTML to get plain text of this line for testing
-        const plainText = line.replace(/<[^>]*>/g, '');
-        
-        if (pattern.test(plainText)) {
-            const match = plainText.match(pattern);
-            if (match) {
-                // Check if this line is entirely a comment (not a partial match inside a string)
-                // Only wrap if the line doesn't already contain hljs spans that cover it
-                const hasExistingSpans = /<span class="hljs-/.test(line);
-                if (!hasExistingSpans) {
-                    modified = true;
-                    return `<span class="hljs-comment">${line}</span>`;
-                }
-            }
-        }
-        return line;
-    });
-    
-    if (modified) {
-        codeEl.innerHTML = processedLines.join('\n');
-    }
 }
 
 function copyCode(text, btn) {
@@ -891,6 +829,17 @@ function setupTextSelection() {
     });
 }
 
+// Collapse / Expand All
+function collapseAll() {
+    document.querySelectorAll('.nav-module.expanded').forEach(m => m.classList.remove('expanded'));
+    document.querySelectorAll('.nav-subchapter.expanded').forEach(s => s.classList.remove('expanded'));
+}
+
+function expandAll() {
+    document.querySelectorAll('.nav-module').forEach(m => m.classList.add('expanded'));
+    document.querySelectorAll('.nav-subchapter').forEach(s => s.classList.add('expanded'));
+}
+
 // Panels
 function openMobileSidebar() {
     el.sidebar.classList.add('open');
@@ -925,6 +874,10 @@ function setupEventListeners() {
     el.mobileMenuToggle.onclick = () => {
         el.sidebar.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
     };
+    
+    // Collapse / Expand all
+    el.collapseAllBtn.onclick = collapseAll;
+    el.expandAllBtn.onclick = expandAll;
     
     el.overlay.onclick = () => {
         closeMobileSidebar();
