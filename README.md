@@ -8,12 +8,13 @@ Comprehensive study notes for Platform Engineering and DevOps — covering Linux
 
 ## 📖 Features
 
-- **10 Modules** covering all essential Platform Engineering topics
-- **163 detailed notes** with code examples and explanations
-- **296 Mermaid diagrams** for visual learning
+- **11 Modules** covering all essential Platform Engineering topics
+- **185+ detailed notes** with code examples and explanations
+- **360+ Mermaid diagrams** for visual learning
 - **Interactive highlighting** — select text to save it for later review
 - **Full-text search** across all notes
-- **Dark mode** optimized for comfortable reading
+- **8 built-in themes** — Dark, Light, Ghostty, Dracula, Solarized, Nord, Catppuccin, Cyberpunk
+- **Compact / Comfortable sidebar density toggle**
 - **Mobile responsive** — study on any device
 - **Offline capable** — highlights saved in browser storage
 
@@ -23,14 +24,15 @@ Comprehensive study notes for Platform Engineering and DevOps — covering Linux
 |--------|--------|
 | 🐧 **Linux** | FHS, Permissions, SSH, Storage, Systemd, Packages, Troubleshooting |
 | 🌐 **Networking** | OSI/TCP-IP, Subnetting, DNS, Firewalls, HTTP, Load Balancing |
-| 📜 **Shell Scripting** | Bash, Variables, Loops, Functions, Regex, Error Handling |
+| 📜 **Shell Scripting** | Shell Basics, Arrays, Error Handling, Regex, **20-task Practice Lab** |
 | 🐳 **Docker** | Containers, Images, Networking, Volumes, Compose |
-| ☸️ **Kubernetes** | Architecture, Pods, Services, Ingress, RBAC, Helm, GitOps |
+| ☸️ **Kubernetes** | Architecture, Pods, Services, Ingress, RBAC, Helm, **CKA Exam Prep (50 Qs)** |
 | 📦 **Git** | Objects, Branching, Rebasing, Hooks, Recovery |
 | ⚡ **Nginx** | Reverse Proxy, Load Balancing, SSL, Rate Limiting |
 | 🔄 **CI/CD** | Pipelines, GitHub Actions, Security Scanning, Deployment Strategies |
 | 🐍 **Python** | Subprocess, APIs, Logging, Testing, Production Patterns |
 | 🎯 **GitOps & ArgoCD** | GitOps Principles, ArgoCD, Sync Policies, Multi-Cluster |
+| 🧰 **Platform Essentials** | APIs, Auth (JWT/OAuth2/mTLS), Webhooks, Secrets, OWASP, Observability, SLOs, Databases, Queues, Cloud/IaC, DNS/TLS, Data Formats, Incident Response |
 
 ## 💡 Highlighting Feature
 
@@ -58,6 +60,26 @@ npx serve .
 ```
 
 Then open [http://localhost:8000](http://localhost:8000)
+
+## 🛠️ Dev Tooling
+
+A one-shot CLI is included for CI / pre-commit checks. It rebuilds `notes.json` from the folder tree and scans every Mermaid diagram for lexical-error patterns:
+
+```bash
+# Scan only
+python3 scripts/verify_diagrams.py
+
+# Rebuild notes.json AND scan
+python3 scripts/verify_diagrams.py --rebuild-index
+
+# Verbose per-block status
+python3 scripts/verify_diagrams.py -v
+
+# Machine-readable JSON (for CI)
+python3 scripts/verify_diagrams.py --json
+```
+
+Exit codes: `0` on success, `1` if risky unquoted labels remain, `2` on I/O error. Safe to drop into a GitHub Action.
 
 ## 📝 Structure
 

@@ -7,6 +7,7 @@
 const CONFIG = {
     STORAGE_KEY: 'pe-notes-highlights-v2',
     THEME_KEY: 'pe-notes-theme',
+    DENSITY_KEY: 'pe-notes-density',
     NOTES_INDEX: 'notes.json',
     THEMES: [
         { id: 'dark', name: 'Dark', icon: '🌙' },
@@ -23,7 +24,8 @@ const CONFIG = {
 const MODULE_ICONS = {
     '1-Linux': '🐧', '2-Networking': '🌐', '3-Shell-Scripting': '📜',
     '4-Docker': '🐳', '5-Kubernetes': '☸️', '6-Git': '📦',
-    '7-Nginx': '⚡', '8-CICD': '🔄', '9-Python': '🐍', '10-GitOps-ArgoCD': '🎯'
+    '7-Nginx': '⚡', '8-CICD': '🔄', '9-Python': '🐍', '10-GitOps-ArgoCD': '🎯',
+    '11-Platform-Essentials': '🧰'
 };
 
 // State
@@ -53,6 +55,7 @@ const el = {
     searchResults: $('searchResults'),
     collapseAllBtn: $('collapseAllBtn'),
     expandAllBtn: $('expandAllBtn'),
+    densityToggleBtn: $('densityToggleBtn'),
     readingProgress: $('readingProgress'),
     backToTop: $('backToTop'),
     imageLightbox: $('imageLightbox')
@@ -61,6 +64,7 @@ const el = {
 // Initialize
 async function init() {
     loadTheme();
+    loadDensity();
     initMermaid();
     initMarked();
     loadHighlights();
@@ -69,6 +73,38 @@ async function init() {
     setupEventListeners();
     handleHashChange();
     buildSearchIndex();
+}
+
+/* ========================================
+   Sidebar Density (compact / comfortable)
+   ======================================== */
+function loadDensity() {
+    const saved = localStorage.getItem(CONFIG.DENSITY_KEY);
+    const density = (saved === 'compact') ? 'compact' : 'comfortable';
+    applyDensity(density);
+}
+
+function applyDensity(density) {
+    document.documentElement.setAttribute('data-density', density);
+    localStorage.setItem(CONFIG.DENSITY_KEY, density);
+
+    // Swap icons & tooltip
+    if (el.densityToggleBtn) {
+        const isCompact = density === 'compact';
+        const comfortable = el.densityToggleBtn.querySelector('.density-icon-comfortable');
+        const compact = el.densityToggleBtn.querySelector('.density-icon-compact');
+        if (comfortable) comfortable.style.display = isCompact ? 'none'  : '';
+        if (compact)     compact.style.display     = isCompact ? ''      : 'none';
+        el.densityToggleBtn.title = isCompact
+            ? 'Switch to comfortable density'
+            : 'Switch to compact density';
+        el.densityToggleBtn.setAttribute('aria-pressed', String(isCompact));
+    }
+}
+
+function toggleDensity() {
+    const current = document.documentElement.getAttribute('data-density') || 'comfortable';
+    applyDensity(current === 'compact' ? 'comfortable' : 'compact');
 }
 
 function initMarked() {
@@ -231,29 +267,43 @@ function createModuleEl(module) {
     const name = module.name.replace(/^\d+-/, '').replace(/-/g, ' ');
     
     div.innerHTML = `
-        <div class="nav-module-header">
+        <div class="nav-module-header" tabindex="0" role="button" aria-expanded="false">
             <span class="icon">${icon}</span>
             <span class="name">${name}</span>
             <span class="arrow">▶</span>
         </div>
-        <div class="nav-module-content"></div>
+        <div class="nav-module-content">
+            <div class="nav-module-content-inner"></div>
+        </div>
     `;
-    
+
     const header = div.querySelector('.nav-module-header');
-    const content = div.querySelector('.nav-module-content');
-    
-    header.onclick = () => div.classList.toggle('expanded');
-    
+    const inner  = div.querySelector('.nav-module-content-inner');
+
+    const toggle = () => {
+        const nowExpanded = !div.classList.contains('expanded');
+        div.classList.toggle('expanded', nowExpanded);
+        header.setAttribute('aria-expanded', String(nowExpanded));
+    };
+    header.onclick = toggle;
+    header.onkeydown = e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    };
+
     if (module.approachGuide) {
         const guide = document.createElement('div');
         guide.className = 'nav-item approach-guide';
         guide.textContent = '📋 Approach Guide';
         guide.dataset.path = module.approachGuide;
+        guide.tabIndex = 0;
         guide.onclick = () => loadNote(module.approachGuide);
-        content.appendChild(guide);
+        guide.onkeydown = e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadNote(module.approachGuide); }
+        };
+        inner.appendChild(guide);
     }
-    
-    module.subchapters.forEach(sub => content.appendChild(createSubchapterEl(sub)));
+
+    module.subchapters.forEach(sub => inner.appendChild(createSubchapterEl(sub)));
     return div;
 }
 
@@ -281,30 +331,45 @@ function createSubchapterEl(sub) {
     const div = document.createElement('div');
     div.className = 'nav-subchapter';
     const displayName = getSubchapterDisplayName(sub);
-    
+
     div.innerHTML = `
-        <div class="nav-subchapter-header">
+        <div class="nav-subchapter-header" tabindex="0" role="button" aria-expanded="false">
             <span class="name">${escapeHtml(displayName)}</span>
             <span class="arrow">▶</span>
         </div>
-        <div class="nav-subchapter-content"></div>
+        <div class="nav-subchapter-content">
+            <div class="nav-subchapter-content-inner"></div>
+        </div>
     `;
-    
+
     const header = div.querySelector('.nav-subchapter-header');
-    const content = div.querySelector('.nav-subchapter-content');
-    
-    header.onclick = e => { e.stopPropagation(); div.classList.toggle('expanded'); };
-    
+    const inner  = div.querySelector('.nav-subchapter-content-inner');
+
+    const toggle = e => {
+        if (e) e.stopPropagation();
+        const nowExpanded = !div.classList.contains('expanded');
+        div.classList.toggle('expanded', nowExpanded);
+        header.setAttribute('aria-expanded', String(nowExpanded));
+    };
+    header.onclick = toggle;
+    header.onkeydown = e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggle(); }
+    };
+
     sub.files.forEach(file => {
         const item = document.createElement('div');
         const isReview = /review|exam|cheatsheet/i.test(file.name);
         item.className = `nav-item${isReview ? ' review' : ''}`;
         item.textContent = formatFileName(file.name);
         item.dataset.path = file.path;
+        item.tabIndex = 0;
         item.onclick = () => loadNote(file.path);
-        content.appendChild(item);
+        item.onkeydown = e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadNote(file.path); }
+        };
+        inner.appendChild(item);
     });
-    
+
     return div;
 }
 
@@ -343,15 +408,146 @@ async function loadNote(path) {
     }
 }
 
+/**
+ * Sanitize a Mermaid code block to avoid lexical/parse errors.
+ *
+ * The most common failures in our notes come from node labels that contain
+ * characters Mermaid's flowchart lexer treats as tokens — `(`, `)`, `:`,
+ * `/`, `&`, `<`, `>`, `#`, `,`, `;`, `=`, `|`, `{`, `}` — when those labels
+ * are NOT wrapped in quotes. The fix: find every node-shape label and, if
+ * it isn't already quoted and contains any risky character, wrap it in
+ * double quotes (escaping any inner `"` as the Mermaid-safe entity `#quot;`).
+ *
+ * We also quote edge labels of the form `|...|` when they carry risky chars,
+ * and we leave comments (`%%`), front-matter / init directives, and
+ * non-flowchart diagram types untouched.
+ *
+ * This is a defensive transform: if a label is already safe, it's left as-is.
+ */
 function sanitizeMermaidCode(code) {
-    return code.replace(/(\w)\[(?!")(\/.+?)\]/g, '$1["$2"]');
+    if (!code) return code;
+
+    // Normalise line endings and tidy trailing whitespace — some notes use CRLF.
+    code = code.replace(/\r\n?/g, '\n');
+
+    // Detect diagram type from the first non-blank, non-comment, non-directive line.
+    // We only aggressively quote labels for flowchart / graph diagrams where it matters.
+    const firstDirective = (() => {
+        for (const raw of code.split('\n')) {
+            const line = raw.trim();
+            if (!line) continue;
+            if (line.startsWith('%%')) continue;
+            if (line.startsWith('---')) continue; // YAML front-matter fence
+            return line.toLowerCase();
+        }
+        return '';
+    })();
+    const isFlowchart = /^(flowchart|graph)\b/.test(firstDirective);
+
+    // Characters that are "risky" inside a flowchart label when it isn't quoted.
+    const RISKY = /[()<>:&#,;=|{}\/\\]/;
+
+    // Escape any literal double-quotes inside a label we're about to wrap.
+    const esc = s => s.replace(/"/g, '#quot;');
+
+    // Decide whether a label needs quoting, and produce a safe quoted form.
+    // `inner` is the raw label text (no surrounding brackets).
+    const safeLabel = (inner) => {
+        const trimmed = inner.trim();
+        // Already quoted → leave alone.
+        if (/^".*"$/s.test(trimmed)) return inner;
+        // No risky char → leave alone (keeps diffs minimal, preserves simple IDs).
+        if (!RISKY.test(trimmed)) return inner;
+        return `"${esc(trimmed)}"`;
+    };
+
+    // Placeholder machinery: once we quote a node label, stash the whole
+    // node into a placeholder so that later, broader patterns can't re-match
+    // its inner brackets/parens and double-process it (which would otherwise
+    // corrupt e.g. cylinder `ID[(label)]` into `ID["(#quot;label#quot;)"]`).
+    const processLine = (line) => {
+        if (/^\s*%%/.test(line)) return line;
+        if (/^\s*(classDef|class|style|linkStyle|subgraph|end|direction)\b/.test(line)) return line;
+        if (!isFlowchart) return line;
+
+        const stash = [];
+        const hold = (token) => {
+            const key = `\u0001MZ${stash.length}\u0001`;
+            stash.push(token);
+            return key;
+        };
+
+        let out = line;
+
+        // Order matters: most-specific shapes first. Each replacement both
+        // quotes the inner label AND stashes the fully-formed node so later
+        // patterns leave it alone.
+        const shapes = [
+            // Cylinder:        ID[(label)]
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\[\(([^\]]*?)\)\]/g,
+                (_, pre, id, lbl) => pre + hold(`${id}[(${safeLabel(lbl)})]`)],
+            // Subroutine:      ID[[label]]
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\[\[([^\]]*?)\]\]/g,
+                (_, pre, id, lbl) => pre + hold(`${id}[[${safeLabel(lbl)}]]`)],
+            // Parallelogram R: ID[/label/]
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\[\/([^\]]*?)\/\]/g,
+                (_, pre, id, lbl) => pre + hold(`${id}[/${safeLabel(lbl)}/]`)],
+            // Parallelogram L: ID[\label\]
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\[\\([^\]]*?)\\\]/g,
+                (_, pre, id, lbl) => pre + hold(`${id}[\\${safeLabel(lbl)}\\]`)],
+            // Hexagon:         ID{{label}}
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\{\{([^}]*?)\}\}/g,
+                (_, pre, id, lbl) => pre + hold(`${id}{{${safeLabel(lbl)}}}`)],
+            // Circle:          ID((label))
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\(\(([^)]*?)\)\)/g,
+                (_, pre, id, lbl) => pre + hold(`${id}((${safeLabel(lbl)}))`)],
+            // Stadium:         ID([label])
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\(\[([^\]]*?)\]\)/g,
+                (_, pre, id, lbl) => pre + hold(`${id}([${safeLabel(lbl)}])`)],
+            // Asymmetric:      ID>label]
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)>([^\]]*?)\]/g,
+                (_, pre, id, lbl) => pre + hold(`${id}>${safeLabel(lbl)}]`)],
+            // Rhombus:         ID{label}
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\{([^}]*?)\}/g,
+                (_, pre, id, lbl) => pre + hold(`${id}{${safeLabel(lbl)}}`)],
+            // Rounded:         ID(label)
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\(([^()\[\]]*?)\)/g,
+                (_, pre, id, lbl) => pre + hold(`${id}(${safeLabel(lbl)})`)],
+            // Rectangle:       ID[label]
+            [/(^|[\s\[\]\(\)\{}>|;,])([A-Za-z0-9_]+)\[([^\[\]]*?)\]/g,
+                (_, pre, id, lbl) => pre + hold(`${id}[${safeLabel(lbl)}]`)],
+        ];
+
+        for (const [rx, fn] of shapes) {
+            out = out.replace(rx, fn);
+        }
+
+        // Edge labels: --|label|-->  or  -->|label|   (process AFTER shapes)
+        out = out.replace(/(-{1,3}|={2,3}|\.{1,3})\|([^|]+?)\|/g,
+            (_, arrow, lbl) => `${arrow}|${safeLabel(lbl)}|`);
+
+        // Restore placeholders — loop because a stashed token may itself
+        // contain placeholders for earlier (inner) stashed tokens. A single
+        // pass of String.replace() does NOT recursively rescan substitutions,
+        // so we iterate until no placeholders remain (with a safety cap).
+        for (let pass = 0; pass < 6 && out.includes('\u0001MZ'); pass++) {
+            const prev = out;
+            out = out.replace(/\u0001MZ(\d+)\u0001/g, (_, i) => stash[+i]);
+            if (out === prev) break;
+        }
+
+        return out;
+    };
+
+    return code.split('\n').map(processLine).join('\n');
 }
 
 function renderMarkdown(md) {
     const mermaidBlocks = [];
     const processed = md.replace(/```mermaid\n([\s\S]*?)```/g, (_, code) => {
         const id = `mermaid-${mermaidBlocks.length}`;
-        mermaidBlocks.push({ id, code: sanitizeMermaidCode(code.trim()) });
+        const rawCode = code.trim();
+        mermaidBlocks.push({ id, code: sanitizeMermaidCode(rawCode), rawCode });
         return `<div class="mermaid-wrapper">
             <div class="mermaid-actions">
                 <button class="mermaid-fullscreen-btn" data-id="${id}" title="Fullscreen">⛶</button>
@@ -413,16 +609,33 @@ function renderMarkdown(md) {
     // Intercept markdown backlinks
     interceptBacklinks();
     
-    // Render mermaid
-    mermaidBlocks.forEach(async ({ id, code }) => {
+    // Render mermaid — if the sanitized version fails (rare), fall back to
+    // the raw original. If that ALSO fails, show a friendly error with the
+    // offending source so the diagram never silently disappears.
+    mermaidBlocks.forEach(async ({ id, code, rawCode }) => {
         const mEl = document.getElementById(id);
-        if (mEl) {
+        if (!mEl) return;
+        const attempt = async (src) => {
+            const { svg } = await mermaid.render(`${id}-svg`, src);
+            mEl.innerHTML = svg;
+            mEl.dataset.code = src;
+        };
+        try {
+            await attempt(code);
+        } catch (firstErr) {
             try {
-                const { svg } = await mermaid.render(`${id}-svg`, code);
+                // Reset mermaid's internal counters by re-attempting with a
+                // fresh svg id suffix to avoid "Element with id already exists".
+                const { svg } = await mermaid.render(`${id}-svg-raw`, rawCode);
                 mEl.innerHTML = svg;
-                mEl.dataset.code = code;
-            } catch (e) {
-                mEl.innerHTML = `<pre style="color:var(--danger);font-size:11px;">${escapeHtml(e.message)}</pre>`;
+                mEl.dataset.code = rawCode;
+            } catch (secondErr) {
+                mEl.innerHTML = `
+                    <div class="mermaid-error">
+                        <div class="mermaid-error-title">Diagram failed to render</div>
+                        <div class="mermaid-error-msg">${escapeHtml(secondErr.message || firstErr.message)}</div>
+                        <details><summary>Show source</summary><pre>${escapeHtml(rawCode)}</pre></details>
+                    </div>`;
             }
         }
     });
@@ -935,11 +1148,32 @@ function closeMermaidFullscreen() {
 function updateActiveNavItem(path) {
     document.querySelectorAll('.nav-item.active').forEach(e => e.classList.remove('active'));
     const active = document.querySelector(`.nav-item[data-path="${path}"]`);
-    if (active) {
-        active.classList.add('active');
-        active.closest('.nav-subchapter')?.classList.add('expanded');
-        active.closest('.nav-module')?.classList.add('expanded');
+    if (!active) return;
+
+    active.classList.add('active');
+
+    const sub = active.closest('.nav-subchapter');
+    const mod = active.closest('.nav-module');
+    if (sub) {
+        sub.classList.add('expanded');
+        sub.querySelector(':scope > .nav-subchapter-header')?.setAttribute('aria-expanded', 'true');
     }
+    if (mod) {
+        mod.classList.add('expanded');
+        mod.querySelector(':scope > .nav-module-header')?.setAttribute('aria-expanded', 'true');
+    }
+
+    // Smoothly scroll the active item into view inside the nav-tree,
+    // but only if it's outside the visible area (avoids jumpy UX).
+    requestAnimationFrame(() => {
+        const tree = el.navTree;
+        if (!tree) return;
+        const treeRect = tree.getBoundingClientRect();
+        const itemRect = active.getBoundingClientRect();
+        if (itemRect.top < treeRect.top + 16 || itemRect.bottom > treeRect.bottom - 16) {
+            active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    });
 }
 
 function updateBreadcrumb(path) {
@@ -974,14 +1208,15 @@ function getWelcomeHTML() {
     const topics = {
         '1-Linux': 'FHS, Permissions, SSH, Storage, Systemd',
         '2-Networking': 'OSI, TCP/IP, DNS, Firewalls, HTTP',
-        '3-Shell-Scripting': 'Bash, Variables, Loops, Functions',
+        '3-Shell-Scripting': 'Bash, Arrays, Error Handling, Practice Lab',
         '4-Docker': 'Containers, Images, Networking, Volumes',
-        '5-Kubernetes': 'Architecture, Pods, Services, RBAC',
+        '5-Kubernetes': 'Architecture, Pods, RBAC, CKA Exam Prep',
         '6-Git': 'Objects, Branching, Rebasing, Hooks',
         '7-Nginx': 'Reverse Proxy, Load Balancing, SSL',
         '8-CICD': 'Pipelines, GitHub Actions, Security',
-        '9-Python': 'Subprocess, APIs, Logging, Testing',
-        '10-GitOps-ArgoCD': 'GitOps, ArgoCD, Sync Policies'
+        '9-Python': 'Runtime, Subprocess, APIs, Testing + 20-Task Lab',
+        '10-GitOps-ArgoCD': 'Controller Pattern, ArgoCD, Secrets + 20-Task Lab',
+        '11-Platform-Essentials': 'APIs, Auth, Webhooks, Observability, SLOs, Incident Response'
     };
     
     return `
@@ -1301,13 +1536,19 @@ function setupTextSelection() {
 
 // Collapse / Expand All
 function collapseAll() {
-    document.querySelectorAll('.nav-module.expanded').forEach(m => m.classList.remove('expanded'));
-    document.querySelectorAll('.nav-subchapter.expanded').forEach(s => s.classList.remove('expanded'));
+    document.querySelectorAll('.nav-module.expanded, .nav-subchapter.expanded').forEach(e => {
+        e.classList.remove('expanded');
+        const hdr = e.querySelector(':scope > .nav-module-header, :scope > .nav-subchapter-header');
+        if (hdr) hdr.setAttribute('aria-expanded', 'false');
+    });
 }
 
 function expandAll() {
-    document.querySelectorAll('.nav-module').forEach(m => m.classList.add('expanded'));
-    document.querySelectorAll('.nav-subchapter').forEach(s => s.classList.add('expanded'));
+    document.querySelectorAll('.nav-module, .nav-subchapter').forEach(e => {
+        e.classList.add('expanded');
+        const hdr = e.querySelector(':scope > .nav-module-header, :scope > .nav-subchapter-header');
+        if (hdr) hdr.setAttribute('aria-expanded', 'true');
+    });
 }
 
 // Panels
@@ -1347,6 +1588,7 @@ function setupEventListeners() {
     
     el.collapseAllBtn.onclick = collapseAll;
     el.expandAllBtn.onclick = expandAll;
+    if (el.densityToggleBtn) el.densityToggleBtn.onclick = toggleDensity;
     
     el.overlay.onclick = () => {
         closeMobileSidebar();

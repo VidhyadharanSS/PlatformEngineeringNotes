@@ -5,12 +5,18 @@
 ```mermaid
 mindmap
   root((Module 3: Shell Scripting))
+    3.0 Fundamentals
+      Shell vs Terminal vs Console
+      Running Scripts & Exit Codes
     3.1 Foundations
       Shebangs, Variables, Subshells
       Loops, Conditionals, Functions
+      Arrays Deep Dive
     3.2 Advanced Techniques
       Error Handling & Debugging
       String Manipulation & Regex
+    3.3 Practice Lab
+      20 Tasks Across Modules 1-3
 ```
 
 ---
@@ -40,13 +46,16 @@ Shell scripting is the **universal automation language** of Linux systems. Every
 
 ```mermaid
 flowchart TD
-    A[Start Module 3] --> B["3.1.1 — Shebangs, Variables, Subshells<br/>The building blocks"]
+    A[Start Module 3] --> Z["3.0.1 — Shell Basics<br/>shell vs terminal, your first script"]
+    Z --> B["3.1.1 — Shebangs, Variables, Subshells<br/>The building blocks"]
     B --> C["3.1.2 — Loops, Conditionals, Functions<br/>Control flow and reuse"]
-    C --> D["3.1.3 — Subchapter Review<br/>Validate your understanding"]
+    C --> X["3.1.3 — Arrays Deep Dive<br/>Indexed + associative arrays"]
+    X --> D["3.1.4 — Subchapter Review<br/>Validate your understanding"]
     D --> E["3.2.1 — Error Handling & Debugging<br/>Write bulletproof scripts"]
     E --> F["3.2.2 — String Manipulation & Regex<br/>Transform text like a pro"]
     F --> G["3.2.3 — Subchapter Review + Final<br/>Prove your mastery"]
-    G --> H[Module 3 Complete ✅]
+    G --> L["3.3.1 — Practice Lab<br/>20 cross-module tasks"]
+    L --> H[Module 3 Complete ✅]
 
     style A fill:#4CAF50,color:#fff
     style H fill:#2196F3,color:#fff
@@ -66,11 +75,13 @@ flowchart TD
 
 | Subchapter | Reading | Practice | Total |
 |---|---|---|---|
-| 3.1 Foundations | 2.5 hrs | 3 hrs | **5.5 hrs** |
+| 3.0 Fundamentals | 0.5 hr | 0.5 hr | **1 hr** |
+| 3.1 Foundations | 3 hrs | 3 hrs | **6 hrs** |
 | 3.2 Advanced Techniques | 2.5 hrs | 3.5 hrs | **6 hrs** |
-| **Total** | **5 hrs** | **6.5 hrs** | **~11.5 hrs** |
+| 3.3 Practice Lab (20 tasks) | 0.5 hr | 3 hrs | **3.5 hrs** |
+| **Total** | **6.5 hrs** | **10 hrs** | **~16.5 hrs** |
 
-> **Realistic timeline:** 1 week at 2 hours/day. This is a compact but dense module.
+> **Realistic timeline:** 1.5 weeks at 2 hours/day. `3.0` is quick but critical for beginners; `3.3` is the consolidation lab that brings Modules 1–3 together.
 
 ---
 

@@ -5,6 +5,10 @@
 ```mermaid
 mindmap
   root((Module 10: GitOps & ArgoCD))
+    10.0 Mental Model
+      Controller pattern refresher
+      Desired vs actual state
+      Secrets management
     10.1 GitOps Foundations
       GitOps Principles vs Push CI/CD
       ArgoCD Architecture & Installation
@@ -12,6 +16,8 @@ mindmap
       Applications, Sync Policies, Rollbacks
       App of Apps, Helm, Kustomize, Multi-Cluster
       Final Review & Exam
+    10.3 Practice Lab
+      20 Tasks revising Modules 5,6,8,10
 ```
 
 ---
@@ -45,13 +51,15 @@ GitOps is the **final piece of the DevOps puzzle**. It takes everything you've l
 
 ```mermaid
 flowchart TD
-    A[Start Module 10] --> B["10.1.1 — GitOps Principles<br/>Push vs Pull model"]
+    A[Start Module 10] --> Z["10.0.1 — Mental Model<br/>Controller pattern + secrets"]
+    Z --> B["10.1.1 — GitOps Principles<br/>Push vs Pull model"]
     B --> C["10.1.2 — ArgoCD Architecture<br/>Install and explore components"]
     C --> D["10.1.3 — Review<br/>Validate foundations"]
     D --> E["10.2.1 — Applications & Sync<br/>Deploy, sync, rollback"]
     E --> F["10.2.2 — App of Apps & Multi-Cluster<br/>Scale GitOps to the organization"]
     F --> G["10.2.3 — Final Review & Exam<br/>Prove your mastery"]
-    G --> H[Module 10 Complete ✅<br/>Course Complete! 🎉]
+    G --> P["10.3.1 — Practice Lab<br/>20 end-to-end tasks"]
+    P --> H[Module 10 Complete ✅<br/>Course Complete! 🎉]
 
     style A fill:#4CAF50,color:#fff
     style H fill:#FF9800,color:#fff
@@ -71,11 +79,13 @@ flowchart TD
 
 | Subchapter | Reading | Practice | Total |
 |---|---|---|---|
+| 10.0 Mental Model | 1 hr | 0.5 hr | **1.5 hrs** |
 | 10.1 GitOps Foundations | 2 hrs | 2 hrs | **4 hrs** |
 | 10.2 ArgoCD in Practice | 3 hrs | 4 hrs | **7 hrs** |
-| **Total** | **5 hrs** | **6 hrs** | **~11 hrs** |
+| 10.3 Practice Lab | — | 5 hrs | **5 hrs** |
+| **Total** | **6 hrs** | **11.5 hrs** | **~17.5 hrs** |
 
-> **Realistic timeline:** 1 week at 2 hours/day. Shorter than other modules because it builds on everything you already know.
+> **Realistic timeline:** 1.5–2 weeks at 2 hours/day. The practice lab is the biggest time sink but is also where GitOps clicks.
 
 ---
 

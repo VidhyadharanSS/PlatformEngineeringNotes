@@ -39,6 +39,9 @@ mindmap
       Monitoring: Prometheus/Grafana
       Dashboard & k9s
       kubectl Cheatsheet
+    5.10 CKA Exam Prep
+      50 Pattern Questions
+      Exam-Day Cheatsheet
 ```
 
 ---
@@ -102,6 +105,7 @@ The subchapters are designed to be read in order, but you can group them into th
 | **Phase 1: Foundations** | 5.1, 5.2, 5.3 | "What is a cluster and how do workloads run?" |
 | **Phase 2: Services** | 5.4, 5.5, 5.6, 5.7 | "How do workloads communicate, persist data, and scale?" |
 | **Phase 3: Production** | 5.8, 5.9 | "How do I secure and operate a cluster?" |
+| **Phase 4: Exam Prep** | 5.10 | "Can I solve exam-style tasks in under 5 minutes?" |
 
 ---
 
@@ -118,7 +122,8 @@ The subchapters are designed to be read in order, but you can group them into th
 | 5.7 Packaging | 2.5 hrs | 3 hrs | **5.5 hrs** |
 | 5.8 Security | 2.5 hrs | 3 hrs | **5.5 hrs** |
 | 5.9 Operations + Final | 3 hrs | 5 hrs | **8 hrs** |
-| **Total** | **22 hrs** | **27 hrs** | **~49 hrs** |
+| 5.10 CKA Exam Prep (50 Qs) | 1 hr | 5 hrs | **6 hrs** |
+| **Total** | **23 hrs** | **32 hrs** | **~55 hrs** |
 
 > **Realistic timeline:** 4–6 weeks at 2–3 hours/day. This is the biggest module for a reason — Kubernetes IS the job.
 

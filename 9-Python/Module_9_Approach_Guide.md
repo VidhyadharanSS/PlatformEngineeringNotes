@@ -5,6 +5,10 @@
 ```mermaid
 mindmap
   root((Module 9: Python))
+    9.0 Fundamentals
+      Interpreter, Runtime, Mental Model
+      LEGB scope & imports
+      Mutable vs immutable
     9.1 Language Foundations
       Basics, Data Types, Control Flow
       File I/O, Modules, Libraries
@@ -21,6 +25,8 @@ mindmap
       Testing with pytest
       Production-Ready Patterns
       Cheatsheet & Grand Final
+    9.5 Practice Lab
+      20 Tasks revising Modules 1-3 + 9
 ```
 
 ---
@@ -52,11 +58,13 @@ Python is the **second language of DevOps** (after bash). When scripts exceed ~1
 
 ```mermaid
 flowchart TD
-    A[Start Module 9] --> B["9.1 — Language Foundations<br/>Python syntax through a DevOps lens"]
+    A[Start Module 9] --> Z["9.0 — Fundamentals<br/>Interpreter, LEGB, mental model"]
+    Z --> B["9.1 — Language Foundations<br/>Python syntax through a DevOps lens"]
     B --> C["9.2 — System Automation<br/>subprocess, argparse, pathlib, dotenv"]
     C --> D["9.3 — HTTP & APIs<br/>requests, logging, webhooks, OAuth2"]
     D --> E["9.4 — Testing & Production<br/>pytest, dataclasses, production patterns"]
-    E --> F[Module 9 Complete ✅]
+    E --> P["9.5 — Practice Lab<br/>20 revision tasks"]
+    P --> F[Module 9 Complete ✅]
 
     style A fill:#4CAF50,color:#fff
     style F fill:#2196F3,color:#fff
@@ -96,13 +104,15 @@ flowchart TD
 
 | Subchapter | Reading | Practice | Total |
 |---|---|---|---|
+| 9.0 Fundamentals | 1 hr | 0.5 hr | **1.5 hrs** |
 | 9.1 Language Foundations | 3 hrs | 3 hrs | **6 hrs** |
 | 9.2 System Automation | 2.5 hrs | 3 hrs | **5.5 hrs** |
 | 9.3 HTTP & APIs | 3 hrs | 3.5 hrs | **6.5 hrs** |
 | 9.4 Testing & Production | 3 hrs | 4 hrs | **7 hrs** |
-| **Total** | **11.5 hrs** | **13.5 hrs** | **~25 hrs** |
+| 9.5 Practice Lab | — | 4 hrs | **4 hrs** |
+| **Total** | **12.5 hrs** | **18 hrs** | **~30 hrs** |
 
-> **Realistic timeline:** 2–3 weeks at 2 hours/day. If you already know Python basics, cut 9.1 time in half.
+> **Realistic timeline:** 3 weeks at 2 hours/day. If you already know Python basics, skim 9.0 and 9.1 — jump straight to 9.2.
 
 ---
 

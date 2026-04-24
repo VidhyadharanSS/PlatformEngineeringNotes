@@ -406,6 +406,42 @@
     --transition-fast: 0.15s ease;
     --transition-base: 0.2s ease;
     --transition-slow: 0.3s ease;
+
+    /* Sidebar Density (default = comfortable) */
+    --nav-module-pad-y: 10px;
+    --nav-module-pad-x: 14px;
+    --nav-module-font: 12.5px;
+    --nav-module-icon: 15px;
+
+    --nav-sub-pad-y: 6px;
+    --nav-sub-pad-x: 10px;
+    --nav-sub-font: 11px;
+
+    --nav-item-pad-y: 6px;
+    --nav-item-pad-x: 14px;
+    --nav-item-font: 11.5px;
+
+    --nav-content-inner-pad-y: 4px;
+    --nav-sub-indent: 14px;
+}
+
+/* Compact density — tighter paddings, smaller fonts, tighter gaps */
+[data-density="compact"] {
+    --nav-module-pad-y: 6px;
+    --nav-module-pad-x: 12px;
+    --nav-module-font: 11.5px;
+    --nav-module-icon: 13px;
+
+    --nav-sub-pad-y: 4px;
+    --nav-sub-pad-x: 8px;
+    --nav-sub-font: 10.5px;
+
+    --nav-item-pad-y: 3px;
+    --nav-item-pad-x: 12px;
+    --nav-item-font: 11px;
+
+    --nav-content-inner-pad-y: 2px;
+    --nav-sub-indent: 10px;
 }
 
 /* Reset */
@@ -512,6 +548,21 @@ a:hover { text-decoration: underline; }
     bottom: 0;
     z-index: 100;
     transition: transform var(--transition-base), background var(--transition-base);
+    /* Prevent layout shift when the nav-tree scrollbar appears */
+    scrollbar-gutter: stable;
+}
+
+/* Subtle fade at the top of the scroll area so items don't butt up against
+   the search bar when the user has scrolled the nav-tree. */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-default), transparent);
+    opacity: 0.6;
+    pointer-events: none;
 }
 
 .sidebar-header {
@@ -764,163 +815,188 @@ a:hover { text-decoration: underline; }
 .nav-tree {
     flex: 1;
     overflow-y: auto;
-    padding: 6px 0;
+    overflow-x: hidden;
+    padding: 6px 0 24px;
+    /* Firefox thin scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-default) transparent;
+    /* Smooth kinetic scroll on trackpads */
+    overscroll-behavior: contain;
 }
 
-.nav-tree::-webkit-scrollbar { width: 5px; }
+.nav-tree::-webkit-scrollbar { width: 6px; }
 .nav-tree::-webkit-scrollbar-track { background: transparent; }
-.nav-tree::-webkit-scrollbar-thumb { 
-    background: var(--border-default); 
-    border-radius: 3px; 
+.nav-tree::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    transition: background var(--transition-fast);
 }
 .nav-tree::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-.nav-module { 
-    border-bottom: 1px solid var(--border-muted); 
+/* Module block */
+.nav-module {
+    border-bottom: 1px solid var(--border-muted);
+    position: relative;
 }
-
 .nav-module:last-child { border-bottom: none; }
 
+/* The clickable module header row */
 .nav-module-header {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 9px 14px;
+    padding: var(--nav-module-pad-y) var(--nav-module-pad-x);
     cursor: pointer;
-    transition: background var(--transition-fast);
     user-select: none;
+    position: relative;
+    transition: background var(--transition-fast), color var(--transition-fast),
+                padding 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
+/* Left accent bar — animates in on hover/expanded (GPU-friendly) */
+.nav-module-header::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 6px; bottom: 6px;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+    transform: scaleY(0);
+    transform-origin: center;
+    opacity: 0;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+}
 .nav-module-header:hover { background: var(--sidebar-hover); }
-
-.nav-module-header .icon { 
-    font-size: 15px; 
-    width: 20px; 
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.nav-module-header .name { 
-    flex: 1; 
-    font-size: 12.5px; 
-    font-weight: 600; 
-    color: var(--text-primary); 
-    letter-spacing: -0.01em;
-}
-
-.nav-module-header .arrow { 
-    font-size: 8px; 
-    color: var(--text-muted); 
-    transition: transform var(--transition-fast); 
-    flex-shrink: 0;
-    opacity: 0.6;
-}
-
-.nav-module.expanded .nav-module-header .arrow { 
-    transform: rotate(90deg); 
+.nav-module-header:hover::before,
+.nav-module.expanded .nav-module-header::before {
+    transform: scaleY(1);
     opacity: 1;
 }
 
-.nav-module.expanded .nav-module-header { 
-    background: var(--sidebar-hover); 
+.nav-module-header .icon {
+    font-size: var(--nav-module-icon);
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    transition: transform var(--transition-fast), font-size 0.2s ease;
+}
+.nav-module-header:hover .icon { transform: scale(1.08); }
+
+.nav-module-header .name {
+    flex: 1;
+    font-size: var(--nav-module-font);
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: font-size 0.2s ease;
 }
 
-.nav-module-content { 
-    display: none; 
-    padding-bottom: 6px;
+.nav-module-header .arrow {
+    font-size: 8px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    opacity: 0.55;
+    /* Cubic-bezier for a subtle spring */
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), opacity var(--transition-fast);
+    transform-origin: center;
+    will-change: transform;
 }
 
-.nav-module.expanded .nav-module-content { 
-    display: block; 
-    animation: slideDown 0.15s ease-out;
+.nav-module.expanded .nav-module-header .arrow {
+    transform: rotate(90deg);
+    opacity: 0.9;
 }
 
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
+.nav-module.expanded .nav-module-header {
+    background: var(--sidebar-hover);
 }
 
-.nav-subchapter { margin: 0 8px; }
+/* Smooth, truly-animatable expand/collapse using grid rows.
+   `minmax(0, 1fr)` when expanded lets the contents drive the height,
+   while transitioning cleanly from 0fr. No JS / no fixed max-height. */
+.nav-module-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-module-content > * {
+    overflow: hidden;
+    min-height: 0;
+}
+.nav-module.expanded .nav-module-content {
+    grid-template-rows: 1fr;
+}
+
+.nav-module-content-inner {
+    padding: var(--nav-content-inner-pad-y) 0 calc(var(--nav-content-inner-pad-y) * 2);
+}
+
+/* Subchapter */
+.nav-subchapter {
+    margin: 1px 8px;
+    border-radius: var(--radius-xs);
+}
 
 .nav-subchapter-header {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 10px;
+    padding: var(--nav-sub-pad-y) var(--nav-sub-pad-x);
     cursor: pointer;
-    font-size: 11px;
+    font-size: var(--nav-sub-font);
     color: var(--text-secondary);
     border-radius: var(--radius-xs);
-    transition: all var(--transition-fast);
     font-weight: 500;
     line-height: 1.4;
+    transition: background var(--transition-fast), color var(--transition-fast),
+                padding 0.2s ease, font-size 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.nav-subchapter-header:hover { 
-    background: var(--sidebar-hover); 
-    color: var(--text-primary); 
+.nav-subchapter-header:hover {
+    background: var(--sidebar-hover);
+    color: var(--text-primary);
 }
 
-.nav-subchapter-header .arrow { 
-    font-size: 7px; 
-    transition: transform var(--transition-fast); 
-    opacity: 0.5;
+.nav-subchapter-header .arrow {
+    font-size: 7px;
+    opacity: 0.45;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity var(--transition-fast);
+    transform-origin: center;
+    will-change: transform;
 }
 
-.nav-subchapter.expanded .nav-subchapter-header .arrow { 
-    transform: rotate(90deg); 
-    opacity: 0.8;
+.nav-subchapter.expanded .nav-subchapter-header .arrow {
+    transform: rotate(90deg);
+    opacity: 0.85;
 }
 
-.nav-subchapter-content { 
-    display: none; 
-    padding-left: 14px; 
+.nav-subchapter-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                padding-left 0.2s ease;
+    padding-left: var(--nav-sub-indent);
 }
-
-.nav-subchapter.expanded .nav-subchapter-content { 
-    display: block; 
-    animation: slideDown 0.12s ease-out;
-}
-
-.nav-item {
-    padding: 5px 10px;
-    font-size: 11.5px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    border-radius: var(--radius-xs);
-    margin: 1px 0;
-    transition: all var(--transition-fast);
-    white-space: nowrap;
+.nav-subchapter-content > * {
     overflow: hidden;
-    text-overflow: ellipsis;
-    position: relative;
+    min-height: 0;
+}
+.nav-subchapter.expanded .nav-subchapter-content {
+    grid-template-rows: 1fr;
 }
 
-.nav-item:hover { 
-    background: var(--sidebar-hover); 
-    color: var(--text-primary); 
+.nav-subchapter-content-inner {
+    padding: 2px 0 4px;
 }
 
-.nav-item.active {
-    background: var(--accent);
-    color: var(--bg-base);
-    font-weight: 600;
-    box-shadow: var(--shadow-sm);
-}
-
-.nav-item.review { 
-    color: var(--warning); 
-    font-style: italic;
-}
-.nav-item.review:hover { color: var(--warning); filter: brightness(1.2); }
-
-.nav-item.approach-guide { 
-    color: var(--success); 
-    font-weight: 500;
-}
-.nav-item.approach-guide:hover { color: var(--success); filter: brightness(1.2); }
-
-/* Subchapter name — allow wrapping for descriptive names */
+/* Subchapter name — ellipsis when collapsed, wrap when expanded */
 .nav-subchapter-header .name {
     flex: 1;
     min-width: 0;
@@ -928,11 +1004,92 @@ a:hover { text-decoration: underline; }
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 .nav-subchapter.expanded > .nav-subchapter-header .name {
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
+}
+
+/* Leaf nav item */
+.nav-item {
+    padding: var(--nav-item-pad-y) 10px var(--nav-item-pad-y) var(--nav-item-pad-x);
+    font-size: var(--nav-item-font);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-xs);
+    margin: 1px 0;
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        padding 0.18s ease,
+        font-size 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 50%;
+    width: 3px; height: 0;
+    background: var(--accent);
+    border-radius: 3px;
+    transform: translateY(-50%);
+    transition: height 0.18s ease, background var(--transition-fast);
+}
+
+.nav-item:hover {
+    background: var(--sidebar-hover);
+    color: var(--text-primary);
+    padding-left: calc(var(--nav-item-pad-x) + 4px);
+}
+.nav-item:hover::before { height: 60%; }
+
+.nav-item.active {
+    background: var(--accent-subtle);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding-left: calc(var(--nav-item-pad-x) + 4px);
+}
+.nav-item.active::before {
+    height: 70%;
+    background: var(--accent);
+}
+
+/* Keep contrast intentional on active item for light theme */
+[data-theme="light"] .nav-item.active {
+    background: var(--accent-subtle);
+    color: var(--accent-emphasis);
+}
+
+.nav-item.review {
+    color: var(--warning);
+    font-style: italic;
+}
+.nav-item.review:hover { color: var(--warning); filter: brightness(1.15); }
+.nav-item.review.active { color: var(--warning); background: rgba(210, 153, 34, 0.12); }
+.nav-item.review.active::before { background: var(--warning); }
+
+.nav-item.approach-guide {
+    color: var(--success);
+    font-weight: 500;
+}
+.nav-item.approach-guide:hover { color: var(--success); filter: brightness(1.15); }
+.nav-item.approach-guide.active { color: var(--success); background: rgba(63, 185, 80, 0.12); }
+.nav-item.approach-guide.active::before { background: var(--success); }
+
+/* Keyboard focus ring — only visible for keyboard users */
+.nav-item:focus-visible,
+.nav-module-header:focus-visible,
+.nav-subchapter-header:focus-visible,
+.nav-toolbar-btn:focus-visible,
+.theme-btn:focus-visible,
+.search-input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 /* ========================================
@@ -1979,7 +2136,11 @@ code.language-zsh .hljs-meta {
 }
 
 [data-theme="cyberpunk"] .nav-item.active {
-    box-shadow: 0 0 12px rgba(255, 46, 151, 0.3);
+    background: rgba(255, 46, 151, 0.12);
+    box-shadow: 0 0 12px rgba(255, 46, 151, 0.18);
+}
+[data-theme="cyberpunk"] .nav-item.active::before {
+    box-shadow: 0 0 6px rgba(255, 46, 151, 0.8);
 }
 
 [data-theme="cyberpunk"] ::selection {
@@ -2114,6 +2275,48 @@ code.language-zsh .hljs-meta {
     color: #ffffff;
     border-color: rgba(255,255,255,0.35);
     background: rgba(255,255,255,0.16);
+}
+
+/* Graceful rendering failure UI — shows source in a collapsible block
+   instead of silently dropping the diagram. */
+.mermaid-error {
+    text-align: left;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    padding: 12px;
+    background: rgba(248, 81, 73, 0.06);
+    border: 1px dashed rgba(248, 81, 73, 0.4);
+    border-radius: var(--radius-sm);
+}
+.mermaid-error-title {
+    font-weight: 600;
+    color: var(--danger);
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+.mermaid-error-msg {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.mermaid-error details { cursor: pointer; }
+.mermaid-error details summary {
+    font-size: 11px;
+    color: var(--text-muted);
+    user-select: none;
+}
+.mermaid-error details pre {
+    margin-top: 6px;
+    padding: 8px;
+    background: var(--code-bg);
+    border-radius: var(--radius-xs);
+    font-size: 11px;
+    max-height: 240px;
+    overflow: auto;
+    white-space: pre-wrap;
 }
 
 .markdown-content .mermaid svg { max-width: 100%; height: auto; }
