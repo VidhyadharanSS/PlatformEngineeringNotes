@@ -101,12 +101,74 @@ function initMarked() {
 }
 
 function initMermaid() {
-    const isDark = currentTheme !== 'light';
+    // Per-app-theme palette — dark node fills with light text for contrast.
+    // Works for both dark and light UI themes so diagrams are always legible.
+    const palettes = {
+        dark:       { primary: '#1f6feb', secondary: '#238636', tertiary: '#8957e5', bg: '#0d1117', line: '#8b949e' },
+        light:      { primary: '#0969da', secondary: '#1a7f37', tertiary: '#8250df', bg: '#ffffff', line: '#57606a' },
+        ghostty:    { primary: '#1f6feb', secondary: '#238636', tertiary: '#a371f7', bg: '#0d1117', line: '#8b949e' },
+        dracula:    { primary: '#bd93f9', secondary: '#50fa7b', tertiary: '#ff79c6', bg: '#282a36', line: '#6272a4' },
+        solarized:  { primary: '#268bd2', secondary: '#859900', tertiary: '#d33682', bg: '#002b36', line: '#586e75' },
+        nord:       { primary: '#5e81ac', secondary: '#a3be8c', tertiary: '#b48ead', bg: '#2e3440', line: '#4c566a' },
+        catppuccin: { primary: '#89b4fa', secondary: '#a6e3a1', tertiary: '#cba6f7', bg: '#1e1e2e', line: '#6c7086' },
+        cyberpunk:  { primary: '#ff2a6d', secondary: '#05d9e8', tertiary: '#d300c5', bg: '#0a001a', line: '#ff6ec7' }
+    };
+    const p = palettes[currentTheme] || palettes.dark;
+
+    // We always use 'base' theme so our themeVariables take effect deterministically.
+    // Node fills are kept dark and text is forced to white for maximum contrast.
     mermaid.initialize({
         startOnLoad: false,
-        theme: isDark ? 'dark' : 'default',
+        theme: 'base',
         securityLevel: 'loose',
-        fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        themeVariables: {
+            // Primary node (default block)
+            primaryColor: p.primary,
+            primaryTextColor: '#ffffff',
+            primaryBorderColor: p.primary,
+            // Secondary/tertiary accents (used across flowchart, sequence, class diagrams)
+            secondaryColor: p.secondary,
+            secondaryTextColor: '#ffffff',
+            secondaryBorderColor: p.secondary,
+            tertiaryColor: p.tertiary,
+            tertiaryTextColor: '#ffffff',
+            tertiaryBorderColor: p.tertiary,
+            // Surfaces
+            background: p.bg,
+            mainBkg: p.primary,
+            secondBkg: p.secondary,
+            tertiaryBkg: p.tertiary,
+            // Lines / arrows
+            lineColor: p.line,
+            textColor: '#ffffff',
+            // Notes (sequence / flowchart)
+            noteBkgColor: p.tertiary,
+            noteTextColor: '#ffffff',
+            noteBorderColor: p.tertiary,
+            // Sequence diagrams
+            actorBkg: p.primary,
+            actorBorder: p.primary,
+            actorTextColor: '#ffffff',
+            actorLineColor: p.line,
+            signalColor: '#ffffff',
+            signalTextColor: '#ffffff',
+            labelBoxBkgColor: p.secondary,
+            labelBoxBorderColor: p.secondary,
+            labelTextColor: '#ffffff',
+            loopTextColor: '#ffffff',
+            activationBkgColor: p.tertiary,
+            activationBorderColor: p.tertiary,
+            // Class diagrams
+            classText: '#ffffff',
+            // State diagrams
+            labelColor: '#ffffff',
+            // Gantt / pie
+            pie1: p.primary, pie2: p.secondary, pie3: p.tertiary,
+            pieTitleTextColor: '#ffffff',
+            pieSectionTextColor: '#ffffff',
+            pieLegendTextColor: '#ffffff'
+        }
     });
 }
 
@@ -640,17 +702,234 @@ function copyCode(text, btn) {
     });
 }
 
+// Mermaid fullscreen pan/zoom state
+const mermaidZoom = {
+    scale: 1,
+    tx: 0,
+    ty: 0,
+    minScale: 0.2,
+    maxScale: 8,
+    dragging: false,
+    startX: 0,
+    startY: 0,
+    pinchDist: 0,
+    stage: null,   // the transformed element (svg or wrapper)
+    keyHandler: null
+};
+
+function applyMermaidTransform() {
+    if (!mermaidZoom.stage) return;
+    mermaidZoom.stage.style.transform =
+        `translate(${mermaidZoom.tx}px, ${mermaidZoom.ty}px) scale(${mermaidZoom.scale})`;
+    const z = document.getElementById('mermaidZoomLevel');
+    if (z) z.textContent = Math.round(mermaidZoom.scale * 100) + '%';
+}
+
+function resetMermaidZoom() {
+    mermaidZoom.scale = 1;
+    mermaidZoom.tx = 0;
+    mermaidZoom.ty = 0;
+    applyMermaidTransform();
+}
+
+function zoomMermaidBy(factor, cx, cy) {
+    const oldScale = mermaidZoom.scale;
+    let newScale = oldScale * factor;
+    newScale = Math.max(mermaidZoom.minScale, Math.min(mermaidZoom.maxScale, newScale));
+    if (newScale === oldScale) return;
+
+    // Zoom centered on the cursor (cx, cy relative to viewport)
+    if (cx !== undefined && cy !== undefined && mermaidZoom.stage) {
+        const rect = el.mermaidModalContent.getBoundingClientRect();
+        const px = cx - rect.left - rect.width / 2;
+        const py = cy - rect.top - rect.height / 2;
+        const ratio = newScale / oldScale;
+        mermaidZoom.tx = px - (px - mermaidZoom.tx) * ratio;
+        mermaidZoom.ty = py - (py - mermaidZoom.ty) * ratio;
+    }
+    mermaidZoom.scale = newScale;
+    applyMermaidTransform();
+}
+
 function openMermaidFullscreen(id) {
     const mEl = document.getElementById(id);
     if (!mEl) return;
-    el.mermaidModalContent.innerHTML = mEl.innerHTML;
+
+    // Build fullscreen content: toolbar + zoomable stage containing cloned SVG
+    el.mermaidModalContent.innerHTML = `
+        <div class="mermaid-zoom-toolbar">
+            <button class="mermaid-zoom-btn" data-action="out" title="Zoom out (− or scroll)">−</button>
+            <span class="mermaid-zoom-level" id="mermaidZoomLevel">100%</span>
+            <button class="mermaid-zoom-btn" data-action="in" title="Zoom in (+ or scroll)">+</button>
+            <button class="mermaid-zoom-btn" data-action="reset" title="Reset (0)">⟲</button>
+            <button class="mermaid-zoom-btn" data-action="fit" title="Fit to screen (F)">⛶</button>
+        </div>
+        <div class="mermaid-zoom-viewport">
+            <div class="mermaid-zoom-stage">${mEl.innerHTML}</div>
+        </div>
+        <div class="mermaid-zoom-hint">Scroll / pinch to zoom · drag to pan · <kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd> <kbd>F</kbd> <kbd>Esc</kbd></div>
+    `;
+
+    const viewport = el.mermaidModalContent.querySelector('.mermaid-zoom-viewport');
+    const stage = el.mermaidModalContent.querySelector('.mermaid-zoom-stage');
+    mermaidZoom.stage = stage;
+
+    // Ensure SVG fills the stage naturally
+    const svg = stage.querySelector('svg');
+    if (svg) {
+        svg.style.maxWidth = 'none';
+        svg.style.maxHeight = 'none';
+        svg.style.width = 'auto';
+        svg.style.height = 'auto';
+    }
+
+    resetMermaidZoom();
+
+    // Toolbar
+    el.mermaidModalContent.querySelectorAll('.mermaid-zoom-btn').forEach(b => {
+        b.onclick = () => {
+            const a = b.dataset.action;
+            if (a === 'in')    zoomMermaidBy(1.25);
+            if (a === 'out')   zoomMermaidBy(1 / 1.25);
+            if (a === 'reset') resetMermaidZoom();
+            if (a === 'fit')   fitMermaidToScreen();
+        };
+    });
+
+    // Wheel zoom (centered on cursor)
+    viewport.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+        zoomMermaidBy(factor, e.clientX, e.clientY);
+    }, { passive: false });
+
+    // Mouse drag pan
+    viewport.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        mermaidZoom.dragging = true;
+        mermaidZoom.startX = e.clientX - mermaidZoom.tx;
+        mermaidZoom.startY = e.clientY - mermaidZoom.ty;
+        viewport.classList.add('grabbing');
+    });
+    window.addEventListener('mousemove', _mermaidOnMouseMove);
+    window.addEventListener('mouseup',  _mermaidOnMouseUp);
+
+    // Touch: single-finger pan, two-finger pinch
+    viewport.addEventListener('touchstart', _mermaidOnTouchStart, { passive: false });
+    viewport.addEventListener('touchmove',  _mermaidOnTouchMove,  { passive: false });
+    viewport.addEventListener('touchend',   _mermaidOnTouchEnd);
+
+    // Double click to reset
+    viewport.addEventListener('dblclick', () => resetMermaidZoom());
+
+    // Keyboard shortcuts
+    mermaidZoom.keyHandler = (e) => {
+        if (!el.mermaidModal.classList.contains('open')) return;
+        if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomMermaidBy(1.25); }
+        else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomMermaidBy(1 / 1.25); }
+        else if (e.key === '0') { e.preventDefault(); resetMermaidZoom(); }
+        else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); fitMermaidToScreen(); }
+        else if (e.key === 'Escape') { closeMermaidFullscreen(); }
+    };
+    document.addEventListener('keydown', mermaidZoom.keyHandler);
+
     el.mermaidModal.classList.add('open');
     document.body.style.overflow = 'hidden';
+
+    // Fit on next frame so layout is final
+    requestAnimationFrame(() => fitMermaidToScreen());
+}
+
+function fitMermaidToScreen() {
+    const viewport = el.mermaidModalContent.querySelector('.mermaid-zoom-viewport');
+    const svg = mermaidZoom.stage && mermaidZoom.stage.querySelector('svg');
+    if (!viewport || !svg) return;
+
+    // Reset transform first to measure natural size
+    mermaidZoom.scale = 1;
+    mermaidZoom.tx = 0;
+    mermaidZoom.ty = 0;
+    applyMermaidTransform();
+
+    const vb = viewport.getBoundingClientRect();
+    const sb = svg.getBoundingClientRect();
+    if (sb.width === 0 || sb.height === 0) return;
+    const pad = 40;
+    const s = Math.min((vb.width - pad) / sb.width, (vb.height - pad) / sb.height);
+    mermaidZoom.scale = Math.max(mermaidZoom.minScale, Math.min(mermaidZoom.maxScale, s));
+    applyMermaidTransform();
+}
+
+function _mermaidOnMouseMove(e) {
+    if (!mermaidZoom.dragging) return;
+    mermaidZoom.tx = e.clientX - mermaidZoom.startX;
+    mermaidZoom.ty = e.clientY - mermaidZoom.startY;
+    applyMermaidTransform();
+}
+
+function _mermaidOnMouseUp() {
+    if (!mermaidZoom.dragging) return;
+    mermaidZoom.dragging = false;
+    const v = el.mermaidModalContent.querySelector('.mermaid-zoom-viewport');
+    if (v) v.classList.remove('grabbing');
+}
+
+function _mermaidOnTouchStart(e) {
+    if (e.touches.length === 1) {
+        mermaidZoom.dragging = true;
+        mermaidZoom.startX = e.touches[0].clientX - mermaidZoom.tx;
+        mermaidZoom.startY = e.touches[0].clientY - mermaidZoom.ty;
+    } else if (e.touches.length === 2) {
+        mermaidZoom.dragging = false;
+        mermaidZoom.pinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+    }
+}
+
+function _mermaidOnTouchMove(e) {
+    if (e.touches.length === 1 && mermaidZoom.dragging) {
+        e.preventDefault();
+        mermaidZoom.tx = e.touches[0].clientX - mermaidZoom.startX;
+        mermaidZoom.ty = e.touches[0].clientY - mermaidZoom.startY;
+        applyMermaidTransform();
+    } else if (e.touches.length === 2) {
+        e.preventDefault();
+        const d = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (mermaidZoom.pinchDist > 0) {
+            const factor = d / mermaidZoom.pinchDist;
+            const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            zoomMermaidBy(factor, cx, cy);
+        }
+        mermaidZoom.pinchDist = d;
+    }
+}
+
+function _mermaidOnTouchEnd(e) {
+    if (e.touches.length === 0) {
+        mermaidZoom.dragging = false;
+        mermaidZoom.pinchDist = 0;
+    }
 }
 
 function closeMermaidFullscreen() {
     el.mermaidModal.classList.remove('open');
     document.body.style.overflow = '';
+    window.removeEventListener('mousemove', _mermaidOnMouseMove);
+    window.removeEventListener('mouseup',  _mermaidOnMouseUp);
+    if (mermaidZoom.keyHandler) {
+        document.removeEventListener('keydown', mermaidZoom.keyHandler);
+        mermaidZoom.keyHandler = null;
+    }
+    mermaidZoom.stage = null;
+    mermaidZoom.scale = 1;
+    mermaidZoom.tx = 0;
+    mermaidZoom.ty = 0;
 }
 
 function updateActiveNavItem(path) {

@@ -2071,13 +2071,20 @@ code.language-zsh .hljs-meta {
 }
 
 .mermaid-container {
-    background: var(--bg-surface);
+    background: #0d1117;                /* dark canvas, matches dark palette */
     border: 1px solid var(--border-default);
     border-radius: var(--radius);
     padding: 28px;
     overflow-x: auto;
     text-align: center;
 }
+
+[data-theme="light"] .mermaid-container { background: #161b22; }
+[data-theme="dracula"] .mermaid-container { background: #282a36; }
+[data-theme="solarized"] .mermaid-container { background: #002b36; }
+[data-theme="nord"] .mermaid-container { background: #2e3440; }
+[data-theme="catppuccin"] .mermaid-container { background: #1e1e2e; }
+[data-theme="cyberpunk"] .mermaid-container { background: #0a001a; }
 
 .mermaid-actions {
     position: absolute;
@@ -2092,10 +2099,10 @@ code.language-zsh .hljs-meta {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-default);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: var(--radius-sm);
-    color: var(--text-muted);
+    color: #e6edf3;
     cursor: pointer;
     font-size: 14px;
     transition: all var(--transition-fast);
@@ -2103,70 +2110,220 @@ code.language-zsh .hljs-meta {
 }
 
 .mermaid-wrapper:hover .mermaid-fullscreen-btn { opacity: 1; }
-.mermaid-fullscreen-btn:hover { 
-    color: var(--text-primary); 
-    border-color: var(--text-muted); 
-    background: var(--bg-subtle);
+.mermaid-fullscreen-btn:hover {
+    color: #ffffff;
+    border-color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.16);
 }
 
 .markdown-content .mermaid svg { max-width: 100%; height: auto; }
 
-/* Mermaid Fullscreen Modal */
+/* Force light, legible text inside every mermaid SVG regardless of the
+   mermaid theme — our themeVariables set dark fills, so white text reads. */
+.markdown-content .mermaid svg text,
+.markdown-content .mermaid svg .nodeLabel,
+.markdown-content .mermaid svg .edgeLabel,
+.markdown-content .mermaid svg .edgeLabel span,
+.markdown-content .mermaid svg .label,
+.markdown-content .mermaid svg .label span,
+.mermaid-zoom-stage svg text,
+.mermaid-zoom-stage svg .nodeLabel,
+.mermaid-zoom-stage svg .edgeLabel,
+.mermaid-zoom-stage svg .edgeLabel span,
+.mermaid-zoom-stage svg .label,
+.mermaid-zoom-stage svg .label span {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+/* Keep edge-label background transparent so the white text isn't on a white pill */
+.markdown-content .mermaid svg .edgeLabel,
+.markdown-content .mermaid svg .edgeLabel rect,
+.mermaid-zoom-stage svg .edgeLabel,
+.mermaid-zoom-stage svg .edgeLabel rect {
+    background-color: transparent !important;
+    fill: transparent !important;
+}
+
+/* ========================================
+   Mermaid Fullscreen Modal (with pan & zoom)
+   ======================================== */
 .mermaid-modal {
     position: fixed;
     inset: 0;
     z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     visibility: hidden;
-    transition: all var(--transition-base);
+    transition: opacity var(--transition-base), visibility var(--transition-base);
 }
 
 .mermaid-modal.open { opacity: 1; visibility: visible; }
 
 .mermaid-modal-content {
-    max-width: 90vw;
-    max-height: 90vh;
-    background: var(--bg-surface);
-    border-radius: var(--radius);
-    padding: 36px;
-    overflow: auto;
-    transform: scale(0.93);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: none;
+    transform: scale(0.98);
     transition: transform var(--transition-base);
-    box-shadow: var(--shadow-lg);
 }
 
 .mermaid-modal.open .mermaid-modal-content { transform: scale(1); }
 
+.mermaid-zoom-toolbar {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(22, 27, 34, 0.92);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    padding: 6px 10px;
+    z-index: 1002;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mermaid-zoom-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: #e6edf3;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.mermaid-zoom-btn:hover {
+    background: rgba(255,255,255,0.12);
+    transform: scale(1.06);
+}
+
+.mermaid-zoom-btn:active { transform: scale(0.94); }
+
+.mermaid-zoom-level {
+    min-width: 52px;
+    text-align: center;
+    color: #e6edf3;
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    padding: 0 4px;
+    user-select: none;
+}
+
+.mermaid-zoom-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;                 /* pan/zoom is via transform */
+    cursor: grab;
+    touch-action: none;               /* enable pinch-zoom via JS */
+}
+
+.mermaid-zoom-viewport.grabbing { cursor: grabbing; }
+
+.mermaid-zoom-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+    will-change: transform;
+    /* the JS transform also re-centers via translate(-50%, -50%) implicitly
+       by starting from a centered position: */
+    translate: -50% -50%;
+    user-select: none;
+    pointer-events: none;             /* clicks pass through to viewport for panning */
+}
+
+.mermaid-zoom-stage svg {
+    display: block;
+    max-width: none !important;
+    max-height: none !important;
+    width: auto !important;
+    height: auto !important;
+    pointer-events: auto;             /* but keep hover/interactions on the SVG */
+}
+
+.mermaid-zoom-hint {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(230, 237, 243, 0.7);
+    font-size: 12px;
+    background: rgba(22, 27, 34, 0.75);
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.08);
+    user-select: none;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mermaid-zoom-hint kbd {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin: 0 2px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    color: #ffffff;
+}
+
 .mermaid-modal-close {
     position: fixed;
-    top: 24px;
-    right: 24px;
+    top: 20px;
+    right: 20px;
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-default);
+    background: rgba(22, 27, 34, 0.92);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 50%;
-    color: var(--text-primary);
+    color: #e6edf3;
     font-size: 22px;
     cursor: pointer;
-    z-index: 1001;
+    z-index: 1002;
     transition: all var(--transition-fast);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.mermaid-modal-close:hover { 
-    background: var(--danger); 
-    color: white; 
-    border-color: var(--danger); 
-    transform: scale(1.1);
+.mermaid-modal-close:hover {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+    transform: scale(1.08);
+}
+
+@media (max-width: 600px) {
+    .mermaid-zoom-toolbar { top: 12px; padding: 4px 8px; gap: 2px; }
+    .mermaid-zoom-btn { width: 30px; height: 30px; font-size: 14px; }
+    .mermaid-zoom-hint { font-size: 11px; bottom: 12px; padding: 5px 10px; }
+    .mermaid-modal-close { top: 12px; right: 12px; width: 34px; height: 34px; font-size: 18px; }
 }
 
 /* ========================================
