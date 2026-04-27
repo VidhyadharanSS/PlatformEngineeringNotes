@@ -91,7 +91,20 @@
         <!-- Main -->
         <main class="main-content">
             <header class="content-header">
-                <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" title="Open menu" aria-label="Open menu">☰</button>
+                <button class="sidebar-toggle" id="sidebarToggle" title="Hide sidebar (Ctrl+B)" aria-label="Toggle sidebar" aria-pressed="false">
+                    <svg class="sidebar-icon-hide" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="12" height="10" rx="1.5"/>
+                        <line x1="6" y1="3" x2="6" y2="13"/>
+                        <line x1="9" y1="6.5" x2="11.5" y2="6.5"/>
+                        <line x1="9" y1="9.5" x2="11.5" y2="9.5"/>
+                    </svg>
+                    <svg class="sidebar-icon-show" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                        <rect x="2" y="3" width="12" height="10" rx="1.5"/>
+                        <line x1="6" y1="3" x2="6" y2="13"/>
+                        <polyline points="9.5,6 11.5,8 9.5,10"/>
+                    </svg>
+                </button>
                 <div class="breadcrumb" id="breadcrumb"></div>
             </header>
             
@@ -160,16 +173,17 @@
                         </div>
                         
                         <div class="how-to-use">
-                            <h3>💡 How to Use</h3>
+                            <h3>How to Use</h3>
                             <ul>
                                 <li><strong>Navigate:</strong> Browse modules in the sidebar</li>
-                                <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
+                                <li><strong>Toggle sidebar:</strong> Press <kbd>Ctrl</kbd>+<kbd>B</kbd> or click the panel icon for distraction-free reading</li>
+                                <li><strong>Search:</strong> Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to search all notes</li>
                                 <li><strong>Highlight:</strong> Select text to highlight with colors</li>
-                                <li><strong>Theme:</strong> 8 themes — Dark, Light, Ghostty, Dracula, Solarized, Nord, Catppuccin, Cyberpunk</li>
-                                <li><strong>Diagrams:</strong> Click ⛶ for fullscreen Mermaid diagrams</li>
+                                <li><strong>Themes:</strong> 8 built-in — Dark, Light, Ghostty, Dracula, Solarized, Nord, Catppuccin, Cyberpunk</li>
+                                <li><strong>Diagrams:</strong> Click the fullscreen icon to expand any diagram</li>
                                 <li><strong>Images:</strong> Click any image to zoom in</li>
                                 <li><strong>Table of Contents:</strong> Auto-generated for each note</li>
-                                <li><strong>Backlinks:</strong> Click ↗ links to navigate between notes</li>
+                                <li><strong>Backlinks:</strong> Use inline links to navigate between notes</li>
                             </ul>
                         </div>
                     </div>

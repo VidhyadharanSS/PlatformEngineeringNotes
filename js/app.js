@@ -8,6 +8,7 @@ const CONFIG = {
     STORAGE_KEY: 'pe-notes-highlights-v2',
     THEME_KEY: 'pe-notes-theme',
     DENSITY_KEY: 'pe-notes-density',
+    SIDEBAR_KEY: 'pe-notes-sidebar',
     NOTES_INDEX: 'notes.json',
     THEMES: [
         { id: 'dark', name: 'Dark', icon: '🌙' },
@@ -56,6 +57,7 @@ const el = {
     collapseAllBtn: $('collapseAllBtn'),
     expandAllBtn: $('expandAllBtn'),
     densityToggleBtn: $('densityToggleBtn'),
+    sidebarToggle: $('sidebarToggle'),
     readingProgress: $('readingProgress'),
     backToTop: $('backToTop'),
     imageLightbox: $('imageLightbox')
@@ -65,6 +67,7 @@ const el = {
 async function init() {
     loadTheme();
     loadDensity();
+    loadSidebarState();
     initMermaid();
     initMarked();
     loadHighlights();
@@ -105,6 +108,39 @@ function applyDensity(density) {
 function toggleDensity() {
     const current = document.documentElement.getAttribute('data-density') || 'comfortable';
     applyDensity(current === 'compact' ? 'comfortable' : 'compact');
+}
+
+/* ========================================
+   Sidebar Visibility (desktop on/off toggle)
+   ======================================== */
+function loadSidebarState() {
+    // Default: visible. On narrow viewports we never persist "hidden" since the
+    // sidebar uses the mobile slide-in pattern there.
+    const saved = localStorage.getItem(CONFIG.SIDEBAR_KEY);
+    const hidden = saved === 'hidden';
+    applySidebarState(hidden);
+}
+
+function applySidebarState(hidden) {
+    document.documentElement.classList.toggle('sidebar-hidden', hidden);
+    localStorage.setItem(CONFIG.SIDEBAR_KEY, hidden ? 'hidden' : 'visible');
+
+    if (el.sidebarToggle) {
+        const hideIcon = el.sidebarToggle.querySelector('.sidebar-icon-hide');
+        const showIcon = el.sidebarToggle.querySelector('.sidebar-icon-show');
+        if (hideIcon) hideIcon.style.display = hidden ? 'none' : '';
+        if (showIcon) showIcon.style.display = hidden ? '' : 'none';
+        el.sidebarToggle.title = hidden
+            ? 'Show sidebar (Ctrl+B)'
+            : 'Hide sidebar (Ctrl+B)';
+        el.sidebarToggle.setAttribute('aria-pressed', String(hidden));
+        el.sidebarToggle.setAttribute('aria-label', hidden ? 'Show sidebar' : 'Hide sidebar');
+    }
+}
+
+function toggleSidebar() {
+    const hidden = document.documentElement.classList.contains('sidebar-hidden');
+    applySidebarState(!hidden);
 }
 
 function initMarked() {
@@ -1589,6 +1625,7 @@ function setupEventListeners() {
     el.collapseAllBtn.onclick = collapseAll;
     el.expandAllBtn.onclick = expandAll;
     if (el.densityToggleBtn) el.densityToggleBtn.onclick = toggleDensity;
+    if (el.sidebarToggle) el.sidebarToggle.onclick = toggleSidebar;
     
     el.overlay.onclick = () => {
         closeMobileSidebar();
@@ -1650,6 +1687,16 @@ function setupEventListeners() {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             el.searchInput.focus();
+        }
+        // Toggle sidebar (desktop only — mobile uses the hamburger).
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+            // Ignore when typing in an input/textarea so plain "b" can't be hijacked.
+            const tag = (e.target && e.target.tagName) || '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+            if (window.matchMedia('(min-width: 901px)').matches) {
+                e.preventDefault();
+                toggleSidebar();
+            }
         }
     });
 }
