@@ -60,7 +60,9 @@ const el = {
     sidebarToggle: $('sidebarToggle'),
     readingProgress: $('readingProgress'),
     backToTop: $('backToTop'),
-    imageLightbox: $('imageLightbox')
+    imageLightbox: $('imageLightbox'),
+    shortcutsModal: $('shortcutsModal'),
+    shortcutsModalClose: $('shortcutsModalClose')
 };
 
 // Initialize
@@ -427,6 +429,8 @@ async function loadNote(path) {
         if (!res.ok) throw new Error('Failed');
         const md = await res.text();
         renderMarkdown(md);
+        insertNoteMeta(md);
+        insertNoteNavigation();
         applyHighlights();
         closeMobileSidebar();
         
@@ -939,6 +943,130 @@ function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* ========================================
+   Reading Time & Note Meta
+   ======================================== */
+function insertNoteMeta(md) {
+    const words = md.trim().split(/\s+/).length;
+    const readingTime = Math.max(1, Math.ceil(words / 200));
+    const meta = document.createElement('div');
+    meta.className = 'note-meta';
+    meta.innerHTML = `
+        <span class="note-meta-item"><span class="meta-icon">⏱</span> ${readingTime} min read</span>
+        <span class="note-meta-item"><span class="meta-icon">📝</span> ${words.toLocaleString()} words</span>
+    `;
+    const h1 = el.content.querySelector('h1');
+    if (h1 && h1.nextSibling) {
+        h1.parentNode.insertBefore(meta, h1.nextSibling);
+    } else {
+        el.content.insertBefore(meta, el.content.firstChild);
+    }
+}
+
+/* ========================================
+   Prev / Next Note Navigation
+   ======================================== */
+function getAllNotePaths() {
+    if (!notesData) return [];
+    const paths = [];
+    notesData.modules.forEach(mod => {
+        if (mod.approachGuide) paths.push(mod.approachGuide);
+        mod.subchapters.forEach(sub => {
+            sub.files.forEach(file => paths.push(file.path));
+        });
+    });
+    return paths;
+}
+
+function insertNoteNavigation() {
+    const paths = getAllNotePaths();
+    const idx = paths.indexOf(currentNotePath);
+    if (idx === -1) return;
+    
+    const prev = idx > 0 ? paths[idx - 1] : null;
+    const next = idx < paths.length - 1 ? paths[idx + 1] : null;
+    
+    if (!prev && !next) return;
+    
+    const nav = document.createElement('div');
+    nav.className = 'note-navigation';
+    
+    if (prev) {
+        const prevName = prev.split('/').pop().replace(/\.md$/, '').replace(/^[\d.]+_?/, '').replace(/_/g, ' ');
+        nav.innerHTML += `<div class="note-nav-btn prev" data-path="${prev}">
+            <span class="note-nav-label">Previous</span>
+            <span class="note-nav-title">${prevName}</span>
+        </div>`;
+    }
+    if (next) {
+        const nextName = next.split('/').pop().replace(/\.md$/, '').replace(/^[\d.]+_?/, '').replace(/_/g, ' ');
+        nav.innerHTML += `<div class="note-nav-btn next" data-path="${next}">
+            <span class="note-nav-label">Next</span>
+            <span class="note-nav-title">${nextName}</span>
+        </div>`;
+    }
+    
+    el.content.appendChild(nav);
+    
+    nav.querySelectorAll('.note-nav-btn').forEach(btn => {
+        btn.onclick = () => loadNote(btn.dataset.path);
+    });
+}
+
+/* ========================================
+   TOC Scroll Spy
+   ======================================== */
+function updateTocScrollSpy() {
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    if (!tocLinks.length) return;
+    
+    const headings = Array.from(el.content.querySelectorAll('h2, h3, h4'))
+        .filter(h => h.id);
+    if (!headings.length) return;
+    
+    let activeId = headings[0]?.id || '';
+    const scrollTop = window.scrollY + 100;
+    
+    for (const heading of headings) {
+        if (heading.offsetTop <= scrollTop) {
+            activeId = heading.id;
+        } else {
+            break;
+        }
+    }
+    
+    tocLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        link.classList.toggle('active', href === `#${activeId}`);
+    });
+}
+
+/* ========================================
+   Keyboard Shortcuts Modal
+   ======================================== */
+function openShortcutsModal() {
+    if (el.shortcutsModal) el.shortcutsModal.classList.add('open');
+}
+
+function closeShortcutsModal() {
+    if (el.shortcutsModal) el.shortcutsModal.classList.remove('open');
+}
+
+/* ========================================
+   Navigate Prev / Next Note (Arrow keys)
+   ======================================== */
+function navigatePrevNote() {
+    const paths = getAllNotePaths();
+    const idx = paths.indexOf(currentNotePath);
+    if (idx > 0) loadNote(paths[idx - 1]);
+}
+
+function navigateNextNote() {
+    const paths = getAllNotePaths();
+    const idx = paths.indexOf(currentNotePath);
+    if (idx >= 0 && idx < paths.length - 1) loadNote(paths[idx + 1]);
+}
+
 // Utility
 function copyCode(text, btn) {
     navigator.clipboard.writeText(text).then(() => {
@@ -1272,14 +1400,14 @@ function getWelcomeHTML() {
             <div class="how-to-use">
                 <h3>💡 How to Use</h3>
                 <ul>
-                    <li><strong>Navigate:</strong> Browse modules in the sidebar</li>
+                    <li><strong>Navigate:</strong> Browse modules in the sidebar or use <kbd>←</kbd> <kbd>→</kbd> arrow keys</li>
                     <li><strong>Search:</strong> Press <kbd>Ctrl+K</kbd> to search all notes</li>
                     <li><strong>Highlight:</strong> Select text to highlight with colors</li>
                     <li><strong>Theme:</strong> 8 themes — Dark, Light, Ghostty, Dracula, Solarized, Nord, Catppuccin, Cyberpunk</li>
                     <li><strong>Diagrams:</strong> Click ⛶ for fullscreen Mermaid diagrams</li>
                     <li><strong>Images:</strong> Click any image to zoom in</li>
                     <li><strong>Table of Contents:</strong> Auto-generated for each note</li>
-                    <li><strong>Backlinks:</strong> Click ↗ links to navigate between notes</li>
+                    <li><strong>Shortcuts:</strong> Press <kbd>?</kbd> for all keyboard shortcuts</li>
                 </ul>
             </div>
         </div>
@@ -1659,6 +1787,16 @@ function setupEventListeners() {
         el.backToTop.onclick = scrollToTop;
     }
     
+    // Shortcuts modal
+    if (el.shortcutsModalClose) {
+        el.shortcutsModalClose.onclick = closeShortcutsModal;
+    }
+    if (el.shortcutsModal) {
+        el.shortcutsModal.onclick = e => {
+            if (e.target === el.shortcutsModal) closeShortcutsModal();
+        };
+    }
+    
     // Scroll events — throttled
     let scrollTicking = false;
     window.addEventListener('scroll', () => {
@@ -1666,6 +1804,7 @@ function setupEventListeners() {
             requestAnimationFrame(() => {
                 updateReadingProgress();
                 updateBackToTop();
+                updateTocScrollSpy();
                 scrollTicking = false;
             });
             scrollTicking = true;
@@ -1676,11 +1815,16 @@ function setupEventListeners() {
     
     // Keyboard
     document.addEventListener('keydown', e => {
+        // Skip when typing in input fields
+        const tag = (e.target && e.target.tagName) || '';
+        const isInput = tag === 'INPUT' || tag === 'TEXTAREA';
+        
         if (e.key === 'Escape') {
             closeMobileSidebar();
             closeThemeDropdown();
             closeMermaidFullscreen();
             closeLightbox();
+            closeShortcutsModal();
             el.highlightPopup.classList.remove('visible');
             el.searchResults.classList.remove('visible');
         }
@@ -1690,13 +1834,27 @@ function setupEventListeners() {
         }
         // Toggle sidebar (desktop only — mobile uses the hamburger).
         if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
-            // Ignore when typing in an input/textarea so plain "b" can't be hijacked.
-            const tag = (e.target && e.target.tagName) || '';
-            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+            if (isInput) return;
             if (window.matchMedia('(min-width: 901px)').matches) {
                 e.preventDefault();
                 toggleSidebar();
             }
+        }
+        // Shortcuts help — ? key
+        if (e.key === '?' && !isInput) {
+            e.preventDefault();
+            openShortcutsModal();
+        }
+        // Scroll to top — T key
+        if ((e.key === 't' || e.key === 'T') && !isInput && !e.ctrlKey && !e.metaKey) {
+            if (currentNotePath) scrollToTop();
+        }
+        // Prev/Next note — Arrow keys (only when not in input and no modifier)
+        if (e.key === 'ArrowLeft' && !isInput && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+            if (currentNotePath) navigatePrevNote();
+        }
+        if (e.key === 'ArrowRight' && !isInput && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+            if (currentNotePath) navigateNextNote();
         }
     });
 }

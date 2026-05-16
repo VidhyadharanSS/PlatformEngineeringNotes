@@ -21,9 +21,11 @@ mindmap
       Logging & Exception Handling
       HTTP Requests & REST APIs
       Sessions, OAuth2, httpx
+      Kubernetes Python Client
     9.4 Testing & Production
       Testing with pytest
       Production-Ready Patterns
+      Python Packaging pyproject.toml
       Cheatsheet & Grand Final
     9.5 Practice Lab
       20 Tasks revising Modules 1-3 + 9

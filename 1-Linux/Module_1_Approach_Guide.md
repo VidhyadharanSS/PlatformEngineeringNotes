@@ -27,6 +27,7 @@ mindmap
       LVM
     1.6 Processes & Services
       Process Lifecycle
+      Namespaces & cgroups
       Systemd Deep Dive
       Cron & Scheduling
     1.7 Package Management
@@ -41,6 +42,8 @@ mindmap
       Screen & Tmux
       Lsof & Sysdig
       Nvidia GPU Management
+      GPU in Containers & K8s
+      MIG & Time-Slicing
     1.10 Troubleshooting
       Boot Process & Recovery
       Disk Full & Inode Exhaustion

@@ -8,16 +8,20 @@ mindmap
     5.1 Architecture
       Components & Control Plane
       Cluster Setup: kubeadm, Kind
+      Cluster Upgrade Process
     5.2 High Availability
       Multi-Master HA
       etcd Backup & Restore
     5.3 Workloads
       Pod Fundamentals & Lifecycle
+      Native Sidecar Containers
       Deployments, StatefulSets, DaemonSets
       Scheduling, Taints, Affinity
+      Pod Priority & Preemption
     5.4 Networking
       Services: ClusterIP, NodePort, LB
       Ingress & Gateway API
+      cert-manager TLS Automation
       Network Policies
       CoreDNS
     5.5 Storage
@@ -26,6 +30,7 @@ mindmap
     5.6 Configuration & Scaling
       ConfigMaps & Secrets
       HPA, VPA, Cluster Autoscaler
+      KEDA Event-Driven Autoscaling
     5.7 Packaging
       Kustomize
       Helm Charts
@@ -33,6 +38,7 @@ mindmap
       Authentication
       RBAC
       Admission Controllers
+      CRDs & Operator Pattern
     5.9 Operations
       Troubleshooting Control Plane
       Troubleshooting Pods

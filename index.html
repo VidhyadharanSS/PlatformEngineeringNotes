@@ -175,7 +175,7 @@
                         <div class="how-to-use">
                             <h3>How to Use</h3>
                             <ul>
-                                <li><strong>Navigate:</strong> Browse modules in the sidebar</li>
+                                <li><strong>Navigate:</strong> Browse modules in the sidebar or use <kbd>←</kbd> <kbd>→</kbd> arrow keys</li>
                                 <li><strong>Toggle sidebar:</strong> Press <kbd>Ctrl</kbd>+<kbd>B</kbd> or click the panel icon for distraction-free reading</li>
                                 <li><strong>Search:</strong> Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to search all notes</li>
                                 <li><strong>Highlight:</strong> Select text to highlight with colors</li>
@@ -183,7 +183,7 @@
                                 <li><strong>Diagrams:</strong> Click the fullscreen icon to expand any diagram</li>
                                 <li><strong>Images:</strong> Click any image to zoom in</li>
                                 <li><strong>Table of Contents:</strong> Auto-generated for each note</li>
-                                <li><strong>Backlinks:</strong> Use inline links to navigate between notes</li>
+                                <li><strong>Shortcuts:</strong> Press <kbd>?</kbd> to see all keyboard shortcuts</li>
                             </ul>
                         </div>
                     </div>
@@ -213,6 +213,34 @@
     <!-- Image Lightbox -->
     <div class="image-lightbox" id="imageLightbox">
         <img src="" alt="">
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="shortcuts-modal" id="shortcutsModal">
+        <div class="shortcuts-modal-content">
+            <div class="shortcuts-modal-header">
+                <h3>⌨️ Keyboard Shortcuts</h3>
+                <button class="shortcuts-modal-close" id="shortcutsModalClose">×</button>
+            </div>
+            <div class="shortcuts-grid">
+                <div class="shortcut-group">
+                    <h4>Navigation</h4>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd>+<kbd>K</kbd><span>Search notes</span></div>
+                    <div class="shortcut-row"><kbd>Ctrl</kbd>+<kbd>B</kbd><span>Toggle sidebar</span></div>
+                    <div class="shortcut-row"><kbd>←</kbd><span>Previous note</span></div>
+                    <div class="shortcut-row"><kbd>→</kbd><span>Next note</span></div>
+                    <div class="shortcut-row"><kbd>Esc</kbd><span>Close modals</span></div>
+                </div>
+                <div class="shortcut-group">
+                    <h4>View</h4>
+                    <div class="shortcut-row"><kbd>?</kbd><span>Show this help</span></div>
+                    <div class="shortcut-row"><kbd>T</kbd><span>Scroll to top</span></div>
+                    <div class="shortcut-row"><kbd>Click</kbd> image<span>Zoom image</span></div>
+                    <div class="shortcut-row"><kbd>⛶</kbd> button<span>Fullscreen diagram</span></div>
+                    <div class="shortcut-row"><kbd>Select</kbd> text<span>Highlight text</span></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Back to Top -->
