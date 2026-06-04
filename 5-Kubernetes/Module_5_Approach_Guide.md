@@ -106,6 +106,8 @@ flowchart TD
 
 The subchapters are designed to be read in order, but you can group them into three phases:
 
+> **💡 First-time learner shortcut:** If HA and etcd backup (5.2) feel overwhelming on first read, skip to **5.3–5.6** where you deploy real workloads. Come back to 5.2 once you understand Pods, Services, and Storage — the HA concepts will make much more sense with that foundation.
+
 | Phase | Subchapters | Focus |
 |---|---|---|
 | **Phase 1: Foundations** | 5.1, 5.2, 5.3 | "What is a cluster and how do workloads run?" |

@@ -26,6 +26,8 @@ mindmap
 
 ## Who Is This Module For?
 
+Git is a **time machine for your project**: it saves snapshots at every checkpoint, lets you travel between them, and lets multiple people work on parallel timelines that can merge together.
+
 Git is the **single source of truth** for every DevOps workflow. GitOps, CI/CD pipelines, infrastructure-as-code, configuration management — they all start with a Git repository. This module goes far beyond `git add/commit/push`.
 
 **Target audience:**
