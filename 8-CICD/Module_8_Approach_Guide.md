@@ -24,6 +24,8 @@ mindmap
 
 ## Who Is This Module For?
 
+CI/CD is like an assembly line in a factory — code enters one end (git push) and a tested, scanned, deployed product comes out the other end (production). The assembly line runs automatically, catches defects early, and ensures every product meets quality standards before shipping.
+
 CI/CD is the **engine of modern software delivery**. Every commit triggers a pipeline that builds, tests, scans, and deploys. Understanding CI/CD deeply means understanding how code goes from a developer's laptop to production — safely, automatically, and repeatably.
 
 **Target audience:**

@@ -20,6 +20,8 @@ mindmap
 
 ## Who Is This Module For?
 
+Think of Nginx as a building's reception desk — it greets visitors (incoming requests), directs them to the right office (backend servers), checks IDs (SSL certificates), and handles security (rate limiting, access control). One receptionist efficiently manages hundreds of visitors simultaneously.
+
 Nginx is the **most deployed web server and reverse proxy** in the world. It's the Kubernetes ingress controller, the CI/CD artifact server, the SSL terminator, the API gateway, and the static file server — often all in the same config file.
 
 **Target audience:**
