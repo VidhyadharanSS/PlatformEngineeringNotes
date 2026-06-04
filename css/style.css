@@ -453,7 +453,7 @@ body {
     font-family: var(--font-sans);
     background: var(--bg-base);
     color: var(--text-primary);
-    line-height: 1.6;
+    line-height: 1.65;
     transition: background var(--transition-base), color var(--transition-base);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -2686,13 +2686,26 @@ code.language-zsh .hljs-meta {
     transition: opacity var(--transition-fast);
 }
 
+/* Per-module accent colors for top border */
+.module-card[data-module="1-Linux"]::before { background: linear-gradient(90deg, #fcc419, #fab005); }
+.module-card[data-module="2-Networking"]::before { background: linear-gradient(90deg, #339af0, #228be6); }
+.module-card[data-module="3-Shell-Scripting"]::before { background: linear-gradient(90deg, #51cf66, #40c057); }
+.module-card[data-module="4-Docker"]::before { background: linear-gradient(90deg, #22b8cf, #15aabf); }
+.module-card[data-module="5-Kubernetes"]::before { background: linear-gradient(90deg, #5c7cfa, #4c6ef5); }
+.module-card[data-module="6-Git"]::before { background: linear-gradient(90deg, #ff6b6b, #fa5252); }
+.module-card[data-module="7-Nginx"]::before { background: linear-gradient(90deg, #20c997, #12b886); }
+.module-card[data-module="8-CICD"]::before { background: linear-gradient(90deg, #cc5de8, #be4bdb); }
+.module-card[data-module="9-Python"]::before { background: linear-gradient(90deg, #ffd43b, #fcc419); }
+.module-card[data-module="10-GitOps-ArgoCD"]::before { background: linear-gradient(90deg, #ff922b, #fd7e14); }
+.module-card[data-module="11-Platform-Essentials"]::before { background: linear-gradient(90deg, #845ef7, #7950f2); }
+
+.module-card::before { opacity: 1; }
+
 .module-card:hover {
     border-color: var(--accent);
     transform: translateY(-3px);
     box-shadow: var(--shadow-md);
 }
-
-.module-card:hover::before { opacity: 1; }
 
 [data-theme="cyberpunk"] .module-card:hover {
     box-shadow: 0 4px 20px rgba(255, 46, 151, 0.15);
@@ -2709,6 +2722,20 @@ code.language-zsh .hljs-meta {
     font-size: 11px; 
     color: var(--text-muted); 
     line-height: 1.5; 
+}
+
+.module-card .note-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
 }
 
 .welcome-screen .how-to-use {
@@ -2971,6 +2998,7 @@ code.language-zsh .hljs-meta {
     font-size: 12px;
     color: var(--text-muted);
     border-bottom: 1px solid var(--border-muted);
+    flex-wrap: wrap;
 }
 
 .note-meta-item {
@@ -2982,6 +3010,100 @@ code.language-zsh .hljs-meta {
 .note-meta-item .meta-icon {
     font-size: 13px;
     opacity: 0.7;
+}
+
+.note-meta-sep {
+    width: 1px;
+    height: 14px;
+    background: var(--border-default);
+    opacity: 0.5;
+}
+
+.note-position-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-subtle);
+    padding: 2px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.2px;
+    margin-left: auto;
+}
+
+/* Learning Path on Welcome Page */
+.learning-path {
+    margin: 32px 0 16px;
+    text-align: left;
+}
+
+.learning-path h3 {
+    font-size: 15px;
+    font-weight: 650;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.learning-path-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 12px 0 16px;
+}
+
+.learning-path-track::-webkit-scrollbar { height: 4px; }
+.learning-path-track::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
+
+.path-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    min-width: 68px;
+    transition: transform var(--transition-fast);
+}
+
+.path-node:hover { transform: translateY(-2px); }
+
+.path-node .path-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: var(--bg-surface);
+    border: 2px solid var(--border-default);
+    transition: all var(--transition-fast);
+}
+
+.path-node:hover .path-icon {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+.path-node .path-label {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.3;
+    max-width: 72px;
+}
+
+.path-connector {
+    width: 20px;
+    height: 2px;
+    background: var(--border-default);
+    flex-shrink: 0;
+    margin-top: -18px;
 }
 
 /* ========================================

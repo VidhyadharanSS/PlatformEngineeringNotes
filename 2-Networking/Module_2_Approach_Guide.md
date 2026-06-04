@@ -23,6 +23,8 @@ mindmap
 
 ## Who Is This Module For?
 
+Networking is like the postal system of computing — every packet is a letter with a source address, destination address, and contents. Understanding networking means understanding how letters get routed through post offices (routers), sorted into mailboxes (ports), and occasionally lost, delayed, or tampered with.
+
 Networking is the **invisible backbone** of every system you'll manage. Pods can't talk to each other, deployments fail silently, and services become unreachable — all because of networking. This module makes the invisible visible.
 
 **Target audience:**

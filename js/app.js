@@ -949,11 +949,35 @@ function scrollToTop() {
 function insertNoteMeta(md) {
     const words = md.trim().split(/\s+/).length;
     const readingTime = Math.max(1, Math.ceil(words / 200));
+    
+    // Calculate note position within module
+    let positionHTML = '';
+    if (currentNotePath && notesData) {
+        const paths = getAllNotePaths();
+        const currentIdx = paths.indexOf(currentNotePath);
+        // Find which module this note belongs to
+        for (const mod of notesData.modules) {
+            const modPaths = [];
+            if (mod.approachGuide) modPaths.push(mod.approachGuide);
+            mod.subchapters.forEach(sub => sub.files.forEach(f => modPaths.push(f.path)));
+            const posInMod = modPaths.indexOf(currentNotePath);
+            if (posInMod !== -1) {
+                const modName = mod.name.replace(/^\d+-/, '').replace(/-/g, ' ');
+                positionHTML = `
+                    <span class="note-meta-sep"></span>
+                    <span class="note-position-badge">📍 ${posInMod + 1} of ${modPaths.length} in ${modName}</span>
+                `;
+                break;
+            }
+        }
+    }
+    
     const meta = document.createElement('div');
     meta.className = 'note-meta';
     meta.innerHTML = `
         <span class="note-meta-item"><span class="meta-icon">⏱</span> ${readingTime} min read</span>
         <span class="note-meta-item"><span class="meta-icon">📝</span> ${words.toLocaleString()} words</span>
+        ${positionHTML}
     `;
     const h1 = el.content.querySelector('h1');
     if (h1 && h1.nextSibling) {
@@ -1383,17 +1407,47 @@ function getWelcomeHTML() {
         '11-Platform-Essentials': 'APIs, Auth, Webhooks, Observability, SLOs, Incident Response'
     };
     
+    // Calculate note counts per module
+    const noteCounts = {};
+    if (notesData) {
+        notesData.modules.forEach(mod => {
+            let count = mod.approachGuide ? 1 : 0;
+            mod.subchapters.forEach(sub => count += sub.files.length);
+            noteCounts[mod.name] = count;
+        });
+    }
+
+    // Build learning path nodes
+    const pathNodes = Object.entries(MODULE_ICONS).map(([key, icon], i, arr) => {
+        const name = key.replace(/^\d+-/, '').replace(/-/g, ' ');
+        const shortName = name.length > 10 ? name.split(/[\s&]/).slice(0, 2).join(' ') : name;
+        const connector = i < arr.length - 1 ? '<div class="path-connector"></div>' : '';
+        return `<div class="path-node" data-module="${key}">
+            <div class="path-icon">${icon}</div>
+            <span class="path-label">${shortName}</span>
+        </div>${connector}`;
+    }).join('');
+    
     return `
         <div class="welcome-screen">
             <h1>Platform Engineering Notes</h1>
             <p class="subtitle">Comprehensive study guide for DevOps and Platform Engineering</p>
+            
+            <div class="learning-path">
+                <h3>🗺️ Learning Path</h3>
+                <div class="learning-path-track">${pathNodes}</div>
+            </div>
+
             <div class="modules-grid">
                 ${Object.entries(MODULE_ICONS).map(([key, icon]) => {
                     const name = key.replace(/^\d+-/, '').replace(/-/g, ' ');
+                    const count = noteCounts[key] || '';
+                    const countBadge = count ? `<div class="note-count">📄 ${count} notes</div>` : '';
                     return `<div class="module-card" data-module="${key}">
                         <div class="icon">${icon}</div>
                         <div class="name">${name}</div>
                         <div class="topics">${topics[key] || ''}</div>
+                        ${countBadge}
                     </div>`;
                 }).join('')}
             </div>
@@ -1731,6 +1785,17 @@ function setupModuleCards() {
     document.querySelectorAll('.module-card').forEach(card => {
         card.onclick = () => {
             const mod = document.querySelector(`.nav-module[data-module="${card.dataset.module}"]`);
+            if (mod) {
+                mod.classList.add('expanded');
+                const first = mod.querySelector('.nav-item');
+                if (first) loadNote(first.dataset.path);
+            }
+        };
+    });
+    // Learning path nodes work the same as module cards
+    document.querySelectorAll('.path-node').forEach(node => {
+        node.onclick = () => {
+            const mod = document.querySelector(`.nav-module[data-module="${node.dataset.module}"]`);
             if (mod) {
                 mod.classList.add('expanded');
                 const first = mod.querySelector('.nav-item');

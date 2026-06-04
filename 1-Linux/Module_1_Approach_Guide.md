@@ -54,6 +54,8 @@ mindmap
 
 ## Who Is This Module For?
 
+Linux is like a building you're learning to operate as a superintendent — you need to know the electrical system (processes), the plumbing (networking), the filing room (filesystem), the key management office (users & permissions), and how to fix things when they break at 3am (troubleshooting).
+
 This is the **foundation module** of the entire course. Every DevOps/Platform Engineering tool sits on top of Linux. Whether you're debugging a crashed pod, tuning a CI runner, or setting up an Nginx reverse proxy — Linux knowledge is non-negotiable.
 
 **Target audience:**
