@@ -18,6 +18,9 @@ mindmap
       Security Scanning
       GitLab CI, Jenkins, Helm
       Complete Cheatsheet & Final Exam
+    8.4 Platform Delivery Interfaces
+      Webhooks Done Right
+      Supply Chain Security & OWASP
 ```
 
 ---
@@ -54,7 +57,8 @@ flowchart TD
     A[Start Module 8] --> B["8.1 — Concepts<br/>What, why, and how of CI/CD"]
     B --> C["8.2 — GitHub Actions<br/>Hands-on pipeline building"]
     C --> D["8.3 — Advanced<br/>Deployment strategies, security, multi-platform"]
-    D --> E[Module 8 Complete ✅]
+    D --> P["8.4 — Platform Delivery Interfaces<br/>webhooks, supply chain security"]
+    P --> E[Module 8 Complete ✅]
 
     style A fill:#4CAF50,color:#fff
     style E fill:#2196F3,color:#fff
@@ -77,7 +81,8 @@ flowchart TD
 | 8.1 Concepts & Strategy | 3 hrs | 1.5 hrs | **4.5 hrs** |
 | 8.2 GitHub Actions | 3 hrs | 4 hrs | **7 hrs** |
 | 8.3 Advanced CI/CD | 3.5 hrs | 4 hrs | **7.5 hrs** |
-| **Total** | **9.5 hrs** | **9.5 hrs** | **~19 hrs** |
+| 8.4 Webhooks & Supply Chain | 2 hrs | 2 hrs | **4 hrs** |
+| **Total** | **11.5 hrs** | **11.5 hrs** | **~23 hrs** |
 
 > **Realistic timeline:** 1.5–2 weeks at 2 hours/day.
 
@@ -107,6 +112,7 @@ By the end of Module 8, you should be able to:
 - [ ] Set up reusable workflows for organizational consistency
 - [ ] Explain blue-green, canary, and rolling deployment strategies
 - [ ] Add security scanning (SAST, SCA, container scanning) to pipelines
+- [ ] Validate webhooks safely and reason about supply chain security controls
 - [ ] Compare GitHub Actions, GitLab CI, and Jenkins and choose appropriately
 
 ---

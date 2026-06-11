@@ -9,42 +9,43 @@ mindmap
       Components & Control Plane
       Cluster Setup: kubeadm, Kind
       Cluster Upgrade Process
-    5.2 High Availability
-      Multi-Master HA
-      etcd Backup & Restore
-    5.3 Workloads
+    5.2 Workloads
       Pod Fundamentals & Lifecycle
       Native Sidecar Containers
       Deployments, StatefulSets, DaemonSets
       Scheduling, Taints, Affinity
       Pod Priority & Preemption
-    5.4 Networking
+    5.3 Networking
       Services: ClusterIP, NodePort, LB
       Ingress & Gateway API
       cert-manager TLS Automation
       Network Policies
       CoreDNS
-    5.5 Storage
+    5.4 Storage
       emptyDir, hostPath
       PV, PVC, StorageClasses
-    5.6 Configuration & Scaling
+    5.5 Configuration & Scaling
       ConfigMaps & Secrets
       HPA, VPA, Cluster Autoscaler
       KEDA Event-Driven Autoscaling
-    5.7 Packaging
+    5.6 Packaging
       Kustomize
       Helm Charts
-    5.8 Security
+    5.7 Security
       Authentication
       RBAC
       Admission Controllers
       CRDs & Operator Pattern
-    5.9 Operations
+    5.8 Operations
       Troubleshooting Control Plane
       Troubleshooting Pods
       Monitoring: Prometheus/Grafana
+      GPU Nodes & NVIDIA Device Plugin
       Dashboard & k9s
       kubectl Cheatsheet
+    5.9 High Availability & Disaster Recovery
+      Multi-Master HA
+      etcd Backup & Restore
     5.10 CKA Exam Prep
       50 Pattern Questions
       Exam-Day Cheatsheet
@@ -80,14 +81,15 @@ Kubernetes is the **operating system of the cloud**. This is the largest and mos
 
 ```mermaid
 flowchart TD
-    A[Start Module 5] --> B["5.1–5.2 — Architecture & HA<br/>Understand the cluster itself"]
-    B --> C["5.3 — Workloads<br/>Pods, Deployments, Scheduling"]
-    C --> D["5.4 — Networking<br/>Services, Ingress, DNS, Policies"]
-    D --> E["5.5–5.6 — Storage & Config<br/>PVs, ConfigMaps, Secrets, Autoscaling"]
-    E --> F["5.7 — Packaging<br/>Kustomize & Helm"]
-    F --> G["5.8 — Security<br/>Auth, RBAC, Admission"]
-    G --> H["5.9 — Operations<br/>Troubleshooting, Monitoring, kubectl mastery"]
-    H --> I[Module 5 Complete ✅]
+    A[Start Module 5] --> B["5.1 — Architecture & Setup<br/>Understand what a cluster is"]
+    B --> C["5.2 — Workloads<br/>Pods, Deployments, Scheduling"]
+    C --> D["5.3 — Networking<br/>Services, Ingress, DNS, Policies"]
+    D --> E["5.4–5.5 — Storage & Config<br/>PVs, ConfigMaps, Secrets, Autoscaling"]
+    E --> F["5.6 — Packaging<br/>Kustomize & Helm"]
+    F --> G["5.7 — Security<br/>Auth, RBAC, Admission"]
+    G --> H["5.8 — Operations<br/>Troubleshooting, Monitoring, GPU nodes"]
+    H --> HA["5.9 — HA & DR<br/>Multi-master, etcd backup, recovery"]
+    HA --> I[Module 5 Complete ✅]
 
     style A fill:#4CAF50,color:#fff
     style I fill:#2196F3,color:#fff
@@ -99,20 +101,20 @@ flowchart TD
 2. **Use a real cluster for every exercise** — Kind is free and takes 30 seconds to create.
 3. **Master `kubectl explain`** — It's the built-in documentation: `kubectl explain pod.spec.containers`.
 4. **Build YAML from scratch** — Never copy-paste from docs. Type it yourself.
-5. **Break things constantly** — Kill the API server, corrupt etcd, misconfigure RBAC. Learn to recover.
-6. **Subchapter 5.9 is the most valuable** — Troubleshooting skills separate juniors from seniors.
+5. **Break things constantly** — Start with pods, services, and RBAC before touching etcd recovery.
+6. **Subchapter 5.8 is the daily-ops center** — Troubleshooting skills separate juniors from seniors.
 
 ### Reading Order
 
 The subchapters are designed to be read in order, but you can group them into three phases:
 
-> **💡 First-time learner shortcut:** If HA and etcd backup (5.2) feel overwhelming on first read, skip to **5.3–5.6** where you deploy real workloads. Come back to 5.2 once you understand Pods, Services, and Storage — the HA concepts will make much more sense with that foundation.
+> **First-time learner path:** HA and etcd backup now come after daily Kubernetes operations. Do not rush into multi-master recovery until Pods, Services, Storage, RBAC, and troubleshooting feel familiar.
 
 | Phase | Subchapters | Focus |
 |---|---|---|
-| **Phase 1: Foundations** | 5.1, 5.2, 5.3 | "What is a cluster and how do workloads run?" |
-| **Phase 2: Services** | 5.4, 5.5, 5.6, 5.7 | "How do workloads communicate, persist data, and scale?" |
-| **Phase 3: Production** | 5.8, 5.9 | "How do I secure and operate a cluster?" |
+| **Phase 1: Foundations** | 5.1, 5.2 | "What is a cluster and how do workloads run?" |
+| **Phase 2: Application Platform** | 5.3, 5.4, 5.5, 5.6 | "How do workloads communicate, persist data, scale, and ship?" |
+| **Phase 3: Production Operations** | 5.7, 5.8, 5.9 | "How do I secure, operate, and recover a cluster?" |
 | **Phase 4: Exam Prep** | 5.10 | "Can I solve exam-style tasks in under 5 minutes?" |
 
 ---
@@ -122,14 +124,14 @@ The subchapters are designed to be read in order, but you can group them into th
 | Subchapter | Reading | Practice | Total |
 |---|---|---|---|
 | 5.1 Architecture | 2 hrs | 2 hrs | **4 hrs** |
-| 5.2 High Availability | 2 hrs | 2 hrs | **4 hrs** |
-| 5.3 Workloads | 3 hrs | 4 hrs | **7 hrs** |
-| 5.4 Networking | 3 hrs | 4 hrs | **7 hrs** |
-| 5.5 Storage | 2 hrs | 2 hrs | **4 hrs** |
-| 5.6 Config & Scaling | 2 hrs | 2 hrs | **4 hrs** |
-| 5.7 Packaging | 2.5 hrs | 3 hrs | **5.5 hrs** |
-| 5.8 Security | 2.5 hrs | 3 hrs | **5.5 hrs** |
-| 5.9 Operations + Final | 3 hrs | 5 hrs | **8 hrs** |
+| 5.2 Workloads | 3 hrs | 4 hrs | **7 hrs** |
+| 5.3 Networking | 3 hrs | 4 hrs | **7 hrs** |
+| 5.4 Storage | 2 hrs | 2 hrs | **4 hrs** |
+| 5.5 Config & Scaling | 2 hrs | 2 hrs | **4 hrs** |
+| 5.6 Packaging | 2.5 hrs | 3 hrs | **5.5 hrs** |
+| 5.7 Security | 2.5 hrs | 3 hrs | **5.5 hrs** |
+| 5.8 Operations + GPU Nodes | 3.5 hrs | 5 hrs | **8.5 hrs** |
+| 5.9 HA & Disaster Recovery | 2.5 hrs | 3 hrs | **5.5 hrs** |
 | 5.10 CKA Exam Prep (50 Qs) | 1 hr | 5 hrs | **6 hrs** |
 | **Total** | **23 hrs** | **32 hrs** | **~55 hrs** |
 
@@ -141,14 +143,14 @@ The subchapters are designed to be read in order, but you can group them into th
 
 | Lab | Covers | Difficulty |
 |---|---|---|
-| Deploy a 3-replica Nginx deployment with a NodePort service, test with curl | 5.3, 5.4 | ⭐⭐ |
-| Create a StatefulSet with persistent volumes for PostgreSQL | 5.3, 5.5 | ⭐⭐⭐ |
-| Set up Ingress with TLS termination using cert-manager | 5.4 | ⭐⭐⭐ |
-| Write a Network Policy that allows frontend→backend but blocks backend→frontend | 5.4 | ⭐⭐⭐ |
-| Back up etcd, delete a namespace, restore from backup | 5.2 | ⭐⭐⭐⭐ |
-| Build a Helm chart for a microservice with values for dev/staging/prod | 5.7 | ⭐⭐⭐⭐ |
-| Configure RBAC: developer role (read pods, exec), deployer role (apply manifests) | 5.8 | ⭐⭐⭐⭐ |
-| Troubleshoot: pod stuck in CrashLoopBackOff, ImagePullBackOff, Pending — find root cause | 5.9 | ⭐⭐⭐⭐⭐ |
+| Deploy a 3-replica Nginx deployment with a NodePort service, test with curl | 5.2, 5.3 | ⭐⭐ |
+| Create a StatefulSet with persistent volumes for PostgreSQL | 5.2, 5.4 | ⭐⭐⭐ |
+| Set up Ingress with TLS termination using cert-manager | 5.3 | ⭐⭐⭐ |
+| Write a Network Policy that allows frontend→backend but blocks backend→frontend | 5.3 | ⭐⭐⭐ |
+| Build a Helm chart for a microservice with values for dev/staging/prod | 5.6 | ⭐⭐⭐⭐ |
+| Configure RBAC: developer role (read pods, exec), deployer role (apply manifests) | 5.7 | ⭐⭐⭐⭐ |
+| Troubleshoot: pod stuck in CrashLoopBackOff, ImagePullBackOff, Pending — find root cause | 5.8 | ⭐⭐⭐⭐⭐ |
+| Back up etcd, delete a namespace, restore from backup | 5.9 | ⭐⭐⭐⭐⭐ |
 
 ---
 
@@ -165,6 +167,7 @@ By the end of Module 5, you should be able to:
 - [ ] Secure a cluster with RBAC and admission controllers
 - [ ] Troubleshoot any pod state (Pending, CrashLoopBackOff, ImagePullBackOff, OOMKilled)
 - [ ] Monitor clusters with Prometheus and Grafana
+- [ ] Explain when HA control planes and etcd backups matter, and restore a kubeadm cluster from a tested snapshot
 
 ---
 

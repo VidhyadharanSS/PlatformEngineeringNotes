@@ -18,6 +18,9 @@ mindmap
       Final Review & Exam
     10.3 Practice Lab
       20 Tasks revising Modules 5,6,8,10
+    10.4 Cloud and IaC
+      Cloud Primitives
+      Infrastructure as Code
 ```
 
 ---
@@ -40,7 +43,7 @@ GitOps is the **final piece of the DevOps puzzle**. It takes everything you've l
 | Module 5 (Kubernetes) completed | **Critical** | ArgoCD runs ON Kubernetes and deploys TO Kubernetes |
 | Module 6 (Git) completed | **Critical** | GitOps = Git as single source of truth |
 | Module 8 (CI/CD) completed | **Yes** | You must understand push-based CI/CD to appreciate pull-based GitOps |
-| Module 5.7 (Helm + Kustomize) completed | **Yes** | ArgoCD deploys Helm charts and Kustomize overlays |
+| Module 5.6 (Helm + Kustomize) completed | **Yes** | ArgoCD deploys Helm charts and Kustomize overlays |
 | A running Kubernetes cluster | **Yes** | Kind cluster works: `kind create cluster --name argocd-lab` |
 
 > ⚠️ **This is the capstone module.** If you haven't completed Modules 5, 6, and 8, go back. Module 10 assumes mastery of Kubernetes, Git, and CI/CD.
@@ -59,7 +62,8 @@ flowchart TD
     E --> F["10.2.2 — App of Apps & Multi-Cluster<br/>Scale GitOps to the organization"]
     F --> G["10.2.3 — Final Review & Exam<br/>Prove your mastery"]
     G --> P["10.3.1 — Practice Lab<br/>20 end-to-end tasks"]
-    P --> H[Module 10 Complete ✅<br/>Course Complete! 🎉]
+    P --> C4["10.4.1 — Cloud & IaC<br/>primitives behind GitOps platforms"]
+    C4 --> H[Module 10 Complete ✅<br/>Course Complete! 🎉]
 
     style A fill:#4CAF50,color:#fff
     style H fill:#FF9800,color:#fff
@@ -83,7 +87,8 @@ flowchart TD
 | 10.1 GitOps Foundations | 2 hrs | 2 hrs | **4 hrs** |
 | 10.2 ArgoCD in Practice | 3 hrs | 4 hrs | **7 hrs** |
 | 10.3 Practice Lab | — | 5 hrs | **5 hrs** |
-| **Total** | **6 hrs** | **11.5 hrs** | **~17.5 hrs** |
+| 10.4 Cloud & IaC | 2 hrs | 1.5 hrs | **3.5 hrs** |
+| **Total** | **8 hrs** | **13 hrs** | **~21 hrs** |
 
 > **Realistic timeline:** 1.5–2 weeks at 2 hours/day. The practice lab is the biggest time sink but is also where GitOps clicks.
 
@@ -114,6 +119,7 @@ By the end of Module 10, you should be able to:
 - [ ] Deploy Helm charts and Kustomize overlays through ArgoCD
 - [ ] Roll back deployments using Git history
 - [ ] Design a complete GitOps workflow for a team
+- [ ] Explain the cloud and IaC primitives that GitOps usually reconciles
 
 ---
 

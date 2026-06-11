@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-13T01:38:50",
+  "generated": "2026-06-11T08:36:20",
   "modules": [
     {
       "name": "1-Linux",
@@ -185,12 +185,8 @@
               "path": "1-Linux/Subchapter_1.9/1.9.2_Lsof_and_Sysdig_Basics.md"
             },
             {
-              "name": "1.9.3_Nvidia_GPU_Management.md",
-              "path": "1-Linux/Subchapter_1.9/1.9.3_Nvidia_GPU_Management.md"
-            },
-            {
-              "name": "1.9.4_Subchapter_Review.md",
-              "path": "1-Linux/Subchapter_1.9/1.9.4_Subchapter_Review.md"
+              "name": "1.9.3_Subchapter_Review.md",
+              "path": "1-Linux/Subchapter_1.9/1.9.3_Subchapter_Review.md"
             }
           ]
         },
@@ -286,6 +282,19 @@
             {
               "name": "2.4.3_Subchapter_Review.md",
               "path": "2-Networking/Subchapter_2.4/2.4.3_Subchapter_Review.md"
+            }
+          ]
+        },
+        {
+          "name": "Subchapter_2.5",
+          "files": [
+            {
+              "name": "2.5.1_HTTP_and_REST_API_Design.md",
+              "path": "2-Networking/Subchapter_2.5/2.5.1_HTTP_and_REST_API_Design.md"
+            },
+            {
+              "name": "2.5.2_DNS_TLS_and_Certificates_Deep_Dive.md",
+              "path": "2-Networking/Subchapter_2.5/2.5.2_DNS_TLS_and_Certificates_Deep_Dive.md"
             }
           ]
         }
@@ -452,16 +461,20 @@
           "name": "Subchapter_5.2",
           "files": [
             {
-              "name": "5.2.1_HA_Cluster_Architecture_Multi_Master.md",
-              "path": "5-Kubernetes/Subchapter_5.2/5.2.1_HA_Cluster_Architecture_Multi_Master.md"
+              "name": "5.2.1_Pod_Fundamentals_and_Lifecycle.md",
+              "path": "5-Kubernetes/Subchapter_5.2/5.2.1_Pod_Fundamentals_and_Lifecycle.md"
             },
             {
-              "name": "5.2.2_etcd_Backup_Restore_and_Disaster_Recovery.md",
-              "path": "5-Kubernetes/Subchapter_5.2/5.2.2_etcd_Backup_Restore_and_Disaster_Recovery.md"
+              "name": "5.2.2_Workload_Controllers_Deployments_StatefulSets_DaemonSets.md",
+              "path": "5-Kubernetes/Subchapter_5.2/5.2.2_Workload_Controllers_Deployments_StatefulSets_DaemonSets.md"
             },
             {
-              "name": "5.2.3_Subchapter_Review.md",
-              "path": "5-Kubernetes/Subchapter_5.2/5.2.3_Subchapter_Review.md"
+              "name": "5.2.3_Scheduling_Taints_Tolerations_Affinity.md",
+              "path": "5-Kubernetes/Subchapter_5.2/5.2.3_Scheduling_Taints_Tolerations_Affinity.md"
+            },
+            {
+              "name": "5.2.4_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.2/5.2.4_Subchapter_Review.md"
             }
           ]
         },
@@ -469,20 +482,24 @@
           "name": "Subchapter_5.3",
           "files": [
             {
-              "name": "5.3.1_Pod_Fundamentals_and_Lifecycle.md",
-              "path": "5-Kubernetes/Subchapter_5.3/5.3.1_Pod_Fundamentals_and_Lifecycle.md"
+              "name": "5.3.1_Services_ClusterIP_NodePort_LoadBalancer.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.1_Services_ClusterIP_NodePort_LoadBalancer.md"
             },
             {
-              "name": "5.3.2_Workload_Controllers_Deployments_StatefulSets_DaemonSets.md",
-              "path": "5-Kubernetes/Subchapter_5.3/5.3.2_Workload_Controllers_Deployments_StatefulSets_DaemonSets.md"
+              "name": "5.3.2_Ingress_Ingress_Controllers_and_Gateway_API.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.2_Ingress_Ingress_Controllers_and_Gateway_API.md"
             },
             {
-              "name": "5.3.3_Scheduling_Taints_Tolerations_Affinity.md",
-              "path": "5-Kubernetes/Subchapter_5.3/5.3.3_Scheduling_Taints_Tolerations_Affinity.md"
+              "name": "5.3.3_Network_Policies.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.3_Network_Policies.md"
             },
             {
-              "name": "5.3.4_Subchapter_Review.md",
-              "path": "5-Kubernetes/Subchapter_5.3/5.3.4_Subchapter_Review.md"
+              "name": "5.3.4_DNS_Basics_and_CoreDNS.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.4_DNS_Basics_and_CoreDNS.md"
+            },
+            {
+              "name": "5.3.5_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.3/5.3.5_Subchapter_Review.md"
             }
           ]
         },
@@ -490,24 +507,16 @@
           "name": "Subchapter_5.4",
           "files": [
             {
-              "name": "5.4.1_Services_ClusterIP_NodePort_LoadBalancer.md",
-              "path": "5-Kubernetes/Subchapter_5.4/5.4.1_Services_ClusterIP_NodePort_LoadBalancer.md"
+              "name": "5.4.1_Ephemeral_Volumes_emptydir_hostPath.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.1_Ephemeral_Volumes_emptydir_hostPath.md"
             },
             {
-              "name": "5.4.2_Ingress_Ingress_Controllers_and_Gateway_API.md",
-              "path": "5-Kubernetes/Subchapter_5.4/5.4.2_Ingress_Ingress_Controllers_and_Gateway_API.md"
+              "name": "5.4.2_PersistentVolumes_PersistentVolumeClaims_StorageClasses.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.2_PersistentVolumes_PersistentVolumeClaims_StorageClasses.md"
             },
             {
-              "name": "5.4.3_Network_Policies.md",
-              "path": "5-Kubernetes/Subchapter_5.4/5.4.3_Network_Policies.md"
-            },
-            {
-              "name": "5.4.4_DNS_Basics_and_CoreDNS.md",
-              "path": "5-Kubernetes/Subchapter_5.4/5.4.4_DNS_Basics_and_CoreDNS.md"
-            },
-            {
-              "name": "5.4.5_Subchapter_Review.md",
-              "path": "5-Kubernetes/Subchapter_5.4/5.4.5_Subchapter_Review.md"
+              "name": "5.4.3_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.4/5.4.3_Subchapter_Review.md"
             }
           ]
         },
@@ -515,12 +524,12 @@
           "name": "Subchapter_5.5",
           "files": [
             {
-              "name": "5.5.1_Ephemeral_Volumes_emptydir_hostPath.md",
-              "path": "5-Kubernetes/Subchapter_5.5/5.5.1_Ephemeral_Volumes_emptydir_hostPath.md"
+              "name": "5.5.1_ConfigMaps_and_Secrets.md",
+              "path": "5-Kubernetes/Subchapter_5.5/5.5.1_ConfigMaps_and_Secrets.md"
             },
             {
-              "name": "5.5.2_PersistentVolumes_PersistentVolumeClaims_StorageClasses.md",
-              "path": "5-Kubernetes/Subchapter_5.5/5.5.2_PersistentVolumes_PersistentVolumeClaims_StorageClasses.md"
+              "name": "5.5.2_Autoscaling_HPA_VPA_Cluster_Autoscaler.md",
+              "path": "5-Kubernetes/Subchapter_5.5/5.5.2_Autoscaling_HPA_VPA_Cluster_Autoscaler.md"
             },
             {
               "name": "5.5.3_Subchapter_Review.md",
@@ -532,12 +541,12 @@
           "name": "Subchapter_5.6",
           "files": [
             {
-              "name": "5.6.1_ConfigMaps_and_Secrets.md",
-              "path": "5-Kubernetes/Subchapter_5.6/5.6.1_ConfigMaps_and_Secrets.md"
+              "name": "5.6.1_Kustomize_Basics_Overlays_and_Patches.md",
+              "path": "5-Kubernetes/Subchapter_5.6/5.6.1_Kustomize_Basics_Overlays_and_Patches.md"
             },
             {
-              "name": "5.6.2_Autoscaling_HPA_VPA_Cluster_Autoscaler.md",
-              "path": "5-Kubernetes/Subchapter_5.6/5.6.2_Autoscaling_HPA_VPA_Cluster_Autoscaler.md"
+              "name": "5.6.2_Helm_Charts_Values_Templates_Releases.md",
+              "path": "5-Kubernetes/Subchapter_5.6/5.6.2_Helm_Charts_Values_Templates_Releases.md"
             },
             {
               "name": "5.6.3_Subchapter_Review.md",
@@ -549,16 +558,28 @@
           "name": "Subchapter_5.7",
           "files": [
             {
-              "name": "5.7.1_Kustomize_Basics_Overlays_and_Patches.md",
-              "path": "5-Kubernetes/Subchapter_5.7/5.7.1_Kustomize_Basics_Overlays_and_Patches.md"
+              "name": "5.7.1_Authentication_Methods.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.1_Authentication_Methods.md"
             },
             {
-              "name": "5.7.2_Helm_Charts_Values_Templates_Releases.md",
-              "path": "5-Kubernetes/Subchapter_5.7/5.7.2_Helm_Charts_Values_Templates_Releases.md"
+              "name": "5.7.2_RBAC_Deep_Dive.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.2_RBAC_Deep_Dive.md"
             },
             {
-              "name": "5.7.3_Subchapter_Review.md",
-              "path": "5-Kubernetes/Subchapter_5.7/5.7.3_Subchapter_Review.md"
+              "name": "5.7.3_Admission_Controllers.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.3_Admission_Controllers.md"
+            },
+            {
+              "name": "5.7.4_Authentication_and_Authorization_for_Platforms.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.4_Authentication_and_Authorization_for_Platforms.md"
+            },
+            {
+              "name": "5.7.5_Secrets_Management_Deep_Dive.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.5_Secrets_Management_Deep_Dive.md"
+            },
+            {
+              "name": "5.7.6_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.7/5.7.6_Subchapter_Review.md"
             }
           ]
         },
@@ -566,20 +587,44 @@
           "name": "Subchapter_5.8",
           "files": [
             {
-              "name": "5.8.1_Authentication_Methods.md",
-              "path": "5-Kubernetes/Subchapter_5.8/5.8.1_Authentication_Methods.md"
+              "name": "5.8.1_Troubleshooting_Control_Plane.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.1_Troubleshooting_Control_Plane.md"
             },
             {
-              "name": "5.8.2_RBAC_Deep_Dive.md",
-              "path": "5-Kubernetes/Subchapter_5.8/5.8.2_RBAC_Deep_Dive.md"
+              "name": "5.8.2_Troubleshooting_Compute_Plane_and_Pods.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.2_Troubleshooting_Compute_Plane_and_Pods.md"
             },
             {
-              "name": "5.8.3_Admission_Controllers.md",
-              "path": "5-Kubernetes/Subchapter_5.8/5.8.3_Admission_Controllers.md"
+              "name": "5.8.3_Monitoring_Prometheus_Grafana_and_Logging.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.3_Monitoring_Prometheus_Grafana_and_Logging.md"
             },
             {
-              "name": "5.8.4_Subchapter_Review.md",
-              "path": "5-Kubernetes/Subchapter_5.8/5.8.4_Subchapter_Review.md"
+              "name": "5.8.4_Dashboard_Tools_and_k9s_Cheatsheet.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.4_Dashboard_Tools_and_k9s_Cheatsheet.md"
+            },
+            {
+              "name": "5.8.5_kubectl_Cheatsheet_and_JSONPath.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.5_kubectl_Cheatsheet_and_JSONPath.md"
+            },
+            {
+              "name": "5.8.6_GPU_Nodes_NVIDIA_Device_Plugin_and_Operations.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.6_GPU_Nodes_NVIDIA_Device_Plugin_and_Operations.md"
+            },
+            {
+              "name": "5.8.7_Three_Pillars_Metrics_Logs_Traces.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.7_Three_Pillars_Metrics_Logs_Traces.md"
+            },
+            {
+              "name": "5.8.8_SLIs_SLOs_and_Alerting_Philosophy.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.8_SLIs_SLOs_and_Alerting_Philosophy.md"
+            },
+            {
+              "name": "5.8.9_Incident_Response_and_On_Call.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.9_Incident_Response_and_On_Call.md"
+            },
+            {
+              "name": "5.8.10_Subchapter_Review_Plus_Final_Exam.md",
+              "path": "5-Kubernetes/Subchapter_5.8/5.8.10_Subchapter_Review_Plus_Final_Exam.md"
             }
           ]
         },
@@ -587,28 +632,16 @@
           "name": "Subchapter_5.9",
           "files": [
             {
-              "name": "5.9.1_Troubleshooting_Control_Plane.md",
-              "path": "5-Kubernetes/Subchapter_5.9/5.9.1_Troubleshooting_Control_Plane.md"
+              "name": "5.9.1_HA_Cluster_Architecture_Multi_Master.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.1_HA_Cluster_Architecture_Multi_Master.md"
             },
             {
-              "name": "5.9.2_Troubleshooting_Compute_Plane_and_Pods.md",
-              "path": "5-Kubernetes/Subchapter_5.9/5.9.2_Troubleshooting_Compute_Plane_and_Pods.md"
+              "name": "5.9.2_etcd_Backup_Restore_and_Disaster_Recovery.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.2_etcd_Backup_Restore_and_Disaster_Recovery.md"
             },
             {
-              "name": "5.9.3_Monitoring_Prometheus_Grafana_and_Logging.md",
-              "path": "5-Kubernetes/Subchapter_5.9/5.9.3_Monitoring_Prometheus_Grafana_and_Logging.md"
-            },
-            {
-              "name": "5.9.4_Dashboard_Tools_and_k9s_Cheatsheet.md",
-              "path": "5-Kubernetes/Subchapter_5.9/5.9.4_Dashboard_Tools_and_k9s_Cheatsheet.md"
-            },
-            {
-              "name": "5.9.5_kubectl_Cheatsheet_and_JSONPath.md",
-              "path": "5-Kubernetes/Subchapter_5.9/5.9.5_kubectl_Cheatsheet_and_JSONPath.md"
-            },
-            {
-              "name": "5.9.6_Subchapter_Review_Plus_Final_Exam.md",
-              "path": "5-Kubernetes/Subchapter_5.9/5.9.6_Subchapter_Review_Plus_Final_Exam.md"
+              "name": "5.9.3_Subchapter_Review.md",
+              "path": "5-Kubernetes/Subchapter_5.9/5.9.3_Subchapter_Review.md"
             }
           ]
         },
@@ -835,6 +868,19 @@
               "path": "8-CICD/Subchapter_8.3/8.3.5_Subchapter_Review_Plus_Final_Exam.md"
             }
           ]
+        },
+        {
+          "name": "Subchapter_8.4",
+          "files": [
+            {
+              "name": "8.4.1_Webhooks_Done_Right.md",
+              "path": "8-CICD/Subchapter_8.4/8.4.1_Webhooks_Done_Right.md"
+            },
+            {
+              "name": "8.4.2_Supply_Chain_Security_and_OWASP.md",
+              "path": "8-CICD/Subchapter_8.4/8.4.2_Supply_Chain_Security_and_OWASP.md"
+            }
+          ]
         }
       ]
     },
@@ -943,6 +989,23 @@
               "path": "9-Python/Subchapter_9.5/9.5.1_Practice_Lab_20_Tasks.md"
             }
           ]
+        },
+        {
+          "name": "Subchapter_9.6",
+          "files": [
+            {
+              "name": "9.6.1_Databases_for_Platform_Engineers.md",
+              "path": "9-Python/Subchapter_9.6/9.6.1_Databases_for_Platform_Engineers.md"
+            },
+            {
+              "name": "9.6.2_Message_Queues_and_Async_Patterns.md",
+              "path": "9-Python/Subchapter_9.6/9.6.2_Message_Queues_and_Async_Patterns.md"
+            },
+            {
+              "name": "9.6.3_Data_Formats_and_Serialization.md",
+              "path": "9-Python/Subchapter_9.6/9.6.3_Data_Formats_and_Serialization.md"
+            }
+          ]
         }
       ]
     },
@@ -1001,92 +1064,13 @@
               "path": "10-GitOps-ArgoCD/Subchapter_10.3/10.3.1_Practice_Lab_20_Tasks.md"
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "11-Platform-Essentials",
-      "approachGuide": "11-Platform-Essentials/Module_11_Approach_Guide.md",
-      "subchapters": [
-        {
-          "name": "Subchapter_11.1",
-          "files": [
-            {
-              "name": "11.1.1_HTTP_and_REST_API_Design.md",
-              "path": "11-Platform-Essentials/Subchapter_11.1/11.1.1_HTTP_and_REST_API_Design.md"
-            },
-            {
-              "name": "11.1.2_Authentication_and_Authorization.md",
-              "path": "11-Platform-Essentials/Subchapter_11.1/11.1.2_Authentication_and_Authorization.md"
-            },
-            {
-              "name": "11.1.3_Webhooks_Done_Right.md",
-              "path": "11-Platform-Essentials/Subchapter_11.1/11.1.3_Webhooks_Done_Right.md"
-            }
-          ]
         },
         {
-          "name": "Subchapter_11.2",
+          "name": "Subchapter_10.4",
           "files": [
             {
-              "name": "11.2.1_Secrets_Management_Deep_Dive.md",
-              "path": "11-Platform-Essentials/Subchapter_11.2/11.2.1_Secrets_Management_Deep_Dive.md"
-            },
-            {
-              "name": "11.2.2_Supply_Chain_Security_and_OWASP.md",
-              "path": "11-Platform-Essentials/Subchapter_11.2/11.2.2_Supply_Chain_Security_and_OWASP.md"
-            }
-          ]
-        },
-        {
-          "name": "Subchapter_11.3",
-          "files": [
-            {
-              "name": "11.3.1_Three_Pillars_Metrics_Logs_Traces.md",
-              "path": "11-Platform-Essentials/Subchapter_11.3/11.3.1_Three_Pillars_Metrics_Logs_Traces.md"
-            },
-            {
-              "name": "11.3.2_SLIs_SLOs_and_Alerting_Philosophy.md",
-              "path": "11-Platform-Essentials/Subchapter_11.3/11.3.2_SLIs_SLOs_and_Alerting_Philosophy.md"
-            }
-          ]
-        },
-        {
-          "name": "Subchapter_11.4",
-          "files": [
-            {
-              "name": "11.4.1_Databases_for_Platform_Engineers.md",
-              "path": "11-Platform-Essentials/Subchapter_11.4/11.4.1_Databases_for_Platform_Engineers.md"
-            },
-            {
-              "name": "11.4.2_Message_Queues_and_Async_Patterns.md",
-              "path": "11-Platform-Essentials/Subchapter_11.4/11.4.2_Message_Queues_and_Async_Patterns.md"
-            }
-          ]
-        },
-        {
-          "name": "Subchapter_11.5",
-          "files": [
-            {
-              "name": "11.5.1_Cloud_Primitives_and_IaC.md",
-              "path": "11-Platform-Essentials/Subchapter_11.5/11.5.1_Cloud_Primitives_and_IaC.md"
-            },
-            {
-              "name": "11.5.2_DNS_TLS_and_Certificates_Deep_Dive.md",
-              "path": "11-Platform-Essentials/Subchapter_11.5/11.5.2_DNS_TLS_and_Certificates_Deep_Dive.md"
-            }
-          ]
-        },
-        {
-          "name": "Subchapter_11.6",
-          "files": [
-            {
-              "name": "11.6.1_Data_Formats_and_Serialization.md",
-              "path": "11-Platform-Essentials/Subchapter_11.6/11.6.1_Data_Formats_and_Serialization.md"
-            },
-            {
-              "name": "11.6.2_Incident_Response_and_On_Call.md",
-              "path": "11-Platform-Essentials/Subchapter_11.6/11.6.2_Incident_Response_and_On_Call.md"
+              "name": "10.4.1_Cloud_Primitives_and_IaC.md",
+              "path": "10-GitOps-ArgoCD/Subchapter_10.4/10.4.1_Cloud_Primitives_and_IaC.md"
             }
           ]
         }

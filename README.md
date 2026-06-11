@@ -1,6 +1,6 @@
 # Platform Engineering Notes
 
-A comprehensive, browser-based study guide for Platform Engineering and DevOps. Covers Linux, Networking, Shell scripting, Docker, Kubernetes, Git, Nginx, CI/CD, Python, GitOps with ArgoCD, and the Platform Engineer Essentials capstone (APIs, auth, observability, SLOs, databases, queues, cloud, DNS/TLS, incident response).
+A comprehensive, browser-based study guide for Platform Engineering and DevOps. Covers Linux, Networking, Shell scripting, Docker, Kubernetes, Git, Nginx, CI/CD, Python, and GitOps with ArgoCD. Platform essentials such as APIs, auth, observability, SLOs, databases, queues, cloud, DNS/TLS, and incident response are now folded into the related core modules.
 
 ## Live Website
 
@@ -8,7 +8,7 @@ Read the notes online: <https://vidhyadharanss.github.io/PlatformEngineeringNote
 
 ## What's Included
 
-- **11 modules** covering the full Platform Engineering stack
+- **10 modules** covering the full Platform Engineering stack
 - **185+ detailed notes** with runnable code, configs, and explanations
 - **376+ Mermaid diagrams**, all machine-verified for syntax safety
 - **Full-text search** across every note (`Ctrl+K`)
@@ -25,16 +25,15 @@ Read the notes online: <https://vidhyadharanss.github.io/PlatformEngineeringNote
 | # | Module | Topics |
 |---|--------|--------|
 | 1 | Linux | Filesystem hierarchy, permissions, SSH, storage, systemd, packages, troubleshooting |
-| 2 | Networking | OSI / TCP-IP, subnetting, DNS, firewalls, HTTP, load balancing |
+| 2 | Networking | OSI / TCP-IP, subnetting, DNS, firewalls, HTTP, REST, TLS, load balancing |
 | 3 | Shell Scripting | Bash fundamentals, arrays, error handling, regex, 20-task practice lab |
 | 4 | Docker | Containers, images, networking, volumes, Compose |
-| 5 | Kubernetes | Architecture, pods, services, ingress, RBAC, Helm, CKA exam prep (50 questions) |
+| 5 | Kubernetes | Architecture, workloads, services, ingress, RBAC, observability, GPU nodes, HA, etcd backup, CKA prep |
 | 6 | Git | Internals, branching, rebasing, hooks, recovery |
 | 7 | Nginx | Reverse proxy, load balancing, SSL, rate limiting |
-| 8 | CI/CD | Pipelines, GitHub Actions, security scanning, deployment strategies |
-| 9 | Python | Subprocess, APIs, logging, testing, production patterns |
-| 10 | GitOps and ArgoCD | GitOps principles, ArgoCD, sync policies, multi-cluster, 20-task practice lab |
-| 11 | Platform Essentials | APIs and webhooks, auth (JWT / OAuth2 / mTLS), secrets, OWASP, observability, SLOs, databases, queues, cloud and IaC, DNS / TLS, data formats, incident response |
+| 8 | CI/CD | Pipelines, GitHub Actions, webhooks, security scanning, supply chain security, deployment strategies |
+| 9 | Python | Subprocess, APIs, logging, testing, databases, queues, data formats, production patterns |
+| 10 | GitOps and ArgoCD | GitOps principles, ArgoCD, sync policies, multi-cluster, cloud primitives, IaC, 20-task practice lab |
 
 ## Keyboard Shortcuts
 
@@ -86,7 +85,7 @@ Then open <http://localhost:8000>.
 │       ├── 1.1.1_Kernel_OS_and_Distros.md
 │       └── ...
 ├── 2-Networking/
-└── ...                     # 11 module folders total
+└── ...                     # 10 module folders total
 ```
 
 ## Developer Tooling

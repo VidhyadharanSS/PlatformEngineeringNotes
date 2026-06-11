@@ -29,6 +29,10 @@ mindmap
       Cheatsheet & Grand Final
     9.5 Practice Lab
       20 Tasks revising Modules 1-3 + 9
+    9.6 Platform Data Patterns
+      Databases
+      Queues and Async Patterns
+      Data Formats and Serialization
 ```
 
 ---
@@ -66,7 +70,8 @@ flowchart TD
     C --> D["9.3 — HTTP & APIs<br/>requests, logging, webhooks, OAuth2"]
     D --> E["9.4 — Testing & Production<br/>pytest, dataclasses, production patterns"]
     E --> P["9.5 — Practice Lab<br/>20 revision tasks"]
-    P --> F[Module 9 Complete ✅]
+    P --> D2["9.6 — Platform Data Patterns<br/>databases, queues, serialization"]
+    D2 --> F[Module 9 Complete ✅]
 
     style A fill:#4CAF50,color:#fff
     style F fill:#2196F3,color:#fff
@@ -112,7 +117,8 @@ flowchart TD
 | 9.3 HTTP & APIs | 3 hrs | 3.5 hrs | **6.5 hrs** |
 | 9.4 Testing & Production | 3 hrs | 4 hrs | **7 hrs** |
 | 9.5 Practice Lab | — | 4 hrs | **4 hrs** |
-| **Total** | **12.5 hrs** | **18 hrs** | **~30 hrs** |
+| 9.6 Platform Data Patterns | 3 hrs | 2 hrs | **5 hrs** |
+| **Total** | **15.5 hrs** | **20 hrs** | **~35.5 hrs** |
 
 > **Realistic timeline:** 3 weeks at 2 hours/day. If you already know Python basics, skim 9.0 and 9.1 — jump straight to 9.2.
 
@@ -142,6 +148,7 @@ By the end of Module 9, you should be able to:
 - [ ] Make HTTP requests with `requests.Session()`, handle pagination, implement retries
 - [ ] Set up structured logging with `logging.getLogger(__name__)`
 - [ ] Write pytest tests with fixtures, parametrize, and mocking
+- [ ] Choose sensible database, queue, and serialization patterns for platform tools
 - [ ] Use dataclasses, `lru_cache`, and context managers in production code
 - [ ] Know when to use Python vs bash for any given task
 

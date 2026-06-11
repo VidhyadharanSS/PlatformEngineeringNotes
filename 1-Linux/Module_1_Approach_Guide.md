@@ -31,7 +31,6 @@ mindmap
       Systemd Deep Dive
       Cron & Scheduling
     1.7 Package Management
-      RPM & YUM/DNF
       DPKG & APT
       Compiling from Source
     1.8 Text Processing
@@ -41,9 +40,6 @@ mindmap
     1.9 Advanced Tools
       Screen & Tmux
       Lsof & Sysdig
-      Nvidia GPU Management
-      GPU in Containers & K8s
-      MIG & Time-Slicing
     1.10 Troubleshooting
       Boot Process & Recovery
       Disk Full & Inode Exhaustion
@@ -69,7 +65,7 @@ This is the **foundation module** of the entire course. Every DevOps/Platform En
 
 | Prerequisite | Required? | Notes |
 |---|---|---|
-| Access to a Linux machine (VM, WSL2, cloud instance) | **Yes** | Ubuntu 22.04+ or RHEL 9+ recommended |
+| Access to a Linux machine (VM, WSL2, cloud instance) | **Yes** | Ubuntu 22.04+ recommended |
 | Basic keyboard/terminal familiarity | **Yes** | You should be able to open a terminal |
 | Programming experience | No | Helpful but not required |
 | Networking knowledge | No | Covered in Module 2 |
@@ -88,9 +84,9 @@ flowchart TD
     D --> E["1.4 — SSH<br/>Remote access mastery"]
     E --> F["1.5 — Storage<br/>Disks, partitions, LVM"]
     F --> G["1.6 — Processes & Services<br/>systemd, cron, signals"]
-    G --> H["1.7 — Package Management<br/>Install anything on any distro"]
+    G --> H["1.7 — Package Management<br/>Ubuntu apt first, other package systems when needed"]
     H --> I["1.8 — Text Processing<br/>grep, sed, awk, vim"]
-    I --> J["1.9 — Advanced Tools<br/>tmux, lsof, GPU management"]
+    I --> J["1.9 — Advanced Tools<br/>tmux, lsof, sysdig, strace"]
     J --> K["1.10 — Troubleshooting<br/>Real-world break/fix scenarios"]
     K --> L[Module 1 Complete ✅]
 

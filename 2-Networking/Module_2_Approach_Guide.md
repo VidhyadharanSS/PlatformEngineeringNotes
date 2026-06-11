@@ -17,6 +17,9 @@ mindmap
     2.4 Application Layer
       HTTP, HTTPS, curl, wget
       Load Balancing L4 vs L7
+    2.5 Platform Protocols
+      REST API Design
+      DNS, TLS, Certificates
 ```
 
 ---
@@ -52,7 +55,8 @@ flowchart TD
     B --> C["2.2 — DNS & Tools<br/>Understand HOW names resolve"]
     C --> D["2.3 — Packet Capture & Firewalls<br/>See and control traffic"]
     D --> E["2.4 — HTTP & Load Balancing<br/>Application-layer mastery"]
-    E --> F[Module 2 Complete ✅]
+    E --> P["2.5 — Platform Protocols<br/>REST, DNS, TLS, certificates"]
+    P --> F[Module 2 Complete ✅]
 
     style A fill:#4CAF50,color:#fff
     style F fill:#2196F3,color:#fff
@@ -76,7 +80,8 @@ flowchart TD
 | 2.2 DNS & Tools | 2 hrs | 2 hrs | **4 hrs** |
 | 2.3 Packet Capture & Firewalls | 2 hrs | 3 hrs | **5 hrs** |
 | 2.4 HTTP & Load Balancing | 2 hrs | 2 hrs | **4 hrs** |
-| **Total** | **8 hrs** | **9 hrs** | **~17 hrs** |
+| 2.5 Platform Protocols | 2 hrs | 2 hrs | **4 hrs** |
+| **Total** | **10 hrs** | **11 hrs** | **~21 hrs** |
 
 > **Realistic timeline:** 1–1.5 weeks at 2–3 hours/day.
 
@@ -104,6 +109,7 @@ By the end of Module 2, you should be able to:
 - [ ] Use `tcpdump` to capture and filter specific traffic patterns
 - [ ] Write iptables/nftables rules for a production firewall
 - [ ] Explain the difference between L4 and L7 load balancing with examples
+- [ ] Design REST APIs and reason about DNS/TLS certificate failures
 - [ ] Debug a "connection refused" vs "connection timed out" vs "name resolution failed"
 
 ---
